@@ -1,9 +1,9 @@
 # https://adventofcode.com/2019/day/4
 
-from itertools import combinations_with_replacement
 from collections import Counter
+from itertools import combinations_with_replacement
 from operator import eq, gt
-from typing import Iterable, Callable
+from typing import Callable, Iterable
 
 # Puzzle input
 MINIMUM, MAXIMUM = 178416, 676461
@@ -11,7 +11,7 @@ MINIMUM, MAXIMUM = 178416, 676461
 
 # Helper function to check whether the number is in input range
 def input_range_check(digit_list: Iterable[int]) -> bool:
-    number = int(''.join(map(str, digit_list)))
+    number = int("".join(map(str, digit_list)))
     return MINIMUM < number < MAXIMUM
 
 
@@ -19,8 +19,9 @@ def input_range_check(digit_list: Iterable[int]) -> bool:
 # A six digit number
 # Digits are either increasing or repeating but never decreasing
 # Number lies within the puzzle input range
-POSSIBLE_COMBINATIONS = list(filter(input_range_check,
-                                    combinations_with_replacement(range(1, 10), 6)))
+POSSIBLE_COMBINATIONS = list(
+    filter(input_range_check, combinations_with_replacement(range(1, 10), 6))
+)
 
 
 # The only difference between the first part and the second part of the puzzle

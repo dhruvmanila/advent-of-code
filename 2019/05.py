@@ -1,19 +1,19 @@
 # https://adventofcode.com/2019/day/5
 
-from operator import add, mul, setitem, getitem, lt, eq, truth, not_
+from operator import add, eq, getitem, lt, mul, not_, setitem, truth
 from typing import MutableSequence, Tuple
 
 INTCODE_PROGRAM = []
 
 with open("input/05.txt") as inp:
-    data = inp.readline().strip().split(',')
+    data = inp.readline().strip().split(",")
     INTCODE_PROGRAM.extend(list(map(int, data)))
     del data
 
 OPCODE = {
     1: add,
     2: mul,
-    3: lambda program, index: setitem(program, index, int(input('System ID: '))),
+    3: lambda program, index: setitem(program, index, int(input("System ID: "))),
     4: lambda _, value: print(value),
     5: truth,
     6: not_,
@@ -22,13 +22,14 @@ OPCODE = {
 }
 
 PARAM_MODE = {
-    0: getitem,                # position mode
-    1: lambda _, value: value  # immediate mode
+    0: getitem,  # position mode
+    1: lambda _, value: value,  # immediate mode
 }
 
 
-def param_val_and_mode(program: MutableSequence[int], pointer: int,
-                       parameters_qty: int) -> Tuple[int, ...]:
+def param_val_and_mode(
+    program: MutableSequence[int], pointer: int, parameters_qty: int
+) -> Tuple[int, ...]:
     """
     Helper function for executing Intcode program.
     Takes in the program code, current position of the pointer and
@@ -36,7 +37,7 @@ def param_val_and_mode(program: MutableSequence[int], pointer: int,
     Returns all the parameters and its mode in the order: (*params, *param_modes)
     """
     instruction = str(program[pointer]).zfill(parameters_qty + 2)
-    parameters = program[pointer + 1: pointer + (parameters_qty + 1)]
+    parameters = program[pointer + 1 : pointer + (parameters_qty + 1)]
     parameters_mode = map(int, instruction[-3::-1])
     return *parameters, *parameters_mode
 
@@ -54,7 +55,9 @@ def execute_intcode(intcode_program: MutableSequence[int]) -> None:
 
         # Arithmetic and comparison
         if code in {1, 2, 7, 8}:
-            p1, p2, p3, p1_mode, p2_mode, p3_mode = param_val_and_mode(program, pointer, 3)
+            p1, p2, p3, p1_mode, p2_mode, p3_mode = param_val_and_mode(
+                program, pointer, 3
+            )
             value1 = PARAM_MODE[p1_mode](program, p1)
             value2 = PARAM_MODE[p2_mode](program, p2)
             # Comparison gives us True or False, so use int to convert it to

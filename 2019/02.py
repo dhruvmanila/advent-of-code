@@ -5,7 +5,7 @@ from operator import add, mul
 INTCODE_PROGRAM = []
 
 with open("input/02.txt") as inp:
-    data = inp.readline().strip().split(',')
+    data = inp.readline().strip().split(",")
     INTCODE_PROGRAM.extend(list(map(int, data)))
 
 OPCODE = {
@@ -18,7 +18,7 @@ def intcode_computer(val1=12, val2=2):
     program = INTCODE_PROGRAM[:]
     program[1], program[2] = val1, val2
     for index in range(0, len(program), 4):
-        code, inp1_add, inp2_add, outadd = program[index:index + 4]
+        code, inp1_add, inp2_add, outadd = program[index : index + 4]
         if code == 99:
             break
         program[outadd] = OPCODE[code](program[inp1_add], program[inp2_add])

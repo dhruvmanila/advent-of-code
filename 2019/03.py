@@ -3,14 +3,15 @@
 # I tried using sympy but that was way too slow and then I found this library
 # which is based on GEOS which I have no idea what it is but it's really fast.
 # One of the core reason is that shapely is in C while sympy is pure python.
-from shapely.geometry import LineString, Point
 from typing import Iterable, List, Tuple
+
+from shapely.geometry import LineString, Point
 
 WIRES_PATH = []
 
-with open('input/03.txt') as inp:
+with open("input/03.txt") as inp:
     for line in inp:
-        WIRES_PATH.append(line.strip().split(','))
+        WIRES_PATH.append(line.strip().split(","))
 
 
 # Helper function to generate the segments between points
@@ -21,11 +22,11 @@ def make_segments(wire_path: Iterable[str]) -> List[LineString]:
     segments = []
     for path in wire_path:
         shift = int(path[1:])
-        if 'R' in path:
+        if "R" in path:
             end = start[0] + shift, start[1]
-        elif 'L' in path:
+        elif "L" in path:
             end = start[0] - shift, start[1]
-        elif 'U' in path:
+        elif "U" in path:
             end = start[0], start[1] + shift
         else:
             end = start[0], start[1] - shift
@@ -43,7 +44,7 @@ del WIRES_PATH  # declutter globals
 # ------------------ FIRST HALF OF THE PUZZLE --------------------
 def closest_distance() -> Tuple[int, Point, List[Point]]:
     # starting value 'inf' as we have to find the minimum distance
-    min_distance = float('INF')
+    min_distance = float("INF")
     min_intersection_pt = None
     intersection_points = []  # for second part of the puzzle
     # loop over all the possible combinations from first wire segments and
@@ -60,7 +61,11 @@ def closest_distance() -> Tuple[int, Point, List[Point]]:
                 if taxicab_dist < min_distance and taxicab_dist:
                     min_distance = taxicab_dist
                     min_intersection_pt = int_pt
-    return int(min_distance), min_intersection_pt, intersection_points[1:]  # first point is (0, 0)
+    return (
+        int(min_distance),
+        min_intersection_pt,
+        intersection_points[1:],
+    )  # first point is (0, 0)
 
 
 distance, closest_pt, intersection_pts = closest_distance()
@@ -70,7 +75,7 @@ print("Closest intersection point:", closest_pt)
 
 # --------------------- SECOND HALF OF THE PUZZLE ----------------------
 def min_step_count() -> Tuple[int, Point]:
-    min_steps = float('INF')
+    min_steps = float("INF")
     min_intersection = None
     # loop through all the intersection points
     for point in intersection_pts:
