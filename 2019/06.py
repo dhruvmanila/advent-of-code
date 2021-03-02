@@ -31,56 +31,54 @@ def parse_map_data():
     return parent_to_child, child_to_parent
 
 
+PARENT_TO_CHILD, CHILD_TO_PARENT = parse_map_data()
+
+
 def count_orbits() -> int:
-    parsed_data, _ = parse_map_data()
     cache: dict[str, int] = {}
 
     def loop(object_id: str) -> int:
         if object_id in cache:
             return cache[object_id]
         count = 0
-        for orbiter_orbit in parsed_data.get(object_id, []):
+        for orbiter_orbit in PARENT_TO_CHILD.get(object_id, []):
             count += 1 + loop(orbiter_orbit)
         cache[object_id] = count
         return count
 
-    return sum(map(loop, parsed_data))
+    return sum(map(loop, PARENT_TO_CHILD))
 
 
 def min_orbital_transfers() -> int:
-    # Complicated backtracking search
-    parent_to_child, child_to_parent = parse_map_data()
-    prev_parent = "YOU"
-    count = 0
+    # Backtracking search
+    visited: list[str] = ["YOU"]
 
-    def get_children(node):
+    def get_children(node: str) -> list[str]:
         # A parent can have multiple children but a child only has one parent.
         children = []
-        if node in child_to_parent:
-            child = child_to_parent[node]
-            if child != prev_parent:
-                children.append(child)
-        for parent in parent_to_child.get(node, []):
-            if parent != prev_parent:
+        child = CHILD_TO_PARENT.get(node, "")
+        if child and child not in visited:
+            children.append(child)
+        for parent in PARENT_TO_CHILD.get(node, []):
+            if parent not in visited:
                 children.append(parent)
         return children
 
-    def visit(node):
-        nonlocal count, prev_parent
+    def visit(node: str, transfers: int = 0):
         for child in get_children(node):
-            prev_parent = node
             if child == "SAN":
-                print("Minimum orbital transfers =>", count)
-                return
-            count += 1
-            visit(child)
-            # Above visit ended with a dead end or printed the actual answer, so reset
-            # the prev_parent and count value, we're backtracking!
-            prev_parent = node
-            count -= 1
+                return transfers
+            visited.append(child)
+            # `total_transfers` is different than `transfers`, where the former is
+            # an indication whether the current path lead to "SAN" or a dead end.
+            # If `total_transfers` is 0, then the visit lead us to a dead end, so we
+            # will visit the other children.
+            if total_transfers := visit(child, transfers + 1):
+                return total_transfers
+        return 0
 
-    return visit(child_to_parent[prev_parent])
+    return visit(CHILD_TO_PARENT["YOU"])
 
 
 print("Total orbits =>", count_orbits())
-min_orbital_transfers()
+print("Minimum orbital transfers =>", min_orbital_transfers())
