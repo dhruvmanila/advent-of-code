@@ -7,7 +7,7 @@ LAYER_DATA: dict[int, str] = {}
 # Keys: Layer number starting from 1
 # Values: Counter object representing the count of each individual data in the layer
 #         namely the count of "0", "1" and "2"
-DATA_COUNT: dict[int, Counter[str, int]] = {}
+DATA_COUNT: dict[int, Counter[str]] = {}
 
 # Given data
 WIDE = 25

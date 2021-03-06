@@ -14,8 +14,17 @@ class IntcodeComputer:
         #: Copy of the original program (Never mutate the original reference)
         self.program = program[:]
 
+        self.program_length = len(program)
+
         #: Return the output keeping the state of the computer intact.
         self.return_output = return_output
+
+        #: A flag to indicate to ask for input instead of using the `inputs` parameter.
+        self.ask_for_input = ask_for_input
+
+        #: A flag to indicate to print the `output` from the computer to stdout.
+        #: Defaults to ``True`` if `ask_for_input` is ``True``.
+        self.print_output = ask_for_input or print_output
 
         #: If `inputs` is the sentinel value ``None``, then initialize it to an
         #: empty list.
@@ -35,13 +44,6 @@ class IntcodeComputer:
         #: TODO: This is not being used as of now, so remove it?
         self.amp_phase = amp_phase
 
-        #: A flag to indicate to ask for input instead of using the `inputs` parameter.
-        self.ask_for_input = ask_for_input
-
-        #: A flag to indicate to print the `output` from the computer to stdout.
-        #: Defaults to ``True`` if `ask_for_input` is ``True``.
-        self.print_output = ask_for_input or print_output
-
         #: Value indicating the current position in the program.
         self.pointer = 0
 
@@ -49,10 +51,16 @@ class IntcodeComputer:
         #: program is finished.
         self.outputs = []
 
+        #: Relative base value used for relative mode (Default: 0)
+        self.relative_base = 0
+
+        #: A dictionary representing the memory stored outside the program
+        self.extra_memory = {}
+
         self.__original_program = program
         self.__original_inputs = inputs
 
-    def reset(self):
+    def reset(self) -> None:
         """Reset the computer to its initial state.
 
         Following properties will be reseted:
@@ -95,31 +103,48 @@ class IntcodeComputer:
         return (*parameters, *parameters_mode)
 
     def _value_for_mode(self, param, mode):
-        if mode == 0:
-            return int(self.program[param])
-        else:
+        if mode == 1:  # immediate mode
             return param
+        elif mode == 0:  # position mode
+            memory_index = param
+        elif mode == 2:  # relative mode
+            memory_index = self.relative_base + param
+
+        if memory_index > self.program_length:
+            return self.extra_memory.setdefault(memory_index, 0)
+        else:
+            return int(self.program[memory_index])
+
+    def _store_in_memory(self, index, mode, value):
+        if mode == 2:
+            memory_index = self.relative_base + index
+        else:
+            memory_index = index
+        if memory_index > self.program_length:
+            self.extra_memory[memory_index] = value
+        else:
+            self.program[memory_index] = value
 
     def _execute_code_1(self):
         p1, p2, p3, p1_mode, p2_mode, p3_mode = self._param_val_and_mode(3)
         v1 = self._value_for_mode(p1, p1_mode)
         v2 = self._value_for_mode(p2, p2_mode)
-        self.program[p3] = v1 + v2
+        self._store_in_memory(p3, p3_mode, v1 + v2)
         self.pointer += 4
 
     def _execute_code_2(self):
         p1, p2, p3, p1_mode, p2_mode, p3_mode = self._param_val_and_mode(3)
         v1 = self._value_for_mode(p1, p1_mode)
         v2 = self._value_for_mode(p2, p2_mode)
-        self.program[p3] = v1 * v2
+        self._store_in_memory(p3, p3_mode, v1 * v2)
         self.pointer += 4
 
     def _execute_code_3(self):
         p1, p1_mode = self._param_val_and_mode(1)
         if self.ask_for_input:
-            self.program[p1] = int(input("Input: "))
+            self._store_in_memory(p1, p1_mode, int(input("Input: ")))
         else:
-            self.program[p1] = self.inputs.pop(0)
+            self._store_in_memory(p1, p1_mode, self.inputs.pop(0))
         self.pointer += 2
 
     def _execute_code_4(self):
@@ -148,12 +173,18 @@ class IntcodeComputer:
         p1, p2, p3, p1_mode, p2_mode, p3_mode = self._param_val_and_mode(3)
         v1 = self._value_for_mode(p1, p1_mode)
         v2 = self._value_for_mode(p2, p2_mode)
-        self.program[p3] = int(v1 < v2)
+        self._store_in_memory(p3, p3_mode, int(v1 < v2))
         self.pointer += 4
 
     def _execute_code_8(self):
         p1, p2, p3, p1_mode, p2_mode, p3_mode = self._param_val_and_mode(3)
         v1 = self._value_for_mode(p1, p1_mode)
         v2 = self._value_for_mode(p2, p2_mode)
-        self.program[p3] = int(v1 == v2)
+        self._store_in_memory(p3, p3_mode, int(v1 == v2))
         self.pointer += 4
+
+    def _execute_code_9(self):
+        p1, p1_mode = self._param_val_and_mode(1)
+        p1 = self._value_for_mode(p1, p1_mode)
+        self.relative_base += p1
+        self.pointer += 2
