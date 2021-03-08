@@ -10,12 +10,13 @@ def max_signal(intcode_program, phase_range):
     thruster_signals = {}
     for phase_setting in permutations(phase_range, 5):
         computers = [
-            IntcodeComputer(intcode_program, amp_phase=phase) for phase in phase_setting
+            IntcodeComputer(intcode_program, amp_phase=phase, return_output=True)
+            for phase in phase_setting
         ]
         signal_input = 0
         current_computer = 0
         while not (comp := computers[current_computer]).halted():
-            comp.inputs.append(signal_input)
+            comp.append_inputs(signal_input)
             signal_input = comp.run()
             current_computer += 1
             if current_computer == 5:

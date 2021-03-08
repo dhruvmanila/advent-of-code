@@ -12,8 +12,11 @@ if __name__ == "__main__":
     with open(os.path.join(os.path.dirname(__file__), "input/09.txt")) as fd:
         intcode_program = list(map(int, fd.readline().strip().split(",")))
 
-    print("BOOST keycode =>", IntcodeComputer(intcode_program, inputs=[1]).run())
+    print(
+        "BOOST keycode =>",
+        IntcodeComputer(intcode_program, inputs=[1], return_output=True).run(),
+    )
     print(
         "Coordinates of the distress signal =>",
-        IntcodeComputer(intcode_program, inputs=[2]).run(),
+        IntcodeComputer(intcode_program, inputs=[2], return_output=True).run(),
     )

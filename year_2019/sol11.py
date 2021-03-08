@@ -45,7 +45,7 @@ def painted_panels(
             ymax = max(ymax, y)
         direction = computer.run()
         position, pointing = move_robot(position, direction, pointing)
-        computer.inputs.append(panels_painted.get(position, 0))
+        computer.append_inputs(panels_painted.get(position, 0))
     if get_image_meta:
         return panels_painted, (xmin, ymax), (abs(xmin) + xmax), (abs(ymin) + ymax)
     else:
