@@ -27,13 +27,13 @@ def parse_data(data: str) -> None:
         DATA_COUNT.setdefault(layer_number, Counter(row))
         layer_number += 1
     # Subtract 1 as we started for layer +1 but we already reached the end of the data.
-    assert layer_number - 1 == len(data) / (WIDE * TALL)
+    assert layer_number - 1 == len(data) / SIZE
 
 
 def part_a() -> int:
-    get_layer_data = DATA_COUNT.__getitem__
-    row_num = min(DATA_COUNT, key=lambda layer_num: get_layer_data(layer_num)["0"])
-    return get_layer_data(row_num)["1"] * get_layer_data(row_num)["2"]
+    get_layer_counter = DATA_COUNT.__getitem__
+    row_num = min(DATA_COUNT, key=lambda layer_num: get_layer_counter(layer_num)["0"])
+    return get_layer_counter(row_num)["1"] * get_layer_counter(row_num)["2"]
 
 
 def decode_data() -> list[str]:
@@ -50,8 +50,6 @@ def decode_data() -> list[str]:
             else:  # White pixel
                 row_data.append(WHITE_PIXEL)
                 break
-        else:  # No black or white pixel
-            row_data.append(BLACK_PIXEL)
         if len(row_data) == 25:
             image_data.append("".join(row_data))
             row_data.clear()
@@ -69,6 +67,5 @@ if __name__ == "__main__":
     print("Part A answer =>", part_a())
     print("Decoded image =>")
 
-    image_data = decode_data()
-    for row in image_data:
+    for row in decode_data():
         print(row)

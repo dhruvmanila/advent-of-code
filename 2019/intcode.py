@@ -85,12 +85,12 @@ class IntcodeComputer:
 
     def current_code(self) -> str:
         """Return the current instruction code at the current pointer."""
-        return str(self.value)[-2:]
+        return str(self.value)[-1]
 
     def run(self):
         while not self.halted():
             code = self.current_code()
-            execute_func = getattr(self, f"_execute_code_{code[-1]}")
+            execute_func = getattr(self, f"_execute_code_{code}")
             output = execute_func()
             if output is not None:
                 return output
@@ -111,7 +111,7 @@ class IntcodeComputer:
             memory_index = self.relative_base + param
 
         if memory_index > self.program_length:
-            return self.extra_memory.setdefault(memory_index, 0)
+            return self.extra_memory.get(memory_index, 0)
         else:
             return int(self.program[memory_index])
 
