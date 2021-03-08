@@ -110,7 +110,7 @@ class IntcodeComputer:
         elif mode == 2:  # relative mode
             memory_index = self.relative_base + param
 
-        if memory_index > self.program_length:
+        if memory_index >= self.program_length:
             return self.extra_memory.get(memory_index, 0)
         else:
             return int(self.program[memory_index])
@@ -120,7 +120,7 @@ class IntcodeComputer:
             memory_index = self.relative_base + index
         else:
             memory_index = index
-        if memory_index > self.program_length:
+        if memory_index >= self.program_length:
             self.extra_memory[memory_index] = value
         else:
             self.program[memory_index] = value
