@@ -9,11 +9,12 @@ class IntcodeComputer:
         inputs: The input to provide when asked for.
         amp_phase: Amplifier phase for the current computer.
         ask_for_input: Ask for input to the user instead of using the inputs parameter.
+        return_before_input: Stop the intcode computer right when the next instruction
+            is the input instruction and return the sentinel_return object.
+        sentinel_return: A sentinel value used to return if return_before_input is True.
         print_output: Print the output from the output instruction to stdout.
-            Defaults to True if ask_for_input is True.
         return_output: Return the output from the output instruction keeping the
-            state of the computer intact.
-            Defaults to True if amp_phase is given.
+            state of the computer intact. Defaults to True if amp_phase is given.
         gather_output: Store all the output from the output instruction in a list
             and return it once the program ends.
     """
@@ -24,6 +25,8 @@ class IntcodeComputer:
         inputs: Optional[list[int]] = None,
         amp_phase: Optional[int] = None,
         ask_for_input: bool = False,
+        return_before_input: bool = False,
+        sentinel_return: object = object(),
         print_output: bool = False,
         return_output: bool = False,
         gather_output: bool = False,
@@ -33,12 +36,14 @@ class IntcodeComputer:
         if amp_phase is not None:
             inputs.insert(0, amp_phase)
 
+        self.return_before_input = return_before_input
+        self.sentinel_return = sentinel_return
         self.ask_for_input = ask_for_input
-        self.print_output = ask_for_input or print_output
+        self.print_output = print_output
         self.return_output = return_output
         self.gather_output = gather_output
+        self._returned = False
 
-        self.program_length = len(program)
         self._pointer = 0
         self._outputs = []
         self._relative_base = 0
@@ -86,10 +91,15 @@ class IntcodeComputer:
     def run(self):
         while not self.halted():
             code = self.current_code()
+            if code == "3" and self.return_before_input and not self._returned:
+                self._returned = True
+                return self.sentinel_return
             execute_func = getattr(self, f"_execute_code_{code}")
             output = execute_func()
             if output is not None:
                 return output
+            if self.return_before_input:
+                self._returned = False
         if self.gather_output:
             return self._outputs
 

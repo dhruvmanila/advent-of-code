@@ -67,13 +67,11 @@ if __name__ == "__main__":
     intcode_program = list(
         map(
             int,
-            (
-                Path(__file__)
-                .parent.joinpath("input", "11.txt")
-                .read_text()
-                .strip()
-                .split(",")
-            ),
+            Path(__file__)
+            .parent.joinpath("input", "11.txt")
+            .read_text()
+            .strip()
+            .split(","),
         )
     )
 
