@@ -13,19 +13,19 @@ type command struct {
 	units     int
 }
 
-func parseCommands(lines []string) ([]command, error) {
-	var cmds []command
-	for _, line := range lines {
+func parseCommands(lines []string) ([]*command, error) {
+	cmds := make([]*command, len(lines))
+	for i, line := range lines {
 		// format: "{direction} {units}"
 		s := strings.Split(line, " ")
 		units, err := strconv.Atoi(s[1])
 		if err != nil {
 			return nil, err
 		}
-		cmds = append(cmds, command{
+		cmds[i] = &command{
 			direction: s[0],
 			units:     units,
-		})
+		}
 	}
 	return cmds, nil
 }
