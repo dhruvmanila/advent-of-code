@@ -38,6 +38,8 @@ func main() {
 		switch day {
 		case 1:
 			err = year2020.Sol1("./year2020/input/01.txt")
+		case 2:
+			err = year2020.Sol2("./year2020/input/02.txt")
 		default:
 			err = ErrUnsolved
 		}
