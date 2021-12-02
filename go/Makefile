@@ -9,4 +9,7 @@ clean: ## Remove build artifacts
 ignore: ## Add the executable file to .gitignore
 	echo $(BIN) > .gitignore
 
-.PHONY: build clean ignore
+tidy: ## Tidy the module
+	go mod tidy
+
+.PHONY: build clean ignore tidy help
