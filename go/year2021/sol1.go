@@ -15,7 +15,10 @@ func Sol1(input string) error {
 
 	depths := make([]int, len(lines))
 	for i, s := range lines {
-		depths[i], _ = strconv.Atoi(s)
+		depths[i], err = strconv.Atoi(s)
+	}
+	if err != nil {
+		return err
 	}
 
 	count1 := 0

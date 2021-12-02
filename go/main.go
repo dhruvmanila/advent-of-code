@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -13,7 +14,7 @@ func main() {
 	log.SetFlags(0)
 
 	if len(os.Args) == 1 {
-		log.Fatal("please provide the puzzle number")
+		log.Fatal("puzzle number missing")
 	}
 
 	puzzle, err := strconv.Atoi(os.Args[1])
@@ -24,11 +25,13 @@ func main() {
 	switch puzzle {
 	case 1:
 		err = year2021.Sol1("./year2021/input/01.txt")
+	case 2:
+		err = year2021.Sol2("./year2021/input/02.txt")
 	default:
-		log.Fatalf("puzzle number %d is not solved yet", puzzle)
+		log.Fatalf("puzzle number %d: unsolved", puzzle)
 	}
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Errorf("sol%d: %w", puzzle, err))
 	}
 }
