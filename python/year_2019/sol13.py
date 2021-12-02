@@ -4,7 +4,7 @@ except ImportError:
     from .intcode import IntcodeComputer
 
 
-COMPONENTS = {0: " ", 1: "|", 2: "▄", 3: "_", 4: "o"}
+COMPONENTS = {0: " ", 1: "|", 2: chr(9604), 3: chr(9620), 4: "o"}
 RENDER_GAME = True
 FRAME_RATE = 0.0005
 
@@ -13,8 +13,8 @@ def count_block_tiles(program):
     computer = IntcodeComputer(program, return_output=True)
     count = 0
     while True:
-        _ = computer.run()
-        _ = computer.run()
+        computer.run()
+        computer.run()
         tile_id = computer.run()
         if computer.halted():
             break
@@ -55,6 +55,7 @@ def ball_and_paddle_x(game_tiles):
 def play(screen, program):
     if RENDER_GAME:
         curses.curs_set(0)
+        y_max = 0
     computer = IntcodeComputer(program, return_output=True, return_before_input=True)
     current_score = 0
     game_tiles = {}
@@ -72,13 +73,16 @@ def play(screen, program):
             break
         if x == -1 and y == 0:
             current_score = tile_id
+            if RENDER_GAME:
+                screen.addstr(y_max + 2, 0, f"Score => {current_score}")
+                screen.refresh()
         else:
             game_tiles[(x, y)] = tile_id
-        if RENDER_GAME:
-            for (x1, y1), tile in game_tiles.items():
-                screen.addstr(y1, x1, COMPONENTS[tile])
-            screen.refresh()
-            sleep(FRAME_RATE)
+            if RENDER_GAME:
+                y_max = max(y_max, y)
+                screen.addstr(y, x, COMPONENTS[tile_id])
+                screen.refresh()
+                sleep(FRAME_RATE)
     return current_score
 
 

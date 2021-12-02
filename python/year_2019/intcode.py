@@ -98,7 +98,7 @@ class IntcodeComputer:
             output = execute_func()
             if output is not None:
                 return output
-            if self.return_before_input:
+            if self._returned:
                 self._returned = False
         if self.gather_output:
             return self._outputs
