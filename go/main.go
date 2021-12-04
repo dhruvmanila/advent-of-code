@@ -49,6 +49,8 @@ func main() {
 			err = year2021.Sol1("./year2021/input/01.txt")
 		case 2:
 			err = year2021.Sol2("./year2021/input/02.txt")
+		case 3:
+			err = year2021.Sol3("./year2021/input/03.txt")
 		default:
 			err = ErrUnsolved
 		}
