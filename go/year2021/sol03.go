@@ -3,9 +3,52 @@ package year2021
 import (
 	"fmt"
 	"math"
+	"strconv"
 
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
+
+type ratingType int
+
+const (
+	oxygenGenerator ratingType = iota
+	co2Scrubber
+)
+
+func recursiveFilter(binaryNums []string, rt ratingType, pos int) string {
+	// Base case: There is only one value in the slice which is the final answer.
+	if len(binaryNums) == 1 {
+		return binaryNums[0]
+	}
+	// Divide the slice into two: numbers starting with 1 and 0.
+	var numStartingWithOne, numStartingWithZero []string
+	for _, num := range binaryNums {
+		switch num[pos] {
+		case '0':
+			numStartingWithZero = append(numStartingWithZero, num)
+		case '1':
+			numStartingWithOne = append(numStartingWithOne, num)
+		}
+	}
+	// Increase the bit position.
+	pos++
+	switch rt {
+	case oxygenGenerator:
+		if len(numStartingWithOne) >= len(numStartingWithZero) {
+			return recursiveFilter(numStartingWithOne, rt, pos)
+		} else {
+			return recursiveFilter(numStartingWithZero, rt, pos)
+		}
+	case co2Scrubber:
+		if len(numStartingWithOne) >= len(numStartingWithZero) {
+			return recursiveFilter(numStartingWithZero, rt, pos)
+		} else {
+			return recursiveFilter(numStartingWithOne, rt, pos)
+		}
+	default:
+		panic(fmt.Sprintf("Invalid rating type: %v", rt))
+	}
+}
 
 func Sol3(input string) error {
 	lines, err := util.ReadLines(input)
@@ -44,6 +87,23 @@ func Sol3(input string) error {
 		}
 	}
 
-	fmt.Printf("3.1: %d\n", gammaRate*epsilonRate)
+	oxygenGeneratorBin := recursiveFilter(lines, oxygenGenerator, 0)
+	co2ScrubberBin := recursiveFilter(lines, co2Scrubber, 0)
+
+	oxygenGeneratorRating, err := strconv.ParseUint(oxygenGeneratorBin, 2, size)
+	if err != nil {
+		return err
+	}
+
+	co2ScrubberRating, err := strconv.ParseUint(co2ScrubberBin, 2, size)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf(
+		"3.1: %d\n3.2: %d\n",
+		gammaRate*epsilonRate,
+		oxygenGeneratorRating*co2ScrubberRating,
+	)
 	return nil
 }

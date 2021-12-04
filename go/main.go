@@ -33,24 +33,25 @@ func main() {
 		log.Fatal(err)
 	}
 
+	input := fmt.Sprintf("./year%d/input/%02d.txt", year, day)
 	switch year {
 	case 2020:
 		switch day {
 		case 1:
-			err = year2020.Sol1("./year2020/input/01.txt")
+			err = year2020.Sol1(input)
 		case 2:
-			err = year2020.Sol2("./year2020/input/02.txt")
+			err = year2020.Sol2(input)
 		default:
 			err = ErrUnsolved
 		}
 	case 2021:
 		switch day {
 		case 1:
-			err = year2021.Sol1("./year2021/input/01.txt")
+			err = year2021.Sol1(input)
 		case 2:
-			err = year2021.Sol2("./year2021/input/02.txt")
+			err = year2021.Sol2(input)
 		case 3:
-			err = year2021.Sol3("./year2021/input/03.txt")
+			err = year2021.Sol3(input)
 		default:
 			err = ErrUnsolved
 		}
