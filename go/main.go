@@ -52,6 +52,8 @@ func main() {
 			err = year2021.Sol2(input)
 		case 3:
 			err = year2021.Sol3(input)
+		case 4:
+			err = year2021.Sol4(input)
 		default:
 			err = ErrUnsolved
 		}
@@ -60,6 +62,6 @@ func main() {
 	}
 
 	if err != nil {
-		log.Fatal(fmt.Errorf("year %d: day %d: %w", year, day, err))
+		log.Fatal(fmt.Errorf("year%d: Sol%d: %w", year, day, err))
 	}
 }
