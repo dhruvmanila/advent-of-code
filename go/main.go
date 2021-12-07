@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"strconv"
@@ -11,9 +12,39 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/year2021"
 )
 
-// ErrUnsolved is returned if the problem for the specific year and day is
+// UnsolvedError is returned if the problem for the specific year and/or day is
 // not solved yet.
-var ErrUnsolved = errors.New("unsolved")
+type UnsolvedError struct {
+	year int
+	day  int
+}
+
+func (e *UnsolvedError) Error() string {
+	message := ""
+	if e.year != 0 {
+		message += fmt.Sprintf("year%d: ", e.year)
+	}
+	if e.day != 0 {
+		message += fmt.Sprintf("Sol%d: ", e.day)
+	}
+	return message + "unsolved"
+}
+
+type solutionFunc func(string) error
+
+// solutions is a map from year to day to the solution function.
+var solutions = map[int]map[int]solutionFunc{
+	2020: {
+		1: year2020.Sol1,
+		2: year2020.Sol2,
+	},
+	2021: {
+		1: year2021.Sol1,
+		2: year2021.Sol2,
+		3: year2021.Sol3,
+		4: year2021.Sol4,
+	},
+}
 
 func main() {
 	log.SetPrefix("aoc: ")
@@ -33,35 +64,27 @@ func main() {
 		log.Fatal(err)
 	}
 
-	input := fmt.Sprintf("./year%d/input/%02d.txt", year, day)
-	switch year {
-	case 2020:
-		switch day {
-		case 1:
-			err = year2020.Sol1(input)
-		case 2:
-			err = year2020.Sol2(input)
-		default:
-			err = ErrUnsolved
+	var input string
+	if os.Getenv("TEST") == "" {
+		input = fmt.Sprintf("./year%d/input/%02d.txt", year, day)
+	} else {
+		input = fmt.Sprintf("./year%d/input/test/%02d.txt", year, day)
+	}
+	if _, err := os.Stat(input); errors.Is(err, fs.ErrNotExist) {
+		log.Fatal(err)
+	}
+
+	if yearSolutions, exist := solutions[year]; exist {
+		if solution, exist := yearSolutions[day]; exist {
+			err = solution(input)
+		} else {
+			err = &UnsolvedError{year: year, day: day}
 		}
-	case 2021:
-		switch day {
-		case 1:
-			err = year2021.Sol1(input)
-		case 2:
-			err = year2021.Sol2(input)
-		case 3:
-			err = year2021.Sol3(input)
-		case 4:
-			err = year2021.Sol4(input)
-		default:
-			err = ErrUnsolved
-		}
-	default:
-		err = ErrUnsolved
+	} else {
+		err = &UnsolvedError{year: year}
 	}
 
 	if err != nil {
-		log.Fatal(fmt.Errorf("year%d: Sol%d: %w", year, day, err))
+		log.Fatal(err)
 	}
 }
