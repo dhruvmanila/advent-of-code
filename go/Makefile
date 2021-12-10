@@ -1,6 +1,7 @@
 BIN := $(GOPATH)/bin/aoc
+GOFILES := $(shell find . -type f -name '*.go')
 
-build: ## Build the binary
+$(BIN): $(GOFILES) ## Build the binary
 	go build -o $(BIN) .
 
 clean: ## Remove build artifacts
