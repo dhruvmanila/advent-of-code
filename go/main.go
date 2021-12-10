@@ -1,9 +1,7 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"io/fs"
 	"log"
 	"os"
 	"strconv"
@@ -73,9 +71,6 @@ func main() {
 		input = fmt.Sprintf("./year%d/input/%02d.txt", year, day)
 	} else {
 		input = fmt.Sprintf("./year%d/input/test/%02d.txt", year, day)
-	}
-	if _, err := os.Stat(input); errors.Is(err, fs.ErrNotExist) {
-		log.Fatal(err)
 	}
 
 	if yearSolutions, exist := solutions[year]; exist {
