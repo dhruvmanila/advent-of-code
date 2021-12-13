@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"sort"
+	"strconv"
 )
 
 // Sum is used to add all the integers in a given array.
@@ -25,14 +26,36 @@ func SumN(n int) int {
 func MinMax(arr []int) (int, int) {
 	min, max := arr[0], arr[0]
 	for _, val := range arr {
-		if min > val {
-			min = val
-		}
-		if max < val {
-			max = val
-		}
+		min = IntMin(min, val)
+		max = IntMax(max, val)
 	}
 	return min, max
+}
+
+// IntMax returns the larger of x or y integer.
+func IntMax(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+// IntMin returns the smaller of x or y integer.
+func IntMin(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+// Atoi is similar to strconv.Atoi except this function will panic if the
+// conversion fails.
+func Atoi(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		panic(err)
+	}
+	return i
 }
 
 // SortString is used to sort the individual characters in the given string.
