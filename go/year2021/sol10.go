@@ -1,11 +1,10 @@
 package year2021
 
 import (
-	"container/list"
-	"errors"
 	"fmt"
 	"sort"
 
+	"github.com/dhruvmanila/advent-of-code/go/pkg/stack"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -30,33 +29,11 @@ var completionCharPoints = map[rune]int{
 	'>': 4,
 }
 
-var errStackEmpty = errors.New("stack is empty")
-
-type chunkStack struct {
-	stack *list.List
-}
-
-func newChunkStack() *chunkStack {
-	return &chunkStack{stack: list.New()}
-}
-
-func (c *chunkStack) push(chunk rune) {
-	c.stack.PushFront(chunk)
-}
-
-func (c *chunkStack) pop() (rune, error) {
-	if element := c.stack.Front(); element != nil {
-		c.stack.Remove(element)
-		return element.Value.(rune), nil
-	}
-	return '\x00', errStackEmpty
-}
-
-func (c *chunkStack) closeChunks() string {
+func closeChunks(s *stack.Stack) string {
 	var closed string
 	for {
-		elem, err := c.pop()
-		if errors.Is(err, errStackEmpty) {
+		elem, ok := s.Pop().(rune)
+		if !ok {
 			break
 		}
 		closed += string(legalPairs[elem])
@@ -84,25 +61,22 @@ func Sol10(input string) error {
 
 Line:
 	for _, line := range lines {
-		stack := newChunkStack()
+		s := stack.New()
 		for _, char := range line {
 			switch char {
 			case ')', ']', '}', '>':
-				last, err := stack.pop()
-				if err != nil {
-					return err
-				}
+				last := s.Pop().(rune)
 				if legalPairs[last] != char {
 					syntaxErrorScore += illegalCharPoints[char]
 					continue Line
 				}
 			default:
-				stack.push(char)
+				s.Push(char)
 			}
 		}
 		completionScores = append(
 			completionScores,
-			calculateCompletionScore(stack.closeChunks()),
+			calculateCompletionScore(closeChunks(s)),
 		)
 	}
 
