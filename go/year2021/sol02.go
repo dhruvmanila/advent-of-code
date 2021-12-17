@@ -2,7 +2,6 @@ package year2021
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/dhruvmanila/advent-of-code/go/util"
@@ -18,13 +17,9 @@ func parseCommands(lines []string) ([]*command, error) {
 	for i, line := range lines {
 		// format: "{direction} {units}"
 		s := strings.Split(line, " ")
-		units, err := strconv.Atoi(s[1])
-		if err != nil {
-			return nil, err
-		}
 		cmds[i] = &command{
 			direction: s[0],
-			units:     units,
+			units:     util.Atoi(s[1]),
 		}
 	}
 	return cmds, nil

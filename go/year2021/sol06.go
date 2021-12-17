@@ -2,7 +2,6 @@ package year2021
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/dhruvmanila/advent-of-code/go/util"
@@ -45,11 +44,7 @@ func Sol6(input string) error {
 	// remaining until it creates a new fish.
 	var fishes []int
 	for _, s := range strings.Split(lines[0], ",") {
-		cycleDay, err := strconv.Atoi(s)
-		if err != nil {
-			return err
-		}
-		fishes = append(fishes, cycleDay)
+		fishes = append(fishes, util.Atoi(s))
 	}
 
 	count1 := simulate(fishes, 80)

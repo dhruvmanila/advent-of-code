@@ -114,23 +114,17 @@ func Sol8(input string) error {
 	for _, line := range lines {
 		entry := strings.Split(line, " | ")
 		deducedMap := deduceSignalPatterns(strings.Fields(entry[0]))
-
-		var numStr string
+		var s string
 		for _, outPattern := range strings.Fields(entry[1]) {
 			switch len(outPattern) {
 			case 2, 3, 4, 7:
 				count++
 				fallthrough
 			default:
-				numStr += deducedMap[util.SortString(outPattern)]
+				s += deducedMap[util.SortString(outPattern)]
 			}
 		}
-
-		num, err := strconv.Atoi(numStr)
-		if err != nil {
-			return err
-		}
-		totalOutput += num
+		totalOutput += util.Atoi(s)
 	}
 
 	fmt.Printf("8.1: %d\n8.2: %d\n", count, totalOutput)

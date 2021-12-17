@@ -2,8 +2,8 @@ package year2020
 
 import (
 	"fmt"
-	"strconv"
 
+	"github.com/dhruvmanila/advent-of-code/go/pkg/set"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -16,23 +16,20 @@ func Sol1(input string) error {
 	// entries is a slice of all the expense entry.
 	entries := make([]int, len(lines))
 
-	// entryMap is a map to simplify checking whether a specific expense entry
+	// report is a set to simplify checking whether a specific expense entry
 	// exists in the report.
-	entryMap := make(map[int]bool)
+	report := set.New()
 
 	for i, s := range lines {
-		expense, err := strconv.Atoi(s)
-		if err != nil {
-			return err
-		}
-		entryMap[expense] = true
+		expense := util.Atoi(s)
+		report.Add(expense)
 		entries[i] = expense
 	}
 
 	var x, y int
 	for _, x = range entries {
 		y = 2020 - x
-		if _, exist := entryMap[y]; exist {
+		if report.Contains(y) {
 			break
 		}
 	}
@@ -42,7 +39,7 @@ Loop:
 	for i, a = range entries {
 		for _, b = range entries[i+1:] {
 			c = 2020 - a - b
-			if _, exist := entryMap[c]; exist {
+			if report.Contains(c) {
 				break Loop
 			}
 		}

@@ -3,7 +3,6 @@ package year2021
 import (
 	"fmt"
 	"math"
-	"strconv"
 
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
@@ -87,18 +86,12 @@ func Sol3(input string) error {
 		}
 	}
 
-	oxygenGeneratorBin := recursiveFilter(lines, oxygenGenerator, 0)
-	co2ScrubberBin := recursiveFilter(lines, co2Scrubber, 0)
-
-	oxygenGeneratorRating, err := strconv.ParseUint(oxygenGeneratorBin, 2, size)
-	if err != nil {
-		return err
-	}
-
-	co2ScrubberRating, err := strconv.ParseUint(co2ScrubberBin, 2, size)
-	if err != nil {
-		return err
-	}
+	oxygenGeneratorRating := util.ParseInt(
+		recursiveFilter(lines, oxygenGenerator, 0), 2, size,
+	)
+	co2ScrubberRating := util.ParseInt(
+		recursiveFilter(lines, co2Scrubber, 0), 2, size,
+	)
 
 	fmt.Printf(
 		"3.1: %d\n3.2: %d\n",

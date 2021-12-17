@@ -2,7 +2,6 @@ package year2021
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/dhruvmanila/advent-of-code/go/util"
@@ -117,11 +116,7 @@ func parseBoards(lines []string) ([]*board, error) {
 		for i, line := range lines[i : i+5] {
 			var row [5]int
 			for j, s := range strings.Fields(line) {
-				num, err := strconv.Atoi(s)
-				if err != nil {
-					return nil, err
-				}
-				row[j] = num
+				row[j] = util.Atoi(s)
 			}
 			grid[i] = row
 		}
@@ -141,11 +136,7 @@ func Sol4(input string) error {
 	// Collect all the numbers which are to be drawn. This is the first line
 	// of the input and is a comma-separated list of numbers.
 	for _, s := range strings.Split(lines[0], ",") {
-		num, err := strconv.Atoi(s)
-		if err != nil {
-			return err
-		}
-		draws = append(draws, num)
+		draws = append(draws, util.Atoi(s))
 	}
 
 	boards, err := parseBoards(lines[2:])

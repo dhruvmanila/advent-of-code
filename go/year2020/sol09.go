@@ -3,17 +3,18 @@ package year2020
 import (
 	"fmt"
 
+	"github.com/dhruvmanila/advent-of-code/go/pkg/set"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
 func isValid(num int, preamble []int) bool {
-	set := make(map[int]struct{})
+	ns := set.New()
 	for _, n := range preamble {
-		set[n] = struct{}{}
+		ns.Add(n)
 	}
 
 	for _, n := range preamble {
-		if _, exist := set[num-n]; exist {
+		if ns.Contains(num - n) {
 			return true
 		}
 	}
@@ -39,14 +40,9 @@ Loop:
 }
 
 func Sol9(input string) error {
-	lines, err := util.ReadLines(input)
+	numbers, err := util.ReadLinesAsInt(input)
 	if err != nil {
 		return err
-	}
-
-	numbers := make([]int, len(lines))
-	for i, line := range lines {
-		numbers[i] = util.Atoi(line)
 	}
 
 	var invalidNum int

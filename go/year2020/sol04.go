@@ -6,15 +6,15 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/dhruvmanila/advent-of-code/go/pkg/set"
 )
 
 // requiredFields is a list of all the required fields for a passport.
 var requiredFields = []string{"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"}
 
 // validEyeColor is a set of valid eye colors for the "ecl" field in a passport.
-var validEyeColor = map[string]struct{}{
-	"amb": {}, "blu": {}, "brn": {}, "gry": {}, "grn": {}, "hzl": {}, "oth": {},
-}
+var validEyeColor = set.New()
 
 var (
 	hexColorRegex = regexp.MustCompile(`^#[0-9a-f]{6}$`)
@@ -31,14 +31,30 @@ var validRange = map[string][2]int{
 	"in":  {59, 76},
 }
 
+func init() {
+	validEyeColor.Add("amb", "blu", "brn", "gry", "grn", "hzl", "oth")
+}
+
 // passport is a map from the field name to its value.
 type passport map[string]string
 
+// newPassportFromString is used to contruct a passport object using the given lines.
+func newPassportFromString(lines string) passport {
+	passportInfo := make(passport)
+	for _, line := range strings.Split(lines, "\n") {
+		for _, pair := range strings.Fields(line) {
+			info := strings.Split(pair, ":")
+			passportInfo[info[0]] = info[1]
+		}
+	}
+	return passportInfo
+}
+
 // containRequiredFields is used to check whether all the required fields are
 // present in the passport or not.
-func (pi passport) containRequiredFields() bool {
+func (p passport) containRequiredFields() bool {
 	for _, field := range requiredFields {
-		if _, exist := pi[field]; !exist {
+		if _, exist := p[field]; !exist {
 			return false
 		}
 	}
@@ -47,8 +63,8 @@ func (pi passport) containRequiredFields() bool {
 
 // validateFields is used to validate the information in each field for the
 // passport.
-func (pi passport) validateFields() bool {
-	for field, value := range pi {
+func (p passport) validateFields() bool {
+	for field, value := range p {
 		switch field {
 		case "byr", "iyr", "eyr":
 			year, _ := strconv.Atoi(value)
@@ -71,7 +87,7 @@ func (pi passport) validateFields() bool {
 				return false
 			}
 		case "ecl":
-			if _, exist := validEyeColor[value]; !exist {
+			if !validEyeColor.Contains(value) {
 				return false
 			}
 		case "pid":
@@ -83,18 +99,6 @@ func (pi passport) validateFields() bool {
 	return true
 }
 
-// constructPassport is used to contruct a passport object using the given lines.
-func constructPassport(lines string) passport {
-	passportInfo := make(passport)
-	for _, line := range strings.Split(lines, "\n") {
-		for _, pair := range strings.Fields(line) {
-			info := strings.Split(pair, ":")
-			passportInfo[info[0]] = info[1]
-		}
-	}
-	return passportInfo
-}
-
 func Sol4(input string) error {
 	content, err := os.ReadFile(input)
 	if err != nil {
@@ -104,7 +108,7 @@ func Sol4(input string) error {
 	var allFieldsPresent, validValues int
 	// Every passport is separated by a blank line.
 	for _, passportLines := range strings.Split(string(content), "\n\n") {
-		p := constructPassport(passportLines)
+		p := newPassportFromString(passportLines)
 		if !p.containRequiredFields() {
 			continue
 		}

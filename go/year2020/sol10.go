@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/dhruvmanila/advent-of-code/go/pkg/counter"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -41,28 +42,24 @@ func arrangementCount(previous int, ratings []int, memo map[int]int) int {
 }
 
 func Sol10(input string) error {
-	lines, err := util.ReadLines(input)
+	ratings, err := util.ReadLinesAsInt(input)
 	if err != nil {
 		return err
 	}
 
 	effectiveRating := 0
-	ratings := make([]int, len(lines))
-	for i, line := range lines {
-		ratings[i] = util.Atoi(line)
-	}
-
 	sort.Ints(ratings)
-	diffCount := map[int]int{1: 0, 3: 0}
-	diffCount[ratings[0]-effectiveRating]++
-	for i := 0; i < len(lines)-1; i++ {
-		diffCount[ratings[i+1]-ratings[i]]++
+
+	diffCounter := counter.New()
+	diffCounter.Add(ratings[0] - effectiveRating)
+	for i := 0; i < len(ratings)-1; i++ {
+		diffCounter.Add(ratings[i+1] - ratings[i])
 	}
-	diffCount[3]++
+	diffCounter.Add(3)
 
 	fmt.Printf(
 		"10.1: %d\n10.2: %d\n",
-		diffCount[1]*diffCount[3],
+		diffCounter.Get(1)*diffCounter.Get(3),
 		arrangementCount(effectiveRating, ratings, make(map[int]int)),
 	)
 	return nil

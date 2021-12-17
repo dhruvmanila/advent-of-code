@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/dhruvmanila/advent-of-code/go/pkg/set"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -59,16 +60,15 @@ func newProgramFromCode(lines []string) *program {
 func (p *program) run() error {
 	// executed is a set of instructions which got executed. This is to detect
 	// an infinite loop.
-	executed := make(map[int]struct{})
+	executed := set.New()
 
 	for p.ptr < len(p.instructions) {
-		if _, done := executed[p.ptr]; done {
+		if executed.Contains(p.ptr) {
 			return errInfiniteLoop
 		}
 
+		executed.Add(p.ptr)
 		cmd := p.instructions[p.ptr]
-		executed[p.ptr] = struct{}{}
-
 		switch cmd.op {
 		case "jmp":
 			p.ptr += cmd.arg

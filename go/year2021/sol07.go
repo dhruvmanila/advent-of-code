@@ -3,7 +3,6 @@ package year2021
 import (
 	"fmt"
 	"math"
-	"strconv"
 	"strings"
 
 	"github.com/dhruvmanila/advent-of-code/go/util"
@@ -17,11 +16,7 @@ func Sol7(input string) error {
 
 	var currentPos []int
 	for _, s := range strings.Split(lines[0], ",") {
-		num, err := strconv.Atoi(s)
-		if err != nil {
-			return err
-		}
-		currentPos = append(currentPos, num)
+		currentPos = append(currentPos, util.Atoi(s))
 	}
 
 	minFuel1, minFuel2 := math.MaxInt, math.MaxInt
@@ -33,12 +28,8 @@ func Sol7(input string) error {
 			totalFuel1 += steps
 			totalFuel2 += util.SumN(steps)
 		}
-		if totalFuel1 < minFuel1 {
-			minFuel1 = totalFuel1
-		}
-		if totalFuel2 < minFuel2 {
-			minFuel2 = totalFuel2
-		}
+		minFuel1 = util.IntMin(minFuel1, totalFuel1)
+		minFuel2 = util.IntMin(minFuel2, totalFuel2)
 	}
 
 	fmt.Printf("7.1: %d\n7.2: %d\n", minFuel1, minFuel2)

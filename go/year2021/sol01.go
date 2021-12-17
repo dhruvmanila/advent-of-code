@@ -2,21 +2,12 @@ package year2021
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
 func Sol1(input string) error {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return err
-	}
-
-	depths := make([]int, len(lines))
-	for i, s := range lines {
-		depths[i], err = strconv.Atoi(s)
-	}
+	depths, err := util.ReadLinesAsInt(input)
 	if err != nil {
 		return err
 	}
