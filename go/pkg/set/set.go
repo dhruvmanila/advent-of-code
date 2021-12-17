@@ -17,9 +17,11 @@ func New() *Set {
 	return &Set{list: make(map[interface{}]empty)}
 }
 
-// Add adds the value to the set.
-func (s *Set) Add(v interface{}) {
-	s.list[v] = empty{}
+// Add adds all the given values to the set.
+func (s *Set) Add(v ...interface{}) {
+	for _, i := range v {
+		s.list[i] = empty{}
+	}
 }
 
 // Contains check if the given value exists in the set.
