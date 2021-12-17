@@ -92,17 +92,19 @@ func Sol17(input string) error {
 		return fmt.Errorf("invalid match: %s", content)
 	}
 
-	bb := newBoundingBox(
-		util.Atoi(matches[1]),
-		util.Atoi(matches[2]),
-		util.Atoi(matches[3]),
-		util.Atoi(matches[4]),
-	)
+	minx := util.Atoi(matches[1])
+	maxx := util.Atoi(matches[2])
+	miny := util.Atoi(matches[3])
+	maxy := util.Atoi(matches[4])
+	bb := newBoundingBox(minx, maxx, miny, maxy)
 
 	maxHeight := 0
 	count := 0
-	for vx := -500; vx <= 500; vx++ {
-		for vy := -500; vy <= 500; vy++ {
+	// Velocity in x direction cannot be negative otherwise we would be
+	// moving away from the target. It cannot be 0 as well which would just
+	// move the probe in a vertical direction.
+	for vx := 1; vx <= maxx; vx++ {
+		for vy := miny; vy <= miny*-1; vy++ {
 			height, reached := newProbe(vx, vy).launch(bb)
 			if reached {
 				maxHeight = util.IntMax(maxHeight, height)
