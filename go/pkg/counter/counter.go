@@ -88,6 +88,13 @@ func (c *Counter) Total() int {
 	return total
 }
 
+// ForEach is used to iterate over all the items and their counts.
+func (c *Counter) ForEach(f func(item interface{}, count int)) {
+	for item, count := range c.m {
+		f(item, count)
+	}
+}
+
 // Internal method to ease up checking whether the item exists in the counter.
 func (c *Counter) has(item interface{}) bool {
 	_, exist := c.m[item]

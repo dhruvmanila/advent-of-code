@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/dhruvmanila/advent-of-code/go/pkg/counter"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -119,34 +120,6 @@ func (ls *lineSegment) slope() (int, bool) {
 	return dy / dx, true
 }
 
-// pointCounter is a map from point to an int representing the number of times
-// the point was added.
-type pointCounter map[point]int
-
-// add is used to add multiple points to the pointCounter. If the point exists,
-// then increase the count, otherwise add the point with a default count of 1.
-func (pc pointCounter) add(pts ...point) {
-	for _, p := range pts {
-		if _, exist := pc[p]; exist {
-			pc[p]++
-		} else {
-			pc[p] = 1
-		}
-	}
-}
-
-// where is used to return the number of points where the count is equal to or
-// greater than the given value.
-func (pc pointCounter) where(c int) int {
-	quant := 0
-	for _, count := range pc {
-		if count >= c {
-			quant++
-		}
-	}
-	return quant
-}
-
 // parseLines will convert the given lines to the respective lineSegment object.
 // The structure of the line is parsed using the lineSegmentRegex which if of
 // the form: "1,2 -> 3,4"
@@ -184,19 +157,32 @@ func Sol5(input string) error {
 
 	// counter1 and counter2 represents the counter for the first and second
 	// part of the puzzle respectively.
-	counter1, counter2 := make(pointCounter), make(pointCounter)
+	counter1, counter2 := counter.New(), counter.New()
 
 	for _, ls := range lineSegments {
-		pts := ls.allPoints()
-		switch ls.orientation {
-		case horizontal, vertical:
-			counter1.add(pts...)
-			counter2.add(pts...)
-		case diagonal:
-			counter2.add(pts...)
+		for _, p := range ls.allPoints() {
+			switch ls.orientation {
+			case horizontal, vertical:
+				counter1.Add(p)
+				counter2.Add(p)
+			case diagonal:
+				counter2.Add(p)
+			}
 		}
 	}
 
-	fmt.Printf("5.1: %d\n5.2: %d\n", counter1.where(2), counter2.where(2))
+	var count1, count2 int
+	counter1.ForEach(func(_ interface{}, count int) {
+		if count >= 2 {
+			count1++
+		}
+	})
+	counter2.ForEach(func(_ interface{}, count int) {
+		if count >= 2 {
+			count2++
+		}
+	})
+
+	fmt.Printf("5.1: %d\n5.2: %d\n", count1, count2)
 	return nil
 }
