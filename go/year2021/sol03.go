@@ -87,10 +87,10 @@ func Sol3(input string) error {
 	}
 
 	oxygenGeneratorRating := util.ParseInt(
-		recursiveFilter(lines, oxygenGenerator, 0), 2, size,
+		recursiveFilter(lines, oxygenGenerator, 0), 2, 0,
 	)
 	co2ScrubberRating := util.ParseInt(
-		recursiveFilter(lines, co2Scrubber, 0), 2, size,
+		recursiveFilter(lines, co2Scrubber, 0), 2, 0,
 	)
 
 	fmt.Printf(
