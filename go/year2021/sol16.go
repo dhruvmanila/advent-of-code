@@ -125,7 +125,7 @@ func (p *parser) parse() expression {
 	var subPackets []expression
 	lengthTypeId := p.bin[p.ptr]
 	p.ptr++
-	if lengthTypeId == 48 { // byte 48 => "0"
+	if lengthTypeId == '0' {
 		subPackets = p.parseSubPacketsByLength()
 	} else {
 		subPackets = p.parseSubPacketsByCount()
@@ -149,7 +149,7 @@ func (p *parser) parseLiteralPacket() int {
 		prefix := p.bin[p.ptr]
 		literal += p.bin[p.ptr+1 : p.ptr+5]
 		p.ptr += 5
-		if prefix == 48 { // byte 48 => "0"
+		if prefix == '0' {
 			break
 		}
 	}

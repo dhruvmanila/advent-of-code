@@ -96,7 +96,7 @@ func Sol17(input string) error {
 	maxx := util.Atoi(matches[2])
 	miny := util.Atoi(matches[3])
 	maxy := util.Atoi(matches[4])
-	bb := newBoundingBox(minx, maxx, miny, maxy)
+	target := newBoundingBox(minx, maxx, miny, maxy)
 
 	maxHeight := 0
 	count := 0
@@ -105,7 +105,7 @@ func Sol17(input string) error {
 	// move the probe in a vertical direction.
 	for vx := 1; vx <= maxx; vx++ {
 		for vy := miny; vy <= miny*-1; vy++ {
-			height, reached := newProbe(vx, vy).launch(bb)
+			height, reached := newProbe(vx, vy).launch(target)
 			if reached {
 				maxHeight = util.IntMax(maxHeight, height)
 				count++
