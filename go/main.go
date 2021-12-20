@@ -1,32 +1,17 @@
 package main
 
 import (
+	"errors"
+	"flag"
 	"fmt"
 	"log"
-	"os"
-	"strconv"
+	"time"
 
 	"github.com/dhruvmanila/advent-of-code/go/year2020"
 	"github.com/dhruvmanila/advent-of-code/go/year2021"
 )
 
-// UnsolvedError is returned if the problem for the specific year and/or day is
-// not solved yet.
-type UnsolvedError struct {
-	year int
-	day  int
-}
-
-func (e *UnsolvedError) Error() string {
-	message := ""
-	if e.year != 0 {
-		message += fmt.Sprintf("year%d: ", e.year)
-	}
-	if e.day != 0 {
-		message += fmt.Sprintf("Sol%d: ", e.day)
-	}
-	return message + "unsolved"
-}
+var errUnsolved = errors.New("unsolved")
 
 type solutionFunc func(string) error
 
@@ -43,6 +28,7 @@ var solutions = map[int]map[int]solutionFunc{
 		8:  year2020.Sol8,
 		9:  year2020.Sol9,
 		10: year2020.Sol10,
+		11: year2020.Sol11,
 	},
 	2021: {
 		1:  year2021.Sol1,
@@ -63,45 +49,49 @@ var solutions = map[int]map[int]solutionFunc{
 		16: year2021.Sol16,
 		17: year2021.Sol17,
 		18: year2021.Sol18,
+		19: year2021.Sol19,
 	},
+}
+
+// Command line options.
+var (
+	test bool
+	year int
+	day  int
+)
+
+func init() {
+	now := time.Now()
+	flag.BoolVar(&test, "t", false, "run the test input instead")
+	flag.IntVar(&year, "y", now.Year(), "run solution for given year")
+	flag.IntVar(&day, "d", now.Day(), "run solution for given day")
 }
 
 func main() {
 	log.SetPrefix("aoc: ")
 	log.SetFlags(0)
+	flag.Parse()
 
-	if len(os.Args) != 3 {
-		log.Fatalf("Usage: %s <year> <day>", os.Args[0])
-	}
-
-	year, err := strconv.Atoi(os.Args[1])
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	day, err := strconv.Atoi(os.Args[2])
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	var err error
 	var input string
-	if os.Getenv("TEST") == "" {
-		input = fmt.Sprintf("./year%d/input/%02d.txt", year, day)
-	} else {
+
+	if test {
 		input = fmt.Sprintf("./year%d/input/test/%02d.txt", year, day)
+	} else {
+		input = fmt.Sprintf("./year%d/input/%02d.txt", year, day)
 	}
 
 	if yearSolutions, exist := solutions[year]; exist {
 		if solution, exist := yearSolutions[day]; exist {
 			err = solution(input)
 		} else {
-			err = &UnsolvedError{year: year, day: day}
+			err = errUnsolved
 		}
 	} else {
-		err = &UnsolvedError{year: year}
+		err = errUnsolved
 	}
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Errorf("year %d: day %d: %w", year, day, err))
 	}
 }
