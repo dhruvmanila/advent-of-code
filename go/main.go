@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/dhruvmanila/advent-of-code/go/year2020"
@@ -51,6 +52,7 @@ var solutions = map[int]map[int]solutionFunc{
 		18: year2021.Sol18,
 		19: year2021.Sol19,
 		20: year2021.Sol20,
+		21: year2021.Sol21,
 	},
 }
 
@@ -68,9 +70,19 @@ func init() {
 	flag.IntVar(&day, "d", now.Day(), "run solution for given day")
 }
 
+func usage() {
+	fmt.Fprintf(os.Stderr, `Usage: %s [-y <year>] [-d <day>] [-t]
+
+Options:
+`, os.Args[0])
+	flag.PrintDefaults()
+}
+
 func main() {
 	log.SetPrefix("aoc: ")
 	log.SetFlags(0)
+
+	flag.Usage = usage
 	flag.Parse()
 
 	var err error
