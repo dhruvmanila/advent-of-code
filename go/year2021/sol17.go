@@ -3,6 +3,7 @@ package year2021
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"os"
 	"regexp"
 
@@ -85,7 +86,7 @@ func Sol17(input string) error {
 	// moving away from the target. It cannot be 0 as well which would just
 	// move the probe in a vertical direction.
 	for vx := 1; vx <= maxx; vx++ {
-		for vy := miny; vy <= miny*-1; vy++ {
+		for vy := miny; vy <= int(math.Abs(float64(miny))); vy++ {
 			height, reached := newProbe(vx, vy).launch(target)
 			if reached {
 				maxHeight = util.IntMax(maxHeight, height)

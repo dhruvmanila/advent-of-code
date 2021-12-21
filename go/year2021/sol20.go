@@ -59,8 +59,6 @@ func (i *image) apply(algorithm string, times int) {
 		} else {
 			i.inf = '#'
 		}
-	} else {
-		panic("unexpected infinite image")
 	}
 
 	// As the algorithm, needs to change all the pixels simultaneously, we will
