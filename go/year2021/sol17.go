@@ -6,32 +6,13 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/dhruvmanila/advent-of-code/go/pkg/geometry"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
 var targetAreaRegex = regexp.MustCompile(
 	`^target area: x=(\d+)\.\.(\d+), y=(-?\d+)\.\.(-?\d+)$`,
 )
-
-type boundingBox struct {
-	minx int
-	maxx int
-	miny int
-	maxy int
-}
-
-func newBoundingBox(minx, maxx, miny, maxy int) *boundingBox {
-	return &boundingBox{
-		minx: minx,
-		maxx: maxx,
-		miny: miny,
-		maxy: maxy,
-	}
-}
-
-func (bb *boundingBox) contains(p point) bool {
-	return bb.minx <= p.x && p.x <= bb.maxx && bb.miny <= p.y && p.y <= bb.maxy
-}
 
 type probe struct {
 	point
@@ -48,24 +29,24 @@ func newProbe(vx, vy int) *probe {
 	}
 }
 
-func (p *probe) isOutside(target *boundingBox) bool {
+func (p *probe) isOutside(target *geometry.BoundingBox) bool {
 	switch {
-	case p.vx < 0 && p.x < target.minx:
+	case p.vx < 0 && p.x < target.Minx:
 		fallthrough
-	case p.vx > 0 && p.x > target.maxx:
+	case p.vx > 0 && p.x > target.Maxx:
 		fallthrough
-	case p.vy < 0 && p.y < target.miny:
+	case p.vy < 0 && p.y < target.Miny:
 		return true
 	}
 	return false
 }
 
-func (p *probe) launch(target *boundingBox) (maxHeight int, reached bool) {
+func (p *probe) launch(target *geometry.BoundingBox) (maxHeight int, reached bool) {
 	for !p.isOutside(target) {
 		p.x += p.vx
 		p.y += p.vy
 		maxHeight = util.IntMax(maxHeight, p.y)
-		if target.contains(p.point) {
+		if target.Contains(p.x, p.y) {
 			reached = true
 			break
 		}
@@ -96,7 +77,7 @@ func Sol17(input string) error {
 	maxx := util.Atoi(matches[2])
 	miny := util.Atoi(matches[3])
 	maxy := util.Atoi(matches[4])
-	target := newBoundingBox(minx, maxx, miny, maxy)
+	target := geometry.NewBoundingBox(minx, maxx, miny, maxy)
 
 	maxHeight := 0
 	count := 0
