@@ -56,13 +56,8 @@ func (p *player) move(steps int) {
 	p.score += p.pos
 }
 
-func (p *player) reset() {
-	p.pos = p.start
-	p.score = 0
-}
-
-func practiceGame(p1, p2 *player) int {
-	var loser *player
+func practiceGame(p1, p2 player) int {
+	var loser player
 	dice := newDeterministicDice()
 
 	for {
@@ -139,9 +134,8 @@ func Sol21(input string) error {
 	p1 := newPlayer(util.Atoi(lines[0][28:]))
 	p2 := newPlayer(util.Atoi(lines[1][28:]))
 
-	practiceGameOutput := practiceGame(p1, p2)
-	p1.reset()
-	p2.reset()
+	// We don't want to mutate the player information.
+	practiceGameOutput := practiceGame(*p1, *p2)
 	winCount := realGame(*p1, *p2)
 
 	fmt.Printf("21.1: %d\n21.2: %d\n", practiceGameOutput, winCount)
