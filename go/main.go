@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime/pprof"
 	"time"
 
 	"github.com/dhruvmanila/advent-of-code/go/year2020"
@@ -58,9 +59,11 @@ var solutions = map[int]map[int]solutionFunc{
 
 // Command line options.
 var (
-	test bool
-	year int
-	day  int
+	test       bool
+	year       int
+	day        int
+	cpuprofile bool
+	memprofile bool
 )
 
 func init() {
@@ -68,10 +71,12 @@ func init() {
 	flag.BoolVar(&test, "t", false, "run the test input instead")
 	flag.IntVar(&year, "y", now.Year(), "run solution for given year")
 	flag.IntVar(&day, "d", now.Day(), "run solution for given day")
+	flag.BoolVar(&cpuprofile, "cpuprofile", false, "write a CPU profile")
+	flag.BoolVar(&memprofile, "memprofile", false, "write a memory profile")
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, `Usage: %s [-y <year>] [-d <day>] [-t]
+	fmt.Fprintf(os.Stderr, `Usage: %s [-y <year>] [-d <day>] [-t] [-cpuprofile] [-memprofile]
 
 Options:
 `, os.Args[0])
@@ -94,6 +99,15 @@ func main() {
 		input = fmt.Sprintf("./year%d/input/%02d.txt", year, day)
 	}
 
+	if cpuprofile {
+		f, err := os.Create("cpu.prof")
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+
 	if yearSolutions, exist := solutions[year]; exist {
 		if solution, exist := yearSolutions[day]; exist {
 			err = solution(input)
@@ -102,6 +116,15 @@ func main() {
 		}
 	} else {
 		err = errUnsolved
+	}
+
+	if memprofile {
+		f, err := os.Create("mem.prof")
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.WriteHeapProfile(f)
+		f.Close()
 	}
 
 	if err != nil {
