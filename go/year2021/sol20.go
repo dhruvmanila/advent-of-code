@@ -14,7 +14,7 @@ type image struct {
 
 	// bbox represents a bounding box containing the input image without the
 	// infinite region.
-	bbox *geometry.BoundingBox
+	bbox *geometry.BoundingBox2D
 
 	// inf represents all the pixels in the infinite region.
 	inf rune
@@ -36,7 +36,7 @@ func newImage(lines []string) *image {
 	}
 	return &image{
 		pixels: pixels,
-		bbox:   geometry.NewBoundingBox(minx, maxx, miny, maxy),
+		bbox:   geometry.NewBoundingBox2D(minx, maxx, miny, maxy),
 		inf:    '.',
 	}
 }
@@ -68,8 +68,8 @@ func (i *image) apply(algorithm string, times int) {
 
 	// Loop over all the pixels in the bounding box including 2 extra rows and
 	// columns from all 4 sides.
-	for row := i.bbox.Miny - 2; row <= i.bbox.Maxy+2; row++ {
-		for col := i.bbox.Minx - 2; col <= i.bbox.Maxx+2; col++ {
+	for row := i.bbox.MinY - 2; row <= i.bbox.MaxY+2; row++ {
+		for col := i.bbox.MinX - 2; col <= i.bbox.MaxX+2; col++ {
 			idx := 0
 			bit := 8
 			for dy := -1; dy <= 1; dy++ {
@@ -102,18 +102,18 @@ func (i *image) apply(algorithm string, times int) {
 	// Update the image to reflect the new image formed after applying the
 	// algorithm once.
 	i.pixels = newImage
-	i.bbox.Minx = minx
-	i.bbox.Maxx = maxx
-	i.bbox.Miny = miny
-	i.bbox.Maxy = maxy
+	i.bbox.MinX = minx
+	i.bbox.MaxX = maxx
+	i.bbox.MinY = miny
+	i.bbox.MaxY = maxy
 
 	i.apply(algorithm, times-1)
 }
 
 func (i *image) String() string {
 	var s string
-	for row := i.bbox.Miny - 2; row <= i.bbox.Maxy+2; row++ {
-		for col := i.bbox.Minx - 2; col <= i.bbox.Maxx+2; col++ {
+	for row := i.bbox.MinY - 2; row <= i.bbox.MaxY+2; row++ {
+		for col := i.bbox.MinX - 2; col <= i.bbox.MaxX+2; col++ {
 			if i.pixels.Contains(position{row, col}) {
 				s += "#"
 			} else {

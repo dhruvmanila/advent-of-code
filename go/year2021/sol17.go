@@ -30,19 +30,19 @@ func newProbe(vx, vy int) *probe {
 	}
 }
 
-func (p *probe) isOutside(target *geometry.BoundingBox) bool {
+func (p *probe) isOutside(target *geometry.BoundingBox2D) bool {
 	switch {
-	case p.vx < 0 && p.x < target.Minx:
+	case p.vx < 0 && p.x < target.MinX:
 		fallthrough
-	case p.vx > 0 && p.x > target.Maxx:
+	case p.vx > 0 && p.x > target.MaxX:
 		fallthrough
-	case p.vy < 0 && p.y < target.Miny:
+	case p.vy < 0 && p.y < target.MinY:
 		return true
 	}
 	return false
 }
 
-func (p *probe) launch(target *geometry.BoundingBox) (maxHeight int, reached bool) {
+func (p *probe) launch(target *geometry.BoundingBox2D) (maxHeight int, reached bool) {
 	for !p.isOutside(target) {
 		p.x += p.vx
 		p.y += p.vy
@@ -78,7 +78,7 @@ func Sol17(input string) error {
 	maxx := util.Atoi(matches[2])
 	miny := util.Atoi(matches[3])
 	maxy := util.Atoi(matches[4])
-	target := geometry.NewBoundingBox(minx, maxx, miny, maxy)
+	target := geometry.NewBoundingBox2D(minx, maxx, miny, maxy)
 
 	maxHeight := 0
 	count := 0
