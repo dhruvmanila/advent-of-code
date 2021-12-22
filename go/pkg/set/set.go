@@ -5,29 +5,29 @@
 // access the underlying value, use the Value method.
 package set
 
-type empty struct{}
+var exist = struct{}{}
 
 // Set represents an unordered list of elements.
 type Set struct {
-	list map[interface{}]empty
+	list map[interface{}]struct{}
 }
 
 // New returns an initialized Set.
 func New() *Set {
-	return &Set{list: make(map[interface{}]empty)}
+	return &Set{list: make(map[interface{}]struct{})}
 }
 
 // Add adds all the given values to the set.
 func (s *Set) Add(v ...interface{}) {
 	for _, i := range v {
-		s.list[i] = empty{}
+		s.list[i] = exist
 	}
 }
 
 // Contains check if the given value exists in the set.
 func (s *Set) Contains(v interface{}) bool {
-	_, exist := s.list[v]
-	return exist
+	_, c := s.list[v]
+	return c
 }
 
 // Remove deletes the value from the set. If there is no such value, Remove is
@@ -38,7 +38,7 @@ func (s *Set) Remove(v interface{}) {
 
 // Clear empties the set.
 func (s *Set) Clear() {
-	s.list = make(map[interface{}]empty)
+	s.list = make(map[interface{}]struct{})
 }
 
 // Len returns the number of elements in the set.
