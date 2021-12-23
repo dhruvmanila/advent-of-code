@@ -38,17 +38,97 @@ func filterSteps(steps []*rebootStep) []*rebootStep {
 	return filtered
 }
 
+// Algorithm explanation:
+//
+// This is done in 2D but the same logic applies in 3D. There are two cases to
+// help understand the algorithm:
+//
+// 1. A (on) + B (on) + C (on)
+//
+//              B(on)
+//             ┌───────────────────┐
+//             │+                  │
+//      A(on)  │                   │
+//     ┌───────┼────────┐          │
+//     │+      │D    + +│          │
+//     │       │     -  │          │
+//     │       │        │          │
+//     │  ┌────┼────────┼──────┐   │
+//     │  │E   │F  + + +│G  + +│   │
+//     │  │    │ + - - -│     -│   │
+//     │  │+ + └────────┼──────┼───┘
+//     │  │-            │      │
+//     └──┼─────────────┘      │
+//        │                    │
+//        │                    │
+//   C(on)│+                   │
+//        └────────────────────┘
+//
+// Here, D, E, F and G are the cubes at an intersection and plus (+) and minus (-)
+// represent that the region is being added or removed.
+//
+// 1. Cube A is added as it is on and is represented by a plus (+) in all the
+//    cubes in A which are A, D, E, G.
+// 2. Cube B is added as it is on and is represented by a plus (+) in all the
+//    cubes in B which are B, E, F, G. Here, D and F have been added twice, so
+//    we need to remove them. This is done using the inclusion-exlusion principle
+//    by adding the intersection cube (D+F) of A and B with an opposite state
+//    w.r.t. the cube A.
+// 3. Cube C is added as it is on and is represented by a plus (+) in all the
+//    cubes in C which are C, E, F, G. Here, E, F and G have been added twice.
+//    We will loop over all the cubes available before this step which includes
+//    A, B and D+F (intersection cube between A and B) and use the same principle.
+//    1. E and F will be subtracted (opposite state of A) as E+F is the
+//       intersection cube between C and A.
+//    2. F and G will be subtracted (opposite state of B) as F+G is the
+//       intersection cube between C and B.
+//    3. Now, this is the special case where C intersects with the intersection
+//       cube D+F which, if you remember, has an opposite state w.r.t. cube B
+//       meaning that the intersection cube is to be subtracted. So, cube F,
+//       which is an intersection between C and D+F, will be added (opposite
+//       state of intersection cubee D+F).
+//
+// Cancelling out all the plus (+) and minus (-), what we get is all the region
+// being added only once which is what we want.
+//
+// 2. A (on) + B (on) + C (off)
+//
+//              B(on)
+//             ┌───────────────────┐
+//             │+                  │
+//      A(on)  │                   │
+//     ┌───────┼────────┐          │
+//     │+      │D    + +│          │
+//     │       │       -│          │
+//     │       │        │          │
+//     │  ┌────┼────────┼──────┐   │
+//     │  │E   │F  - + +│G    +│   │
+//     │  │    │   + - -│     -│   │
+//     │  │+   └────────┼──────┼───┘
+//     │  │-            │      │
+//     └──┼─────────────┘      │
+//        │                    │
+//        │                    │
+//  C(off)│                    │
+//        └────────────────────┘
+//
+// First two steps where A and B are being added is the same as before.
+// Here, C should not be added as it is an off cube, but we still need to
+// perform the intersection and add opposite state step for all the previous
+// cubes. After performing the same steps as 3.1, 3.2 and 3.3 from before, we
+// are left with the above state of plus (+) and minus (-). After cancelling
+// them all out, what we get is the region which is all on.
+//
+// Summary:
+// 1. A(on) + B(on)  = |A| + |B| - |A ∩ B| (inclusion-exlusion principle)
+// 2. A(on) + B(off) = |A|       - |A ∩ B|
 func reboot(rebootSteps []*rebootStep) int {
 	var steps []*rebootStep
 
 	for _, rs := range rebootSteps {
 		for _, s := range steps {
-			// Inclusion-Exclusion principle to obtain a union of two sets:
-			//
-			//   |A ∪ B| = |A| + |B| - |A ∩ B|
-			//
 			// If they intersect, then the intersect cuboid will be added with
-			// its state flipped w.r.t. the reboot step (rs).
+			// its state flipped w.r.t. the step (s).
 			if intersect := rs.cuboid.Intersection(s.cuboid); intersect != nil {
 				// We're modifying the slice while iterating which is ok here
 				// as range cannot see the updated slice. This would lead to
