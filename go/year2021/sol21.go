@@ -3,6 +3,7 @@ package year2021
 import (
 	"fmt"
 
+	"github.com/dhruvmanila/advent-of-code/go/pkg/counter"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -77,52 +78,58 @@ func practiceGame(p1, p2 player) int {
 	return loser.score * dice.rolls
 }
 
-// quantumRolls contains the sum of all the possible rolls for a quantum dice
-// and their frequency.
-var quantumRolls = [][]int{
-	{3, 1},
-	{4, 3},
-	{5, 6},
-	{6, 7},
-	{7, 6},
-	{8, 3},
-	{9, 1},
+// quantumRolls is a map from the sum of combination of three rolls possible
+// for a quantum dice to their frequency.
+var quantumRolls = map[int]int{
+	3: 1, // {1, 1, 1}
+	4: 3, // {1, 1, 2}
+	5: 6, // {1, 2, 2}, {1, 1, 3}
+	6: 7, // {1, 2, 3}, {2, 2, 2}
+	7: 6, // {1, 3, 3}, {2, 2, 3}
+	8: 3, // {2, 3, 3}
+	9: 1, // {3, 3, 3}
 }
 
 func realGame(p1, p2 player) int {
-	memo := make(map[[2]player]map[int]int)
+	memo := make(map[[2]player]*counter.Counter)
+	var loop func(p, other player) *counter.Counter
 
-	var loop func(p, other player) map[int]int
-	loop = func(p, other player) map[int]int {
-		if p.score >= 21 {
-			return map[int]int{p.id: 1, other.id: 0}
-		} else if other.score >= 21 {
-			return map[int]int{p.id: 0, other.id: 1}
-		} else if value, ok := memo[[2]player{p, other}]; ok {
+	// Here, p represents the currently playing player while other is waiting
+	// for its turn.
+	loop = func(p, other player) *counter.Counter {
+		// Base case: One of the player have score equal to or greater than 21.
+		switch {
+		case p.score >= 21:
+			return counter.NewWith(p.id)
+		case other.score >= 21:
+			return counter.NewWith(other.id)
+		}
+
+		key := [2]player{p, other}
+		if value, ok := memo[key]; ok {
 			return value
 		}
 
-		count := map[int]int{p.id: 0, other.id: 0}
-		for _, roll := range quantumRolls {
-			steps, freq := roll[0], roll[1]
-
+		c := counter.New()
+		for steps, freq := range quantumRolls {
 			// We cannot update the original struct as we still have other
 			// rolls to play. This is creating a copy of the struct and works
-			// because the struct only contains primitive values.
+			// only because the struct contains only primitive values.
 			np := p
 			np.move(steps)
 
+			// Now it's other's turn.
 			rc := loop(other, np)
-			count[p.id] += rc[p.id] * freq
-			count[other.id] += rc[other.id] * freq
+			c.AddCount(p.id, rc.Get(p.id)*freq)
+			c.AddCount(other.id, rc.Get(other.id)*freq)
 		}
 
-		memo[[2]player{p, other}] = count
-		return count
+		memo[key] = c
+		return c
 	}
 
 	wins := loop(p1, p2)
-	return util.IntMax(wins[p1.id], wins[p2.id])
+	return util.IntMax(wins.Get(p1.id), wins.Get(p2.id))
 }
 
 func Sol21(input string) error {
