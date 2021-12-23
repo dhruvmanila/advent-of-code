@@ -1,41 +1,11 @@
 package year2021
 
 import (
-	"container/list"
-	"errors"
 	"fmt"
 
+	"github.com/dhruvmanila/advent-of-code/go/pkg/queue"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
-
-// errQueueEmpty is returned when the queue is empty.
-var errQueueEmpty = errors.New("empty queue")
-
-// positionQueue contains the implementation of a queue for position objects.
-type positionQueue struct {
-	queue *list.List
-}
-
-// newPositionQueue creates a new position queue.
-func newPositionQueue() *positionQueue {
-	return &positionQueue{queue: list.New()}
-}
-
-// enqueue is used to add a position object at the back of the queue.
-func (q *positionQueue) enqueue(pos position) {
-	q.queue.PushBack(pos)
-}
-
-// dequeue is used to get the frontmost position in the queue or an empty
-// position with an error if the queue is empty. It is recommended to use
-// errQueueEmpty in `errors.Is` to check whether the queue is empty or not.
-func (q *positionQueue) dequeue() (position, error) {
-	if element := q.queue.Front(); element != nil {
-		q.queue.Remove(element)
-		return element.Value.(position), nil
-	}
-	return position{}, errQueueEmpty
-}
 
 // position contains information regarding a specific position in the grid.
 type position struct {
@@ -50,14 +20,14 @@ type octopusGrid struct {
 
 	// flashQueue is a position queue used to enqueue all the positions which
 	// needs to be flashed.
-	flashQueue *positionQueue
+	flashQueue *queue.Queue
 }
 
 // newOctopusGrid is used to create a new octopus grid.
 func newOctopusGrid(grid map[position]int) *octopusGrid {
 	return &octopusGrid{
 		grid:       grid,
-		flashQueue: newPositionQueue(),
+		flashQueue: queue.New(),
 	}
 }
 
@@ -81,7 +51,7 @@ func (og *octopusGrid) adjacentPos(pos position) []position {
 func (og *octopusGrid) incLevel(pos position) {
 	og.grid[pos]++
 	if og.grid[pos] > 9 {
-		og.flashQueue.enqueue(pos)
+		og.flashQueue.Enqueue(pos)
 	}
 }
 
@@ -98,10 +68,11 @@ func (og *octopusGrid) step() int {
 func (og *octopusGrid) flash() int {
 	flashes := 0
 	for {
-		pos, err := og.flashQueue.dequeue()
-		if errors.Is(err, errQueueEmpty) {
+		e := og.flashQueue.Dequeue()
+		if e == nil {
 			break
 		}
+		pos := e.(position)
 		if og.grid[pos] == 0 {
 			continue
 		}
