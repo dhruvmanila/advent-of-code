@@ -33,30 +33,47 @@ func NewFromMap(m map[interface{}]int) *Counter {
 // NewFromSlice creates and returns a new counter from an existing slice.
 func NewFromSlice(s []interface{}) *Counter {
 	c := New()
-	c.Add(s...)
+	c.Increment(s...)
 	return c
 }
 
-// Add adds all the items to the counter increasing the count for an existing
-// item, else initiating the count to 1.
-func (c *Counter) Add(items ...interface{}) {
+// Increment increments the count of all the given items by 1, else initiating
+// the count to 1.
+func (c *Counter) Increment(items ...interface{}) {
 	for _, item := range items {
-		c.AddCount(item, 1)
+		c.IncrementBy(item, 1)
 	}
 }
 
-// Remove removes all the items from the counter by decreasing its count by 1.
-// This does not actually remove an item from the counter. Use counter.Delete()
-// to remove it entirely.
-//
-// Contrary to counter.SubtractCount(), this won't let the count of an item to
-// be negative. If the count of an item is 0 or negative and Remove is called
-// for that item, this function will be a no-op.
-func (c *Counter) Remove(items ...interface{}) {
+// IncrementBy is used to add count for an item if it exists, else initiating the
+// item with given count.
+func (c *Counter) IncrementBy(item interface{}, count int) {
+	if c.contains(item) {
+		c.m[item] += count
+	} else {
+		c.m[item] = count
+	}
+}
+
+// Decrement decrements the count of all the given items by 1. This won't let
+// the count of an item be negative. Use counter.DecrementBy() to decrement the
+// count below 0.
+func (c *Counter) Decrement(items ...interface{}) {
 	for _, item := range items {
 		if c.Get(item) > 0 {
-			c.SubtractCount(item, 1)
+			c.DecrementBy(item, 1)
 		}
+	}
+}
+
+// DecrementBy is used to subtract count for an item if it exists, else
+// initiating the item with given count. The count can be reduced to zero
+// or negative.
+func (c *Counter) DecrementBy(item interface{}, count int) {
+	if c.contains(item) {
+		c.m[item] -= count
+	} else {
+		c.m[item] = -count
 	}
 }
 
@@ -65,27 +82,6 @@ func (c *Counter) Remove(items ...interface{}) {
 func (c *Counter) Delete(items ...interface{}) {
 	for _, item := range items {
 		delete(c.m, item)
-	}
-}
-
-// AddCount is used to add count for an item if it exists, else initiating the
-// item with given count.
-func (c *Counter) AddCount(item interface{}, count int) {
-	if c.contains(item) {
-		c.m[item] += count
-	} else {
-		c.m[item] = count
-	}
-}
-
-// SubtractCount is used to subtract count for an item if it exists, else
-// initiating the item with given count. The count can be reduced to zero
-// or negative.
-func (c *Counter) SubtractCount(item interface{}, count int) {
-	if c.contains(item) {
-		c.m[item] -= count
-	} else {
-		c.m[item] = -count
 	}
 }
 

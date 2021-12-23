@@ -120,8 +120,8 @@ func realGame(p1, p2 player) int {
 
 			// Now it's other's turn.
 			rc := loop(other, np)
-			c.AddCount(p.id, rc.Get(p.id)*freq)
-			c.AddCount(other.id, rc.Get(other.id)*freq)
+			c.IncrementBy(p.id, rc.Get(p.id)*freq)
+			c.IncrementBy(other.id, rc.Get(other.id)*freq)
 		}
 
 		memo[key] = c

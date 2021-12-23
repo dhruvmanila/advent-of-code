@@ -50,16 +50,17 @@ func Sol10(input string) error {
 	effectiveRating := 0
 	sort.Ints(ratings)
 
-	diffCounter := counter.New()
-	diffCounter.Add(ratings[0] - effectiveRating)
+	// dc is a difference counter.
+	dc := counter.New()
+	dc.Increment(ratings[0] - effectiveRating)
 	for i := 0; i < len(ratings)-1; i++ {
-		diffCounter.Add(ratings[i+1] - ratings[i])
+		dc.Increment(ratings[i+1] - ratings[i])
 	}
-	diffCounter.Add(3)
+	dc.Increment(3)
 
 	fmt.Printf(
 		"10.1: %d\n10.2: %d\n",
-		diffCounter.Get(1)*diffCounter.Get(3),
+		dc.Get(1)*dc.Get(3),
 		arrangementCount(effectiveRating, ratings, make(map[int]int)),
 	)
 	return nil

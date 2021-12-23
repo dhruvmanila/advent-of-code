@@ -163,10 +163,10 @@ func Sol5(input string) error {
 		for _, p := range ls.allPoints() {
 			switch ls.orientation {
 			case horizontal, vertical:
-				counter1.Add(p)
-				counter2.Add(p)
+				counter1.Increment(p)
+				counter2.Increment(p)
 			case diagonal:
-				counter2.Add(p)
+				counter2.Increment(p)
 			}
 		}
 	}

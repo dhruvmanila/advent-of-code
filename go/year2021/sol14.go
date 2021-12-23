@@ -23,7 +23,7 @@ type polymer struct {
 func newPolymer(template string, rules map[string]string) *polymer {
 	c := counter.New()
 	for _, letter := range template {
-		c.Add(string(letter))
+		c.Increment(string(letter))
 	}
 	return &polymer{
 		template: template,
@@ -55,7 +55,7 @@ func (p *polymer) process(steps int) {
 		// already added all the characters from the template when creating
 		// the polymer.
 		c := counter.New()
-		c.Add(element)
+		c.Increment(element)
 
 		// Recursion case:
 		//
@@ -81,7 +81,7 @@ func (p *polymer) process(steps int) {
 func (p *polymer) reset() {
 	p.c = counter.New()
 	for _, letter := range p.template {
-		p.c.Add(string(letter))
+		p.c.Increment(string(letter))
 	}
 }
 
