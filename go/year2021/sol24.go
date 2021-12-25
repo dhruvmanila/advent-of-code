@@ -2,9 +2,12 @@ package year2021
 
 import (
 	"fmt"
+	"math"
+	"sort"
 	"strconv"
 	"strings"
 
+	"github.com/dhruvmanila/advent-of-code/go/pkg/stack"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -167,20 +170,127 @@ func (a *alu) reset() {
 //   w₁₁ + 2 == w₁₂
 //   w₂  + 1 == w₁₃
 //   w₁  - 5 == w₁₄
+//
+// The above logic is coded below:
+
+// digitVar is a variable representing a specific digit in a 14-digit number
+// along with its position from the right.
+type digitVar struct {
+	// pos is the position of the digit from right, starting with 0.
+	pos int
+	// value is the value of digit at pos.
+	value int
+}
+
+func formNumber(ds []*digitVar) int {
+	sort.Slice(ds, func(i, j int) bool {
+		return ds[i].pos > ds[j].pos
+	})
+	var n int
+	for _, d := range ds {
+		n += int(math.Pow10(d.pos)) * d.value
+	}
+	return n
+}
+
+// equation contains information regarding a specific form of equation:
+//   left + constant == right OR left == right - constant
+//
+// Example:
+//   x + 4 == y OR x == y - 4
+type equation struct {
+	left     *digitVar
+	constant int
+	right    *digitVar
+}
+
+// maximizeSolve will solve the equation to maximize the solution and update
+// the variable values.
+func (eq *equation) maximizeSolve() {
+	if eq.constant < 0 {
+		eq.left.value = 9
+		eq.right.value = 9 + eq.constant
+	} else {
+		eq.right.value = 9
+		eq.left.value = 9 - eq.constant
+	}
+}
+
+// minimizeSolve will solve the equation to minimize the solution and update
+// the variable values.
+func (eq *equation) minimizeSolve() {
+	if eq.constant < 0 {
+		eq.right.value = 1
+		eq.left.value = eq.right.value - eq.constant
+	} else {
+		eq.left.value = 1
+		eq.right.value = eq.left.value + eq.constant
+	}
+}
+
+func formEquations(instructions []string) []*equation {
+	s := stack.New()
+	equations := make([]*equation, 0, 7)
+	pos := 13
+
+	for i := 0; i < len(instructions); i += 18 {
+		group := instructions[i : i+18]
+		switch group[4] {
+		case "div z 1":
+			s.Push(&equation{
+				left:     &digitVar{pos: pos},
+				constant: util.Atoi(group[15][6:]),
+			})
+		case "div z 26":
+			item := s.Pop()
+			if item == nil {
+				panic("empty stack")
+			}
+			eq := item.(*equation)
+			eq.constant += util.Atoi(group[5][6:])
+			eq.right = &digitVar{pos: pos}
+			equations = append(equations, eq)
+		}
+		pos--
+	}
+
+	return equations
+}
+
 func Sol24(input string) error {
 	lines, err := util.ReadLines(input)
 	if err != nil {
 		return err
 	}
 
+	equations := formEquations(lines)
+	maximizedDigits := make([]*digitVar, 0, 14)
+	for _, eq := range equations {
+		eq.maximizeSolve()
+		maximizedDigits = append(maximizedDigits, eq.left, eq.right)
+	}
+	largestModelNum := formNumber(maximizedDigits)
+
+	minimizedDigits := make([]*digitVar, 0, 14)
+	for _, eq := range equations {
+		eq.minimizeSolve()
+		minimizedDigits = append(minimizedDigits, eq.left, eq.right)
+	}
+	smallestModelNum := formNumber(minimizedDigits)
+
+	// Let's fire up the ALU to verify our solution.
 	alu := newAlu(lines)
-	alu.run(98491959997994)
-	fmt.Printf("%+v\n", alu.vars)
+	alu.run(largestModelNum)
+	if alu.vars["z"] != 0 {
+		return fmt.Errorf("z is not 0 for largest model number: %d", largestModelNum)
+	}
 
 	alu.reset()
-	alu.run(61191516111321)
-	fmt.Printf("%+v\n", alu.vars)
+	alu.run(smallestModelNum)
+	if alu.vars["z"] != 0 {
+		return fmt.Errorf("z is not 0 for smallest model number: %d", smallestModelNum)
+	}
 
-	fmt.Printf("24.1: %d\n24.2: %d\n", 98491959997994, 61191516111321)
+	fmt.Printf("24.1: %d\n24.2: %d\n", largestModelNum, smallestModelNum)
 	return nil
 }
