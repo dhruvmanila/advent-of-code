@@ -100,7 +100,7 @@ func parseHeightMap(lines []string) heightMap {
 	return grid
 }
 
-func Sol9(input string) error {
+func Sol09(input string) error {
 	lines, err := util.ReadLines(input)
 	if err != nil {
 		return err

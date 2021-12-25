@@ -34,7 +34,7 @@ func simulate(fishes []int, days int) int {
 	return util.Sum(fishCount[:])
 }
 
-func Sol6(input string) error {
+func Sol06(input string) error {
 	lines, err := util.ReadLines(input)
 	if err != nil {
 		return err

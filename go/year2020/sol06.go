@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func Sol6(input string) error {
+func Sol06(input string) error {
 	content, err := os.ReadFile(input)
 	if err != nil {
 		return err

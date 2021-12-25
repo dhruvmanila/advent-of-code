@@ -126,7 +126,7 @@ func parseBoards(lines []string) ([]*board, error) {
 	return boards, nil
 }
 
-func Sol4(input string) error {
+func Sol04(input string) error {
 	lines, err := util.ReadLines(input)
 	if err != nil {
 		return err

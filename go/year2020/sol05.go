@@ -33,7 +33,7 @@ func bisectionSearch(chars boardingPass, lo, hi int, hiChar rune) int {
 	return lo // both lo and hi are the same number
 }
 
-func Sol5(input string) error {
+func Sol05(input string) error {
 	lines, err := util.ReadLines(input)
 	if err != nil {
 		return err

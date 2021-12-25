@@ -92,7 +92,7 @@ func (p *program) reset() {
 	p.ptr = 0
 }
 
-func Sol8(input string) error {
+func Sol08(input string) error {
 	lines, err := util.ReadLines(input)
 	if err != nil {
 		return err

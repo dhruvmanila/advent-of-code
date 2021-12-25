@@ -39,7 +39,7 @@ Loop:
 	return min + max
 }
 
-func Sol9(input string) error {
+func Sol09(input string) error {
 	numbers, err := util.ReadLinesAsInt(input)
 	if err != nil {
 		return err

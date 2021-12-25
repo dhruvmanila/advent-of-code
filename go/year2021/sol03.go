@@ -49,7 +49,7 @@ func recursiveFilter(binaryNums []string, rt ratingType, pos int) string {
 	}
 }
 
-func Sol3(input string) error {
+func Sol03(input string) error {
 	lines, err := util.ReadLines(input)
 	if err != nil {
 		return err

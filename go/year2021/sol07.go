@@ -8,7 +8,7 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-func Sol7(input string) error {
+func Sol07(input string) error {
 	lines, err := util.ReadLines(input)
 	if err != nil {
 		return err

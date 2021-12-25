@@ -99,7 +99,7 @@ func (p passport) validateFields() bool {
 	return true
 }
 
-func Sol4(input string) error {
+func Sol04(input string) error {
 	content, err := os.ReadFile(input)
 	if err != nil {
 		return err
