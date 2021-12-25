@@ -10,39 +10,18 @@ import (
 
 type alu struct {
 	instructions []string
-	w, x, y, z   int
+	vars         map[string]int
 }
 
 func newAlu(instructions []string) *alu {
-	return &alu{instructions: instructions}
-}
-
-func (a *alu) get(varname string) int {
-	switch varname {
-	case "w":
-		return a.w
-	case "x":
-		return a.x
-	case "y":
-		return a.y
-	case "z":
-		return a.z
-	}
-	panic("unknown variable: " + varname)
-}
-
-func (a *alu) set(varname string, value int) {
-	switch varname {
-	case "w":
-		a.w = value
-	case "x":
-		a.x = value
-	case "y":
-		a.y = value
-	case "z":
-		a.z = value
-	default:
-		panic("unknown variable: " + varname)
+	return &alu{
+		instructions: instructions,
+		vars: map[string]int{
+			"w": 0,
+			"x": 0,
+			"y": 0,
+			"z": 0,
+		},
 	}
 }
 
@@ -58,30 +37,37 @@ func (a *alu) run(input int) {
 			if err == nil {
 				num = i
 			} else {
-				num = a.get(fields[2])
+				num = a.vars[fields[2]]
 			}
 		}
 
 		switch opcode {
 		case "inp":
-			a.set(result, <-digits)
+			a.vars[result] = <-digits
 		case "add":
-			a.set(result, a.get(result)+num)
+			a.vars[result] += num
 		case "mul":
-			a.set(result, a.get(result)*num)
+			a.vars[result] *= num
 		case "div":
-			a.set(result, a.get(result)/num)
+			a.vars[result] /= num
 		case "mod":
-			a.set(result, a.get(result)%num)
+			a.vars[result] %= num
 		case "eql":
-			if a.get(result) == num {
-				a.set(result, 1)
+			if a.vars[result] == num {
+				a.vars[result] = 1
 			} else {
-				a.set(result, 0)
+				a.vars[result] = 0
 			}
 		default:
 			panic("invalid opcode: " + opcode)
 		}
+	}
+}
+
+// reset will reset all the variables back to 0.
+func (a *alu) reset() {
+	for v := range a.vars {
+		a.vars[v] = 0
 	}
 }
 
@@ -189,7 +175,11 @@ func Sol24(input string) error {
 
 	alu := newAlu(lines)
 	alu.run(98491959997994)
+	fmt.Printf("%+v\n", alu.vars)
+
+	alu.reset()
 	alu.run(61191516111321)
+	fmt.Printf("%+v\n", alu.vars)
 
 	fmt.Printf("24.1: %d\n24.2: %d\n", 98491959997994, 61191516111321)
 	return nil
