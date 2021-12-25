@@ -57,6 +57,7 @@ var solutions = map[int]map[int]solutionFunc{
 		22: year2021.Sol22,
 		23: year2021.Sol23,
 		24: year2021.Sol24,
+		25: year2021.Sol25,
 	},
 }
 
