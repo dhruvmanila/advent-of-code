@@ -14,7 +14,7 @@ import (
 var requiredFields = []string{"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"}
 
 // validEyeColor is a set of valid eye colors for the "ecl" field in a passport.
-var validEyeColor = set.New()
+var validEyeColor = set.New[string]()
 
 var (
 	hexColorRegex = regexp.MustCompile(`^#[0-9a-f]{6}$`)

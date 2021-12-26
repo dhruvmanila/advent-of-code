@@ -11,17 +11,16 @@ import (
 )
 
 type food struct {
-	ingredients *set.Set
-	allergens   *set.Set
+	ingredients set.Set[string]
+	allergens   set.Set[string]
 }
 
 func identifyAllergens(foods []*food) (map[string]string, int) {
-	candidates := make(map[string]*set.Set)
+	candidates := make(map[string]set.Set[string])
 	ingredientCount := counter.New()
 	for _, food := range foods {
 		ingredientCount.Update(counter.NewFromSlice(food.ingredients.ToSlice()))
-		food.allergens.ForEach(func(e interface{}) {
-			allergen := e.(string)
+		food.allergens.ForEach(func(allergen string) {
 			if candidates[allergen] == nil {
 				candidates[allergen] = food.ingredients
 			}
@@ -34,7 +33,7 @@ func identifyAllergens(foods []*food) (map[string]string, int) {
 	for len(candidates) != 0 {
 		for allergen, ingredients := range candidates {
 			if ingredients.Len() == 1 {
-				ingredient := ingredients.Pop().(string)
+				ingredient := ingredients.Pop()
 				allergens[allergen] = ingredient
 				ingredientCount.Delete(ingredient)
 				delete(candidates, allergen)
@@ -51,11 +50,11 @@ func parseFoods(lines []string) []*food {
 	foods := make([]*food, 0, len(lines))
 	for _, line := range lines {
 		data := strings.Split(line, " (contains ")
-		ingredients := set.New()
+		ingredients := set.New[string]()
 		for _, ingredient := range strings.Fields(data[0]) {
 			ingredients.Add(ingredient)
 		}
-		allergens := set.New()
+		allergens := set.New[string]()
 		for _, allergen := range strings.Split(strings.TrimSuffix(data[1], ")"), ", ") {
 			allergens.Add(allergen)
 		}

@@ -8,7 +8,7 @@ import (
 )
 
 func isValid(num int, preamble []int) bool {
-	ns := set.New()
+	ns := set.New[int]()
 	for _, n := range preamble {
 		ns.Add(n)
 	}

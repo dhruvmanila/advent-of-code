@@ -18,7 +18,7 @@ func Sol01(input string) error {
 
 	// report is a set to simplify checking whether a specific expense entry
 	// exists in the report.
-	report := set.New()
+	report := set.New[int]()
 
 	for i, s := range lines {
 		expense := util.MustAtoi(s)

@@ -60,7 +60,7 @@ func newProgramFromCode(lines []string) *program {
 func (p *program) run() error {
 	// executed is a set of instructions which got executed. This is to detect
 	// an infinite loop.
-	executed := set.New()
+	executed := set.New[int]()
 
 	for p.ptr < len(p.instructions) {
 		if executed.Contains(p.ptr) {

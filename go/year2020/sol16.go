@@ -91,9 +91,9 @@ TicketLoop:
 func (i *ticketInfo) ruleOrder() []string {
 	validTickets := i.validNearbyTickets()
 
-	possibleFields := make(map[int]*set.Set, len(i.rules))
+	possibleFields := make(map[int]set.Set[string], len(i.rules))
 	for col := 0; col < len(i.rules); col++ {
-		possibleFields[col] = set.New()
+		possibleFields[col] = set.New[string]()
 	Rule:
 		for field, ranges := range i.rules {
 			for _, ticket := range validTickets {
@@ -109,7 +109,7 @@ func (i *ticketInfo) ruleOrder() []string {
 	for len(possibleFields) != 0 {
 		for col, possible := range possibleFields {
 			if possible.Len() == 1 {
-				field := possible.Pop().(string)
+				field := possible.Pop()
 				order[col] = field
 				delete(possibleFields, col)
 				for _, otherPossible := range possibleFields {

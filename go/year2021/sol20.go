@@ -10,7 +10,7 @@ import (
 
 type image struct {
 	// pixels is a set of position containing all the light pixels.
-	pixels *set.Set
+	pixels set.Set[position]
 
 	// bbox represents a bounding box containing the input image without the
 	// infinite region.
@@ -21,7 +21,7 @@ type image struct {
 }
 
 func newImage(lines []string) *image {
-	pixels := set.New()
+	pixels := set.New[position]()
 	var minx, maxx, miny, maxy int
 	for row, line := range lines {
 		for col, pixel := range line {
@@ -63,7 +63,7 @@ func (i *image) apply(algorithm string, times int) {
 
 	// As the algorithm, needs to change all the pixels simultaneously, we will
 	// apply the changes in the new image from referencing the old image.
-	newImage := set.New()
+	newImage := set.New[position]()
 	var minx, maxx, miny, maxy int
 
 	// Loop over all the pixels in the bounding box including 2 extra rows and

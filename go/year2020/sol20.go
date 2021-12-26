@@ -100,7 +100,7 @@ func search(tiles []*imageTile) *matrix.Dense {
 	grid := matrix.NewDense(gridSize, gridSize, nil)
 
 	// visited is a set of image ids which have been visited.
-	visited := set.New()
+	visited := set.New[int]()
 
 	// Core loop which runs the backtracking algorithm to assemble the image.
 	// row and col are zero-based index values for the main image where (0, 0)

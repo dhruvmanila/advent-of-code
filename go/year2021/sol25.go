@@ -10,8 +10,8 @@ import (
 type seafloor struct {
 	// east and south is a set of position where the east-facing and
 	// south-facing sea cucumbers are present respectively.
-	east  *set.Set
-	south *set.Set
+	east  set.Set[position]
+	south set.Set[position]
 
 	// rows and cols are the total number of rows and columns on the seafloor.
 	rows int
@@ -19,8 +19,8 @@ type seafloor struct {
 }
 
 func newSeafloor(lines []string) *seafloor {
-	east := set.New()
-	south := set.New()
+	east := set.New[position]()
+	south := set.New[position]()
 	for row, line := range lines {
 		for col, char := range line {
 			switch char {
@@ -41,11 +41,10 @@ func newSeafloor(lines []string) *seafloor {
 
 func (sf *seafloor) move() bool {
 	moved := false
-	newEast := set.NewWithSize(sf.east.Len())
-	newSouth := set.NewWithSize(sf.south.Len())
+	newEast := set.NewWithSize[position](sf.east.Len())
+	newSouth := set.NewWithSize[position](sf.south.Len())
 
-	sf.east.ForEach(func(e interface{}) {
-		pos := e.(position)
+	sf.east.ForEach(func(pos position) {
 		newPos := position{pos.row, (pos.col + 1) % sf.cols}
 		switch {
 		case sf.east.Contains(newPos):
@@ -58,8 +57,7 @@ func (sf *seafloor) move() bool {
 		}
 	})
 
-	sf.south.ForEach(func(e interface{}) {
-		pos := e.(position)
+	sf.south.ForEach(func(pos position) {
 		newPos := position{(pos.row + 1) % sf.rows, pos.col}
 		switch {
 		case newEast.Contains(newPos):

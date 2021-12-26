@@ -51,7 +51,7 @@ func playRecursiveCombat(p1, p2 *player) *player {
 	// a set of seen game state for every game.
 	var play func(p1, p2 *player) *player
 	play = func(p1, p2 *player) *player {
-		seen := set.New()
+		seen := set.New[string]()
 		for !(p1.deck.IsEmpty() || p2.deck.IsEmpty()) {
 			// We will use the string representation of each player which
 			// contains the id and card values in order as the game state.
