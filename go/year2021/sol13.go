@@ -9,11 +9,6 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-type coordinate struct {
-	x int
-	y int
-}
-
 // foldInstruction contains information regarding a single fold.
 type foldInstruction struct {
 	// direction is the direction to which to fold to. 'x' and 'y' are the
@@ -27,7 +22,7 @@ type foldInstruction struct {
 type paper struct {
 	// dots is a set of coordinates representing the presence of a dot at that
 	// coordinate.
-	dots map[coordinate]struct{}
+	dots map[point]struct{}
 
 	// rows and columns are the total number of rows and columns in the paper
 	// respectively.
@@ -40,7 +35,7 @@ type paper struct {
 // where the dot is present.
 func newPaper(lines []string) *paper {
 	p := paper{
-		dots:    make(map[coordinate]struct{}),
+		dots:    make(map[point]struct{}),
 		rows:    0,
 		columns: 0,
 	}
@@ -49,7 +44,7 @@ func newPaper(lines []string) *paper {
 		xy := strings.Split(line, ",")
 		x, y := util.MustAtoi(xy[0]), util.MustAtoi(xy[1])
 		rows, columns = util.IntMax(rows, y), util.IntMax(columns, x)
-		p.dots[coordinate{x, y}] = struct{}{}
+		p.dots[point{x, y}] = struct{}{}
 	}
 	p.rows = rows + 1
 	p.columns = columns + 1
@@ -65,8 +60,8 @@ func (p *paper) fold(how foldInstruction) {
 			// we will only consider the dots which lies outside the fold line.
 			if c.x > how.value {
 				delta := c.x - how.value
-				p.dots[coordinate{how.value - delta, c.y}] = struct{}{}
-				delete(p.dots, coordinate{c.x, c.y})
+				p.dots[point{how.value - delta, c.y}] = struct{}{}
+				delete(p.dots, point{c.x, c.y})
 			}
 		}
 		p.columns = how.value
@@ -74,8 +69,8 @@ func (p *paper) fold(how foldInstruction) {
 		for c := range p.dots {
 			if c.y > how.value {
 				delta := c.y - how.value
-				p.dots[coordinate{c.x, how.value - delta}] = struct{}{}
-				delete(p.dots, coordinate{c.x, c.y})
+				p.dots[point{c.x, how.value - delta}] = struct{}{}
+				delete(p.dots, point{c.x, c.y})
 			}
 		}
 		p.rows = how.value
@@ -94,7 +89,7 @@ func (p *paper) String() string {
 	var s string
 	for y := 0; y < p.rows; y++ {
 		for x := 0; x < p.columns; x++ {
-			if _, exist := p.dots[coordinate{x, y}]; exist {
+			if _, exist := p.dots[point{x, y}]; exist {
 				s += "█"
 			} else {
 				s += " "

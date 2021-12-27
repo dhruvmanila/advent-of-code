@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/dhruvmanila/advent-of-code/go/pkg/set"
+	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
 // requiredFields is a list of all the required fields for a passport.
@@ -67,7 +67,7 @@ func (p passport) validateFields() bool {
 	for field, value := range p {
 		switch field {
 		case "byr", "iyr", "eyr":
-			year, _ := strconv.Atoi(value)
+			year := util.MustAtoi(value)
 			r := validRange[field]
 			if year < r[0] || year > r[1] {
 				return false
@@ -77,7 +77,7 @@ func (p passport) validateFields() bool {
 			if len(matches) != 3 {
 				return false
 			}
-			height, _ := strconv.Atoi(matches[1])
+			height := util.MustAtoi(matches[1])
 			r := validRange[matches[2]]
 			if height < r[0] || height > r[1] {
 				return false

@@ -4,19 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"strconv"
 
 	"github.com/dhruvmanila/advent-of-code/go/pkg/counter"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
 var lineSegmentRegex = regexp.MustCompile(`(\d+),(\d+) -> (\d+),(\d+)`)
-
-// point contains information for a point with x and y coordinates.
-type point struct {
-	x int
-	y int
-}
 
 type orientation int
 
@@ -130,15 +123,10 @@ func parseLines(lines []string) ([]*lineSegment, error) {
 		if len(matches) != 5 {
 			return nil, errors.New("regexp: invalid match")
 		}
-		// Convert all the matches from string to an integer. The error will be
-		// returned for the last invalid conversion.
-		x1, err := strconv.Atoi(matches[1])
-		y1, err := strconv.Atoi(matches[2])
-		x2, err := strconv.Atoi(matches[3])
-		y2, err := strconv.Atoi(matches[4])
-		if err != nil {
-			return nil, err
-		}
+		x1 := util.MustAtoi(matches[1])
+		y1 := util.MustAtoi(matches[2])
+		x2 := util.MustAtoi(matches[3])
+		y2 := util.MustAtoi(matches[4])
 		lineSegments[i] = newLineSegment(point{x1, y1}, point{x2, y2})
 	}
 	return lineSegments, nil
@@ -172,12 +160,12 @@ func Sol05(input string) error {
 	}
 
 	var count1, count2 int
-	counter1.ForEach(func(item interface{}, count int) {
+	counter1.ForEach(func(_ interface{}, count int) {
 		if count >= 2 {
 			count1++
 		}
 	})
-	counter2.ForEach(func(item interface{}, count int) {
+	counter2.ForEach(func(_ interface{}, count int) {
 		if count >= 2 {
 			count2++
 		}

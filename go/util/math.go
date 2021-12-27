@@ -32,6 +32,14 @@ func IntMin(x, y int) int {
 	return y
 }
 
+// AbsInt returns an absolute value of the given integer.
+func AbsInt(n int) int {
+	if n < 0 {
+		return -n
+	}
+	return n
+}
+
 // Digits is used to iterate over each digit of the given number from left to
 // right. This returns a channel from which you can only receive an integer one
 // at a time and can be used in various ways like so:

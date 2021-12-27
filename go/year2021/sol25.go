@@ -107,6 +107,6 @@ func Sol25(input string) error {
 	for steps = 1; sf.move(); steps++ {
 	}
 
-	fmt.Printf("25.1: %d\n25.2: %d\n", steps, 0)
+	fmt.Printf("25.1: %d\n", steps)
 	return nil
 }

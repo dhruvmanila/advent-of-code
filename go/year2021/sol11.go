@@ -7,12 +7,6 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-// position contains information regarding a specific position in the grid.
-type position struct {
-	row int
-	col int
-}
-
 // octopusGrid contains information regarding the grid formed by all the octopuses.
 type octopusGrid struct {
 	// grid is a map from position to the octopus energy level.

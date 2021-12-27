@@ -24,7 +24,7 @@ func Sol07(input string) error {
 	for p := minPos; p <= maxPos; p++ {
 		var totalFuel1, totalFuel2 int
 		for _, hp := range currentPos {
-			steps := int(math.Abs(float64(hp - p)))
+			steps := util.AbsInt(hp - p)
 			totalFuel1 += steps
 			totalFuel2 += util.SumN(steps)
 		}

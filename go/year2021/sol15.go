@@ -8,13 +8,6 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-var direction2 = [][]int{
-	{0, -1},
-	{1, 0},
-	{0, 1},
-	{-1, 0},
-}
-
 // graph represents a weighted undirected graph.
 type graph struct {
 	// nodes is a matrix representing the node position (row, col) and the
@@ -42,13 +35,10 @@ func (g *graph) at(p position) int {
 // from is used to get the position of all the nodes in g that can be reached
 // directly from the node at a given position p.
 func (g *graph) from(p position) []position {
-	var edges []position
-	for _, d := range direction2 {
-		r, c := p.row+d[1], p.col+d[0]
-		if r < 0 || c < 0 || r >= g.rows || c >= g.cols {
-			continue
-		}
-		edges = append(edges, position{row: r, col: c})
+	dirs := util.CardinalDirection(p.row, p.col, g.rows, g.cols)
+	edges := make([]position, len(dirs))
+	for _, d := range dirs {
+		edges = append(edges, position{d[0], d[1]})
 	}
 	return edges
 }
