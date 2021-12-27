@@ -57,7 +57,7 @@ func parsePassword(lines []string) ([]*password, error) {
 		if len(matches) != 5 {
 			return nil, fmt.Errorf("invalid line: %s", line)
 		}
-		num1, num2 := util.Atoi(matches[1]), util.Atoi(matches[2])
+		num1, num2 := util.MustAtoi(matches[1]), util.MustAtoi(matches[2])
 		passwords[i] = &password{
 			min:    num1,
 			max:    num2,

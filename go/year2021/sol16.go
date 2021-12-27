@@ -137,8 +137,8 @@ func (p *parser) parse() expression {
 }
 
 func (p *parser) parseHeader() (int, int) {
-	version := util.Btoi(p.bin[p.ptr : p.ptr+3])
-	typeId := util.Btoi(p.bin[p.ptr+3 : p.ptr+6])
+	version := util.MustBtoi(p.bin[p.ptr : p.ptr+3])
+	typeId := util.MustBtoi(p.bin[p.ptr+3 : p.ptr+6])
 	p.ptr += 6
 	return version, typeId
 }
@@ -153,11 +153,11 @@ func (p *parser) parseLiteralPacket() int {
 			break
 		}
 	}
-	return util.Btoi(literal)
+	return util.MustBtoi(literal)
 }
 
 func (p *parser) parseSubPacketsByLength() []expression {
-	length := util.Btoi(p.bin[p.ptr : p.ptr+15])
+	length := util.MustBtoi(p.bin[p.ptr : p.ptr+15])
 	p.ptr += 15
 	start := p.ptr
 	var subPackets []expression
@@ -168,7 +168,7 @@ func (p *parser) parseSubPacketsByLength() []expression {
 }
 
 func (p *parser) parseSubPacketsByCount() []expression {
-	count := util.Btoi(p.bin[p.ptr : p.ptr+11])
+	count := util.MustBtoi(p.bin[p.ptr : p.ptr+11])
 	p.ptr += 11
 	var subPackets []expression
 	for i := 0; i < count; i++ {

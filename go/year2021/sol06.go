@@ -44,7 +44,7 @@ func Sol06(input string) error {
 	// remaining until it creates a new fish.
 	var fishes []int
 	for _, s := range strings.Split(lines[0], ",") {
-		fishes = append(fishes, util.Atoi(s))
+		fishes = append(fishes, util.MustAtoi(s))
 	}
 
 	count1 := simulate(fishes, 80)

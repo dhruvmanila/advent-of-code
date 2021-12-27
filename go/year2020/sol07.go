@@ -34,7 +34,7 @@ func newBagMapFromRules(lines []string) (bagMap, error) {
 				if len(bagMatches) != 3 {
 					return nil, errors.New("newBagMapFromRules: invalid bag content")
 				}
-				content[bagMatches[2]] = util.Atoi(bagMatches[1])
+				content[bagMatches[2]] = util.MustAtoi(bagMatches[1])
 			}
 		}
 		m[ruleMatches[1]] = content

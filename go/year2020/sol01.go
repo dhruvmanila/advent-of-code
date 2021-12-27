@@ -21,7 +21,7 @@ func Sol01(input string) error {
 	report := set.New()
 
 	for i, s := range lines {
-		expense := util.Atoi(s)
+		expense := util.MustAtoi(s)
 		report.Add(expense)
 		entries[i] = expense
 	}

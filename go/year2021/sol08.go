@@ -124,7 +124,7 @@ func Sol08(input string) error {
 				s += deducedMap[util.SortString(outPattern)]
 			}
 		}
-		totalOutput += util.Atoi(s)
+		totalOutput += util.MustAtoi(s)
 	}
 
 	fmt.Printf("8.1: %d\n8.2: %d\n", count, totalOutput)

@@ -48,7 +48,7 @@ func newProgramFromCode(lines []string) *program {
 		data := strings.Fields(line)
 		instructions[i] = &instruction{
 			op:  data[0],
-			arg: util.Atoi(data[1]),
+			arg: util.MustAtoi(data[1]),
 		}
 	}
 	return newProgram(instructions)

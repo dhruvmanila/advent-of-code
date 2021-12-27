@@ -138,8 +138,8 @@ func Sol21(input string) error {
 		return err
 	}
 
-	p1 := newPlayer(util.Atoi(lines[0][28:]))
-	p2 := newPlayer(util.Atoi(lines[1][28:]))
+	p1 := newPlayer(util.MustAtoi(lines[0][28:]))
+	p2 := newPlayer(util.MustAtoi(lines[1][28:]))
 
 	// We don't want to mutate the player information.
 	practiceGameOutput := practiceGame(*p1, *p2)

@@ -47,7 +47,7 @@ func newPaper(lines []string) *paper {
 	var rows, columns int
 	for _, line := range lines {
 		xy := strings.Split(line, ",")
-		x, y := util.Atoi(xy[0]), util.Atoi(xy[1])
+		x, y := util.MustAtoi(xy[0]), util.MustAtoi(xy[1])
 		rows, columns = util.IntMax(rows, y), util.IntMax(columns, x)
 		p.dots[coordinate{x, y}] = struct{}{}
 	}
@@ -113,7 +113,7 @@ func parseFoldInstructions(lines []string) []foldInstruction {
 	for i, line := range lines {
 		instructions[i] = foldInstruction{
 			direction: rune(line[11]),
-			value:     util.Atoi(line[13:]),
+			value:     util.MustAtoi(line[13:]),
 		}
 	}
 	return instructions

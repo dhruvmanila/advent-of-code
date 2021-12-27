@@ -116,7 +116,7 @@ func parseBoards(lines []string) ([]*board, error) {
 		for i, line := range lines[i : i+5] {
 			var row [5]int
 			for j, s := range strings.Fields(line) {
-				row[j] = util.Atoi(s)
+				row[j] = util.MustAtoi(s)
 			}
 			grid[i] = row
 		}
@@ -136,7 +136,7 @@ func Sol04(input string) error {
 	// Collect all the numbers which are to be drawn. This is the first line
 	// of the input and is a comma-separated list of numbers.
 	for _, s := range strings.Split(lines[0], ",") {
-		draws = append(draws, util.Atoi(s))
+		draws = append(draws, util.MustAtoi(s))
 	}
 
 	boards, err := parseBoards(lines[2:])

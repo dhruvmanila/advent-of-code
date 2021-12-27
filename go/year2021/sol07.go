@@ -16,7 +16,7 @@ func Sol07(input string) error {
 
 	var currentPos []int
 	for _, s := range strings.Split(lines[0], ",") {
-		currentPos = append(currentPos, util.Atoi(s))
+		currentPos = append(currentPos, util.MustAtoi(s))
 	}
 
 	minFuel1, minFuel2 := math.MaxInt, math.MaxInt

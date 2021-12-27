@@ -19,7 +19,7 @@ func parseCommands(lines []string) ([]*command, error) {
 		s := strings.Split(line, " ")
 		cmds[i] = &command{
 			direction: s[0],
-			units:     util.Atoi(s[1]),
+			units:     util.MustAtoi(s[1]),
 		}
 	}
 	return cmds, nil

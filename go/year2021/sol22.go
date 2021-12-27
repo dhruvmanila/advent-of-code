@@ -165,12 +165,12 @@ func parseSteps(lines []string) ([]*rebootStep, error) {
 		steps[i] = &rebootStep{
 			state: matches[1] == "on",
 			cuboid: geometry.NewBoundingBox3D(
-				util.Atoi(matches[2]),
-				util.Atoi(matches[3]),
-				util.Atoi(matches[4]),
-				util.Atoi(matches[5]),
-				util.Atoi(matches[6]),
-				util.Atoi(matches[7]),
+				util.MustAtoi(matches[2]),
+				util.MustAtoi(matches[3]),
+				util.MustAtoi(matches[4]),
+				util.MustAtoi(matches[5]),
+				util.MustAtoi(matches[6]),
+				util.MustAtoi(matches[7]),
 			),
 		}
 	}

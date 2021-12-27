@@ -74,10 +74,10 @@ func Sol17(input string) error {
 		return fmt.Errorf("invalid match: %s", content)
 	}
 
-	minx := util.Atoi(matches[1])
-	maxx := util.Atoi(matches[2])
-	miny := util.Atoi(matches[3])
-	maxy := util.Atoi(matches[4])
+	minx := util.MustAtoi(matches[1])
+	maxx := util.MustAtoi(matches[2])
+	miny := util.MustAtoi(matches[3])
+	maxy := util.MustAtoi(matches[4])
 	target := geometry.NewBoundingBox2D(minx, maxx, miny, maxy)
 
 	maxHeight := 0

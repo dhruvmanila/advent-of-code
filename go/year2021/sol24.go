@@ -239,7 +239,7 @@ func formEquations(instructions []string) []*equation {
 		case "div z 1":
 			s.Push(&equation{
 				left:     &digitVar{pos: pos},
-				constant: util.Atoi(group[15][6:]),
+				constant: util.MustAtoi(group[15][6:]),
 			})
 		case "div z 26":
 			item := s.Pop()
@@ -247,7 +247,7 @@ func formEquations(instructions []string) []*equation {
 				panic("empty stack")
 			}
 			eq := item.(*equation)
-			eq.constant += util.Atoi(group[5][6:])
+			eq.constant += util.MustAtoi(group[5][6:])
 			eq.right = &digitVar{pos: pos}
 			equations = append(equations, eq)
 		}

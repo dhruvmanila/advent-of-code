@@ -32,7 +32,7 @@ func ReadLinesAsInt(path string) ([]int, error) {
 
 	ints := make([]int, len(lines))
 	for i, line := range lines {
-		ints[i] = Atoi(line)
+		ints[i] = MustAtoi(line)
 	}
 	return ints, nil
 }

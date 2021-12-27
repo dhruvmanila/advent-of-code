@@ -86,10 +86,10 @@ func Sol03(input string) error {
 		}
 	}
 
-	oxygenGeneratorRating := util.ParseInt(
+	oxygenGeneratorRating := util.MustParseInt(
 		recursiveFilter(lines, oxygenGenerator, 0), 2, 0,
 	)
-	co2ScrubberRating := util.ParseInt(
+	co2ScrubberRating := util.MustParseInt(
 		recursiveFilter(lines, co2Scrubber, 0), 2, 0,
 	)
 
