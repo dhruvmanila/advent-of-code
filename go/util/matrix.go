@@ -1,11 +1,6 @@
 package util
 
-var cardinalDirection = [][]int{
-	{0, -1},
-	{1, 0},
-	{0, 1},
-	{-1, 0},
-}
+var cardinalDirection = [][]int{{0, -1}, {1, 0}, {0, 1}, {-1, 0}}
 
 // CardinalDirection returns a list of coordinates in the four cardinal
 // directions from the given point (x, y).
@@ -24,6 +19,21 @@ func CardinalDirection(y, x, rows, cols int) [][]int {
 			continue
 		}
 		pos = append(pos, []int{r, c})
+	}
+	return pos
+}
+
+// AllDirection is similar to CardinalDirection except this returns coordinates
+// in all the directions from a given point, including the point itself.
+func AllDirection(y, x, rows, cols int) [][]int {
+	pos := make([][]int, 0, 9)
+	for r := -1; r <= 1; r++ {
+		for c := -1; c <= 1; c++ {
+			if r < 0 || c < 0 || r >= rows || c >= cols {
+				continue
+			}
+			pos = append(pos, []int{r, c})
+		}
 	}
 	return pos
 }

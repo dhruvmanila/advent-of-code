@@ -16,17 +16,6 @@ func SumN(n int) int {
 	return n * (n + 1) / 2
 }
 
-// MinMax is used to find the minimum and maximum value in the given array of
-// integers.
-func MinMax(arr []int) (int, int) {
-	min, max := arr[0], arr[0]
-	for _, val := range arr {
-		min = IntMin(min, val)
-		max = IntMax(max, val)
-	}
-	return min, max
-}
-
 // IntMax returns the larger of x or y integer.
 func IntMax(x, y int) int {
 	if x > y {
