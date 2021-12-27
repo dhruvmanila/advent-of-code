@@ -172,16 +172,16 @@ func Sol05(input string) error {
 	}
 
 	var count1, count2 int
-	for _, count := range counter1.Items() {
+	counter1.ForEach(func(item interface{}, count int) {
 		if count >= 2 {
 			count1++
 		}
-	}
-	for _, count := range counter2.Items() {
+	})
+	counter2.ForEach(func(item interface{}, count int) {
 		if count >= 2 {
 			count2++
 		}
-	}
+	})
 
 	fmt.Printf("5.1: %d\n5.2: %d\n", count1, count2)
 	return nil

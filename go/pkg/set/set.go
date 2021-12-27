@@ -9,20 +9,15 @@ type Set struct {
 	m map[interface{}]struct{}
 }
 
-// New create and returns an initialized and empty Set.
-func New() *Set {
-	return NewWithSize(0)
+// New create and returns a set, optionally with the given elements.
+func New(sl ...interface{}) *Set {
+	return NewFromSlice(sl)
 }
 
 // NewWithSize create and returns an initialized and empty set with a given
 // size.
 func NewWithSize(size int) *Set {
 	return &Set{m: make(map[interface{}]struct{}, size)}
-}
-
-// NewWith create and returns a new set with the given elements.
-func NewWith(e ...interface{}) *Set {
-	return NewFromSlice(e)
 }
 
 // NewFromSlice create and returns a new set from an existing slice.

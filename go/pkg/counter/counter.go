@@ -10,13 +10,8 @@ type Counter struct {
 	m map[interface{}]int
 }
 
-// New creates and returns a new, empty counter.
-func New() *Counter {
-	return &Counter{m: make(map[interface{}]int)}
-}
-
-// NewWith creates and returns a new counter with the given items.
-func NewWith(items ...interface{}) *Counter {
+// New creates and returns a new counter, optionally with the given items.
+func New(items ...interface{}) *Counter {
 	return NewFromSlice(items)
 }
 
@@ -31,9 +26,9 @@ func NewFromMap(m map[interface{}]int) *Counter {
 }
 
 // NewFromSlice creates and returns a new counter from an existing slice.
-func NewFromSlice(s []interface{}) *Counter {
-	c := New()
-	c.Increment(s...)
+func NewFromSlice(sl []interface{}) *Counter {
+	c := &Counter{m: make(map[interface{}]int)}
+	c.Increment(sl...)
 	return c
 }
 
@@ -78,7 +73,7 @@ func (c *Counter) DecrementBy(item interface{}, count int) {
 }
 
 // Delete deletes all the items from the counter completely. To decrement the
-// count of an item, use counter.Remove() instead.
+// count of an item, use counter.Decrement() or counter.DecrementBy() instead.
 func (c *Counter) Delete(items ...interface{}) {
 	for _, item := range items {
 		delete(c.m, item)
@@ -146,31 +141,26 @@ func (c *Counter) Total() int {
 	return total
 }
 
-// Items returns a map of item to its count. This will return a copy of the
-// internal map and so mutating it won't affect the internal state of the
-// counter. This adds a runtime overhead because of the copying step.
-//
-// This function can be used directly with the range keyword as follows:
-//
-//   for item, count := range counter.Items() {
-//     // do something with item and count
-//   }
-func (c *Counter) Items() map[interface{}]int {
-	mc := make(map[interface{}]int, c.Len())
+// ForEach is used to iterate over every item of the counter by calling a
+// user-defined function with every item and its count.
+func (c *Counter) ForEach(f func(item interface{}, count int)) {
 	for item, count := range c.m {
-		mc[item] = count
+		f(item, count)
 	}
-	return mc
 }
 
-// FIXME: Make Counter thread safe
-// This will be used as:
+// Iter is used to iterate over every item of the counter. It returns a
+// receive-only buffered channel whose size is half of the counter length.
+//
+// This can be used as:
+//
 //   for item := range counter.iter {
 //     count := counter.Get(item)
 //     // do something with item and count
 //   }
-func (c *Counter) iter() <-chan interface{} {
-	ch := make(chan interface{})
+func (c *Counter) Iter() <-chan interface{} {
+	// Use a buffered channel to avoid blocking the main goroutine.
+	ch := make(chan interface{}, c.Len()/2)
 	go func() {
 		for item := range c.m {
 			ch <- item

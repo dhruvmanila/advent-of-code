@@ -100,9 +100,9 @@ func realGame(p1, p2 player) int {
 		// Base case: One of the player have score equal to or greater than 21.
 		switch {
 		case p.score >= 21:
-			return counter.NewWith(p.id)
+			return counter.New(p.id)
 		case other.score >= 21:
-			return counter.NewWith(other.id)
+			return counter.New(other.id)
 		}
 
 		key := [2]player{p, other}
