@@ -1,43 +1,49 @@
-# https://adventofcode.com/2019/day/4
-
 from collections import Counter
 from itertools import combinations_with_replacement
-from operator import eq, gt
 from typing import Callable, Iterable
 
-# Puzzle input
-MINIMUM, MAXIMUM = 178416, 676461
+Checker = Callable[[int], bool]
+CountValidator = Callable[[int], bool]
 
 
-# Helper function to check whether the number is in input range
-def input_range_check(digit_list: Iterable[int]) -> bool:
-    number = int("".join(map(str, digit_list)))
-    return MINIMUM < number < MAXIMUM
+def generate_passwords() -> Iterable[int]:
+    """Generate all the possible combinations of password as per the given conditions.
+
+    Conditions:
+        * Six digit number.
+        * Digits are either increasing or repeating but never decreasing.
+    """
+    for digits in combinations_with_replacement(range(1, 10), 6):
+        yield int("".join(map(str, digits)))
 
 
-# This creates a list of all the possible combinations for the base conditions:
-# A six digit number
-# Digits are either increasing or repeating but never decreasing
-# Number lies within the puzzle input range
-POSSIBLE_COMBINATIONS = list(
-    filter(input_range_check, combinations_with_replacement(range(1, 10), 6))
-)
+def password_checker_factory(
+    lo: int, hi: int, count_validator: CountValidator
+) -> Checker:
+    """Factory function to create a password checker as per the given input."""
+
+    def is_valid(password: int) -> bool:
+        return lo < password < hi and any(
+            count_validator(count) for _, count in Counter(str(password)).items()
+        )
+
+    return is_valid
 
 
-# The only difference between the first part and the second part of the puzzle
-# is the compare and number input. For first part, we need atleast one digit
-# which is repeating one or more times. For the second part, we need atleast
-# one digit which is repeating atmost two times.
-def password_count(compare: Callable[[int, int], bool], number: int) -> int:
-    poss_count = 0
-    for num_dig in POSSIBLE_COMBINATIONS:
-        count_dict = Counter(num_dig)
-        for digit in count_dict:
-            if compare(count_dict[digit], number):
-                poss_count += 1
-                break
-    return poss_count
+def valid_count(checker: Checker) -> int:
+    count = 0
+    for password in generate_passwords():
+        if checker(password):
+            count += 1
+    return count
 
 
-first, second = password_count(gt, 1), password_count(eq, 2)
-print(f"First part: {first} \nSecond part: {second}")
+if __name__ == "__main__":
+    # For part one, we need atleast one digit which is repeating atleast two times.
+    count1 = valid_count(password_checker_factory(178416, 676461, lambda c: c >= 2))
+
+    # For part two, we need atleast one digit which is repeating atmost two times.
+    count2 = valid_count(password_checker_factory(178416, 676461, lambda c: c == 2))
+
+    print(f"Part 1: {count1}")
+    print(f"Part 2: {count2}")
