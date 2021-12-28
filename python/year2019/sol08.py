@@ -1,71 +1,44 @@
 from collections import Counter
+from typing import Final, Iterable, Sequence
 
-# Keys: Layer number starting from 1
-# Values: Data on each layer
-LAYER_DATA: dict[int, str] = {}
+import utils
 
-# Keys: Layer number starting from 1
-# Values: Counter object representing the count of each individual data in the layer
-#         namely the count of "0", "1" and "2"
-DATA_COUNT: dict[int, Counter[str]] = {}
+WIDE: Final[int] = 25
+TALL: Final[int] = 6
+SIZE: Final[int] = WIDE * TALL
 
-# Given data
-WIDE = 25
-TALL = 6
-SIZE = WIDE * TALL
-
-# ░▒▓█▇▆▅▄▃▂
-WHITE_PIXEL = "█"
-BLACK_PIXEL = " "
+PIXEL = (" ", "█")
 
 
-def parse_data(data: str) -> None:
-    layer_number = 1
-    for i in range(0, len(data), SIZE):
-        row = data[i : i + SIZE]
-        LAYER_DATA.setdefault(layer_number, row)
-        DATA_COUNT.setdefault(layer_number, Counter(row))
-        layer_number += 1
-    # Subtract 1 as we started for layer +1 but we already reached the end of the data.
-    assert layer_number - 1 == len(data) / SIZE
+def chunks(seq: Sequence[int], n: int) -> Iterable[Sequence[int]]:
+    yield from (seq[i : i + n] for i in range(0, len(seq), n))
 
 
-def part_a() -> int:
-    get_layer_counter = DATA_COUNT.__getitem__
-    row_num = min(DATA_COUNT, key=lambda layer_num: get_layer_counter(layer_num)["0"])
-    return get_layer_counter(row_num)["1"] * get_layer_counter(row_num)["2"]
+def least_zero_layer(image: list[int]) -> Counter[int]:
+    layercounts = [Counter(layer) for layer in chunks(image, SIZE)]
+    return min(layercounts, key=lambda c: c[0])
 
 
-def decode_data() -> list[str]:
-    image_data = []
-    row_data = []
-    for pixel in range(SIZE):
-        for layer_data in LAYER_DATA.values():
-            data_at_pixel = layer_data[pixel]
-            if data_at_pixel == "2":  # Transparent pixel
-                continue
-            elif data_at_pixel == "0":  # Black pixel
-                row_data.append(BLACK_PIXEL)
-                break
-            else:  # White pixel
-                row_data.append(WHITE_PIXEL)
-                break
-        if len(row_data) == 25:
-            image_data.append("".join(row_data))
-            row_data.clear()
-    return image_data
+def stack_layers(image: list[int]) -> list[int]:
+    stacked = [2] * SIZE
+    for layer in chunks(image, SIZE):
+        for i, pixel in enumerate(layer):
+            if stacked[i] == 2:
+                stacked[i] = pixel
+    return stacked
 
 
 if __name__ == "__main__":
-    import os.path
+    data = utils.read(day=8, year=2019)
+    image = list(map(int, data))
 
-    with open(os.path.join(os.path.dirname(__file__), "input/08.txt")) as fd:
-        puzzle_input = fd.read().strip()
+    layercounts = [Counter(layer) for layer in chunks(image, SIZE)]
+    layer0 = min(layercounts, key=lambda c: c[0])
+    print(f"8.1: {layer0[1] * layer0[2]}")
 
-    parse_data(puzzle_input)
-
-    print("Part A answer =>", part_a())
-    print("Decoded image =>")
-
-    for row in decode_data():
-        print(row)
+    stacked = stack_layers(image)
+    print("8.2:")
+    for row in chunks(stacked, WIDE):
+        for pixel in row:
+            print(PIXEL[pixel], end="")
+        print()
