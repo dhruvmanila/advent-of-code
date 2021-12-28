@@ -1,84 +1,66 @@
-SAMPLE_DATA = """\
-COM)B
-B)C
-C)D
-D)E
-E)F
-B)G
-G)H
-D)I
-E)J
-J)K
-K)L
-K)YOU
-I)SAN"""
+from __future__ import annotations
 
-# If DEBUG = 1, use SAMPLE_DATA
-DEBUG = 0
+from typing import Iterable, Mapping
 
+import utils
 
-def parse_map_data():
-    if DEBUG:
-        map_data = SAMPLE_DATA
-    else:
-        with open("input/06.txt") as fd:
-            map_data = fd.read()
-    child_to_parent, parent_to_child = {}, {}
-    for orbit in map_data.strip().split("\n"):
-        center, orbiter = orbit.split(")")
-        parent_to_child.setdefault(center, []).append(orbiter)
-        child_to_parent[orbiter] = center
-    return parent_to_child, child_to_parent
+DGraph = Mapping[str, set[str]]
+"""
+A directed graph is a mapping of node names referencing a set of other node names.
+
+This is establishing a parent to child relationship between the nodes.
+"""
+
+Orbiting = Mapping[str, str]
+"""
+Orbiting is a mapping of orbiting node referencing the center node.
+
+This is establishing a child to parent relationship between the nodes.
+"""
 
 
-PARENT_TO_CHILD, CHILD_TO_PARENT = parse_map_data()
+def parse_orbit_map(lines: Iterable[str]) -> tuple[DGraph, Orbiting]:
+    graph: dict[str, set[str]] = {}
+    orbiting: dict[str, str] = {}
+    for line in lines:
+        center, orbiter = line.split(")")
+        graph.setdefault(center, set()).add(orbiter)
+        orbiting[orbiter] = center
+    return graph, orbiting
 
 
-def count_orbits() -> int:
-    cache: dict[str, int] = {}
+def count_orbits(graph: DGraph) -> int:
+    def walk(node: str, depth: int) -> int:
+        total = depth
+        for child in graph.get(node, ()):
+            total += walk(child, depth + 1)
+        return total
 
-    def loop(object_id: str) -> int:
-        if object_id in cache:
-            return cache[object_id]
-        count = 0
-        for orbiter_orbit in PARENT_TO_CHILD.get(object_id, []):
-            count += 1 + loop(orbiter_orbit)
-        cache[object_id] = count
-        return count
-
-    return sum(map(loop, PARENT_TO_CHILD))
+    return walk("COM", 0)
 
 
-def min_orbital_transfers() -> int:
-    # Backtracking search
-    visited: list[str] = ["YOU"]
+def minimum_orbital_transfers(
+    orbiting: Orbiting, from_: str = "YOU", to: str = "SAN"
+) -> int:
+    from_path = set()
+    to_path = set()
 
-    def get_children(node: str) -> list[str]:
-        # A parent can have multiple children but a child only has one parent.
-        children = []
-        child = CHILD_TO_PARENT.get(node, "")
-        if child and child not in visited:
-            children.append(child)
-        for parent in PARENT_TO_CHILD.get(node, []):
-            if parent not in visited:
-                children.append(parent)
-        return children
+    from_parent = orbiting[from_]
+    while from_parent != "COM":
+        from_path.add(from_parent)
+        from_parent = orbiting[from_parent]
 
-    def visit(node: str, transfers: int = 0):
-        for child in get_children(node):
-            if child == "SAN":
-                return transfers
-            visited.append(child)
-            # `total_transfers` is different than `transfers`, where the former is
-            # an indication whether the current path lead to "SAN" or a dead end.
-            # If `total_transfers` is 0, then the visit lead us to a dead end, so we
-            # will visit the other children.
-            if total_transfers := visit(child, transfers + 1):
-                return total_transfers
-        return 0
+    to_parent = orbiting[to]
+    while to_parent != "COM":
+        to_path.add(to_parent)
+        to_parent = orbiting[to_parent]
 
-    return visit(CHILD_TO_PARENT["YOU"])
+    return len(from_path ^ to_path)
 
 
-print("Total orbits =>", count_orbits())
-print("Minimum orbital transfers =>", min_orbital_transfers())
+if __name__ == "__main__":
+    data = utils.read(day=6, year=2019, test=False)
+    graph, orbiting = parse_orbit_map(data.splitlines())
+
+    print(f"Part 1: {count_orbits(graph)}")
+    print(f"Part 2: {minimum_orbital_transfers(orbiting)}")
