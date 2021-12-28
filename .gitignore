@@ -1,6 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*.egg-info/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -17,3 +18,5 @@ venv/
 *.DS_Store
 .idea
 .vscode
+
+scratch/
