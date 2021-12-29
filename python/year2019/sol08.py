@@ -14,7 +14,7 @@ def chunks(seq: Sequence[int], n: int) -> Iterable[Sequence[int]]:
     yield from (seq[i : i + n] for i in range(0, len(seq), n))
 
 
-def least_zero_layer(image: list[int]) -> Counter[int]:
+def least_zero_layer_counts(image: list[int]) -> Counter[int]:
     layercounts = [Counter(layer) for layer in chunks(image, SIZE)]
     return min(layercounts, key=lambda c: c[0])
 
@@ -32,8 +32,7 @@ if __name__ == "__main__":
     data = utils.read(day=8, year=2019)
     image = list(map(int, data))
 
-    layercounts = [Counter(layer) for layer in chunks(image, SIZE)]
-    layer0 = min(layercounts, key=lambda c: c[0])
+    layer0 = least_zero_layer_counts(image)
     print(f"8.1: {layer0[1] * layer0[2]}")
 
     stacked = stack_layers(image)
