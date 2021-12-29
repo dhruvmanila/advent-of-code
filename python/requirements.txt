@@ -1,3 +1,2 @@
 -e utils
-shapely
 pytest

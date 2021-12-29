@@ -1,106 +1,132 @@
-# https://adventofcode.com/2019/day/3
+from __future__ import annotations
 
-# I tried using sympy but that was way too slow and then I found this library
-# which is based on GEOS which I have no idea what it is but it's really fast.
-# One of the core reason is that shapely is in C while sympy is pure python.
-from typing import Iterable, List, Tuple
+from collections import defaultdict
+from dataclasses import dataclass, field
+from itertools import product
+from typing import Iterable
 
-from shapely.geometry import LineString, Point
-
-WIRES_PATH = []
-
-with open("input/03.txt") as inp:
-    for line in inp:
-        WIRES_PATH.append(line.strip().split(","))
+import utils
 
 
-# Helper function to generate the segments between points
-def make_segments(wire_path: Iterable[str]) -> List[LineString]:
-    # we will represent start and end as tuple because we just want the
-    # segment object and not the intermediate point object
-    start = (0, 0)
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+    @property
+    def distance(self) -> int:
+        """Returns the manhattan distance from the origin."""
+        return abs(self.x) + abs(self.y)
+
+
+@dataclass(frozen=False)
+class LineSegment:
+    p1: Point
+    p2: Point
+
+    minx: int = field(init=False, repr=False)
+    maxx: int = field(init=False, repr=False)
+    miny: int = field(init=False, repr=False)
+    maxy: int = field(init=False, repr=False)
+
+    def __post_init__(self):
+        self.minx = min(self.p1.x, self.p2.x)
+        self.maxx = max(self.p1.x, self.p2.x)
+        self.miny = min(self.p1.y, self.p2.y)
+        self.maxy = max(self.p1.y, self.p2.y)
+
+    @property
+    def vertical(self) -> bool:
+        """Return True if the line segment is vertical, false otherwise."""
+        return self.p1.x == self.p2.x
+
+    @property
+    def length(self) -> int:
+        """Return the length of the line segment."""
+        return abs(self.p1.x - self.p2.x) + abs(self.p1.y - self.p2.y)
+
+    def contains(self, point: Point) -> bool:
+        """Return True if given point is on the line segment, False otherwise."""
+        if self.vertical:
+            return point.x == self.p1.x and self.miny <= point.y <= self.maxy
+        return point.y == self.p1.y and self.minx <= point.x <= self.maxx
+
+    def intersection(self, other: LineSegment) -> Point | None:
+        """Return the intersecting point between self and other if it exists."""
+        if self.vertical == other.vertical:
+            return None
+        elif (
+            self.vertical
+            and other.minx <= self.p1.x <= other.maxx
+            and self.miny <= other.p1.y <= self.maxy
+        ):
+            return Point(self.p1.x, other.p1.y)
+        elif (
+            not self.vertical
+            and self.minx <= other.p1.x <= self.maxx
+            and other.miny <= self.p1.y <= other.maxy
+        ):
+            return Point(other.p1.x, self.p1.y)
+        return None
+
+
+def segments_from_path(path: Iterable[str]) -> Iterable[LineSegment]:
     segments = []
-    for path in wire_path:
-        shift = int(path[1:])
-        if "R" in path:
-            end = start[0] + shift, start[1]
-        elif "L" in path:
-            end = start[0] - shift, start[1]
-        elif "U" in path:
-            end = start[0], start[1] + shift
+    start = Point(0, 0)
+    for p in path:
+        direction, magnitude = p[0], int(p[1:])
+        if direction == "U":
+            end = Point(start.x, start.y + magnitude)
+        elif direction == "R":
+            end = Point(start.x + magnitude, start.y)
+        elif direction == "D":
+            end = Point(start.x, start.y - magnitude)
         else:
-            end = start[0], start[1] - shift
-        segments.append(LineString((start, end)))
+            end = Point(start.x - magnitude, start.y)
+        segments.append(LineSegment(start, end))
         start = end
     return segments
 
 
-# Keep this global to let both function have access to it
-FIRST_WIRE_SEGMENTS = make_segments(WIRES_PATH[0])
-SECOND_WIRE_SEGMENTS = make_segments(WIRES_PATH[1])
-del WIRES_PATH  # declutter globals
-
-
-# ------------------ FIRST HALF OF THE PUZZLE --------------------
-def closest_distance() -> Tuple[int, Point, List[Point]]:
-    # starting value 'inf' as we have to find the minimum distance
-    min_distance = float("INF")
-    min_intersection_pt = None
-    intersection_points = []  # for second part of the puzzle
-    # loop over all the possible combinations from first wire segments and
-    # second wire segments
-    for first_segment in FIRST_WIRE_SEGMENTS:
-        for second_segment in SECOND_WIRE_SEGMENTS:
-            if first_segment.intersects(second_segment):
-                # Find the intersection point only if it intersects otherwise
-                # its just a waste of computational time
-                int_pt = first_segment.intersection(second_segment)
-                intersection_points.append(int_pt)
-                taxicab_dist = abs(int_pt.x) + abs(int_pt.y)
-                # We don't want to include the 0.0 distance
-                if taxicab_dist < min_distance and taxicab_dist:
-                    min_distance = taxicab_dist
-                    min_intersection_pt = int_pt
-    return (
-        int(min_distance),
-        min_intersection_pt,
-        intersection_points[1:],
-    )  # first point is (0, 0)
-
-
-distance, closest_pt, intersection_pts = closest_distance()
-print("Shortest distance:", distance)
-print("Closest intersection point:", closest_pt)
-
-
-# --------------------- SECOND HALF OF THE PUZZLE ----------------------
-def min_step_count() -> Tuple[int, Point]:
-    min_steps = float("INF")
-    min_intersection = None
-    # loop through all the intersection points
-    for point in intersection_pts:
-        combined_steps = 0
-        # find the step count for each wire
-        for wire_segments in [FIRST_WIRE_SEGMENTS, SECOND_WIRE_SEGMENTS]:
-            for segment in wire_segments:
-                # if point is in segment then add the distance between the
-                # starting point of the segment and the intersection point
-                if point.within(segment):
-                    # xy attribute gives you a two tuple containing array where
-                    # the first array has all x coordinates and the second array
-                    # has all the y coordinates
-                    x1, y1 = segment.xy[0][0], segment.xy[1][0]
-                    combined_steps += abs(x1 - point.x) + abs(y1 - point.y)
-                    break  # we have reached the intersection point, so break
-                # else just add the segment length
+def minimum_step_count(
+    segments_a: Iterable[LineSegment],
+    segments_b: Iterable[LineSegment],
+    intersection_points: Iterable[Point],
+) -> int:
+    step_count: dict[Point, int] = defaultdict(int)
+    for p in intersection_points:
+        found_in_a, found_in_b = False, False
+        for a, b in zip(segments_a, segments_b):
+            if not found_in_a:
+                if a.contains(p):
+                    step_count[p] += abs(p.x - a.p1.x) + abs(p.y - a.p1.y)
+                    found_in_a = True
                 else:
-                    combined_steps += segment.length
-        if combined_steps < min_steps:
-            min_steps = combined_steps
-            min_intersection = point
-    return int(min_steps), min_intersection
+                    step_count[p] += a.length
+            if not found_in_b:
+                if b.contains(p):
+                    step_count[p] += abs(p.x - b.p1.x) + abs(p.y - b.p1.y)
+                    found_in_b = True
+                else:
+                    step_count[p] += b.length
+            if found_in_a and found_in_b:
+                break
+    return step_count[min(step_count, key=lambda p: step_count[p])]
 
 
-steps, better_int = min_step_count()
-print("\nMinimum combined steps:", steps)
-print("Better intersection point:", better_int)
+if __name__ == "__main__":
+    data = utils.read(day=3, year=2019)
+    segments_a, segments_b = (
+        segments_from_path(line.split(",")) for line in data.splitlines()
+    )
+
+    intersection_points: list[Point] = []
+    for a, b in product(segments_a, segments_b):
+        if p := a.intersection(b):
+            intersection_points.append(p)
+    if (origin := Point(0, 0)) in intersection_points:
+        intersection_points.remove(origin)
+    closest_intersection_point = min(intersection_points, key=lambda p: p.distance)
+
+    print(f"3.1: {closest_intersection_point.distance}")
+    print(f"3.2: {minimum_step_count(segments_a, segments_b, intersection_points)}")
