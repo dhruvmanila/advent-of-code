@@ -24,15 +24,20 @@ func CardinalDirection(y, x, rows, cols int) [][]int {
 }
 
 // AllDirection is similar to CardinalDirection except this returns coordinates
-// in all the directions from a given point, including the point itself.
-func AllDirection(y, x, rows, cols int) [][]int {
-	pos := make([][]int, 0, 9)
-	for r := -1; r <= 1; r++ {
-		for c := -1; c <= 1; c++ {
-			if r < 0 || c < 0 || r >= rows || c >= cols {
+// in all the directions from a given point, excluding the given point.
+func AllDirection(y, x, rows, cols int) [][2]int {
+	pos := make([][2]int, 0, 9)
+	for dy := -1; dy <= 1; dy++ {
+		r := y + dy
+		if r < 0 || r >= rows {
+			continue
+		}
+		for dx := -1; dx <= 1; dx++ {
+			c := x + dx
+			if (dy == 0 && dx == 0) || (c < 0 || c >= cols) {
 				continue
 			}
-			pos = append(pos, []int{r, c})
+			pos = append(pos, [2]int{r, c})
 		}
 	}
 	return pos
