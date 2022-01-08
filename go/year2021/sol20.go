@@ -3,7 +3,7 @@ package year2021
 import (
 	"fmt"
 
-	"github.com/dhruvmanila/advent-of-code/go/pkg/geometry"
+	"github.com/dhruvmanila/advent-of-code/go/pkg/geom"
 	"github.com/dhruvmanila/advent-of-code/go/pkg/set"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
@@ -14,7 +14,7 @@ type image struct {
 
 	// bbox represents a bounding box containing the input image without the
 	// infinite region.
-	bbox *geometry.BoundingBox2D
+	bbox *geom.BoundingBox2D
 
 	// inf represents all the pixels in the infinite region.
 	inf rune
@@ -36,7 +36,7 @@ func newImage(lines []string) *image {
 	}
 	return &image{
 		pixels: pixels,
-		bbox:   geometry.NewBoundingBox2D(minx, maxx, miny, maxy),
+		bbox:   geom.NewBoundingBox2D(minx, maxx, miny, maxy),
 		inf:    '.',
 	}
 }

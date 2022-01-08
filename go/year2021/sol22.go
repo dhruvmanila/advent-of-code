@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/dhruvmanila/advent-of-code/go/pkg/geometry"
+	"github.com/dhruvmanila/advent-of-code/go/pkg/geom"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -16,7 +16,7 @@ var stepRegex = regexp.MustCompile(
 // rebootStep contains information about a single reboot step.
 type rebootStep struct {
 	state  bool
-	cuboid *geometry.BoundingBox3D
+	cuboid *geom.BoundingBox3D
 }
 
 // filterSteps is used to filter the steps to include only the ones which
@@ -164,7 +164,7 @@ func parseSteps(lines []string) ([]*rebootStep, error) {
 		}
 		steps[i] = &rebootStep{
 			state: matches[1] == "on",
-			cuboid: geometry.NewBoundingBox3D(
+			cuboid: geom.NewBoundingBox3D(
 				util.MustAtoi(matches[2]),
 				util.MustAtoi(matches[3]),
 				util.MustAtoi(matches[4]),

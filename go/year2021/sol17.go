@@ -6,7 +6,7 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/dhruvmanila/advent-of-code/go/pkg/geometry"
+	"github.com/dhruvmanila/advent-of-code/go/pkg/geom"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -29,7 +29,7 @@ func newProbe(vx, vy int) *probe {
 	}
 }
 
-func (p *probe) isOutside(target *geometry.BoundingBox2D) bool {
+func (p *probe) isOutside(target *geom.BoundingBox2D) bool {
 	switch {
 	case p.vx < 0 && p.x < target.MinX:
 		fallthrough
@@ -41,7 +41,7 @@ func (p *probe) isOutside(target *geometry.BoundingBox2D) bool {
 	return false
 }
 
-func (p *probe) launch(target *geometry.BoundingBox2D) (maxHeight int, reached bool) {
+func (p *probe) launch(target *geom.BoundingBox2D) (maxHeight int, reached bool) {
 	for !p.isOutside(target) {
 		p.x += p.vx
 		p.y += p.vy
@@ -77,7 +77,7 @@ func Sol17(input string) error {
 	maxx := util.MustAtoi(matches[2])
 	miny := util.MustAtoi(matches[3])
 	maxy := util.MustAtoi(matches[4])
-	target := geometry.NewBoundingBox2D(minx, maxx, miny, maxy)
+	target := geom.NewBoundingBox2D(minx, maxx, miny, maxy)
 
 	maxHeight := 0
 	count := 0

@@ -1,4 +1,4 @@
-package geometry
+package geom
 
 import "github.com/dhruvmanila/advent-of-code/go/util"
 
