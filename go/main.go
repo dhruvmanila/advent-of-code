@@ -63,18 +63,26 @@ var solutions = map[int]map[int]solutionFunc{
 
 // Command line options.
 var (
-	test       bool
-	year       int
-	day        int
-	cpuprofile bool
-	memprofile bool
+	useTestInput bool
+	aocYear      int
+	aocDay       int
+	cpuprofile   bool
+	memprofile   bool
 )
 
 func init() {
-	now := time.Now()
-	flag.BoolVar(&test, "t", false, "run the test input instead")
-	flag.IntVar(&year, "y", now.Year(), "run solution for given year")
-	flag.IntVar(&day, "d", now.Day(), "run solution for given day")
+	year, month, day := time.Now().Date()
+	switch {
+	case month != time.December:
+		year--
+		fallthrough
+	case day >= 25:
+		day = 25
+	}
+
+	flag.BoolVar(&useTestInput, "t", false, "run the test input instead")
+	flag.IntVar(&aocYear, "y", year, "run solution for given year")
+	flag.IntVar(&aocDay, "d", day, "run solution for given day")
 	flag.BoolVar(&cpuprofile, "cpuprofile", false, "write a CPU profile")
 	flag.BoolVar(&memprofile, "memprofile", false, "write a memory profile")
 }
@@ -97,10 +105,10 @@ func main() {
 	var err error
 	var input string
 
-	if test {
-		input = fmt.Sprintf("./year%d/input/test/%02d.txt", year, day)
+	if useTestInput {
+		input = fmt.Sprintf("./year%d/input/test/%02d.txt", aocYear, aocDay)
 	} else {
-		input = fmt.Sprintf("./year%d/input/%02d.txt", year, day)
+		input = fmt.Sprintf("./year%d/input/%02d.txt", aocYear, aocDay)
 	}
 
 	if cpuprofile {
@@ -112,8 +120,8 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	if yearSolutions, exist := solutions[year]; exist {
-		if solution, exist := yearSolutions[day]; exist {
+	if yearSolutions, exist := solutions[aocYear]; exist {
+		if solution, exist := yearSolutions[aocDay]; exist {
 			err = solution(input)
 		} else {
 			err = errUnsolved
@@ -132,6 +140,6 @@ func main() {
 	}
 
 	if err != nil {
-		log.Fatal(fmt.Errorf("year %d: day %d: %w", year, day, err))
+		log.Fatal(fmt.Errorf("year %d: day %d: %w", aocYear, aocDay, err))
 	}
 }
