@@ -42,6 +42,15 @@ func (s *Set) Remove(es ...interface{}) {
 	}
 }
 
+// Pop removes and returns an arbitrary item from the set.
+func (s *Set) Pop() interface{} {
+	for e := range s.m {
+		s.Remove(e)
+		return e
+	}
+	return nil
+}
+
 // Contains check if the given element exists in the set.
 func (s *Set) Contains(e interface{}) bool {
 	_, c := s.m[e]
