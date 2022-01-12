@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/dhruvmanila/advent-of-code/go/pkg/iterator"
-	"github.com/dhruvmanila/advent-of-code/go/pkg/queue"
 	"github.com/dhruvmanila/advent-of-code/go/pkg/stack"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
@@ -63,8 +62,16 @@ func evaluate(expr string) int {
 
 func evaluateAdvance(expr []byte) int {
 	// Shunting-yard algorithm
-	output := queue.New()
+	// https://en.wikipedia.org/wiki/Shunting-yard_algorithm
+	output := stack.New()
 	operator := stack.New()
+
+	// evalOutput is helper function to evaluate the two numbers on top of the
+	// output stack as per the given op.
+	evalOutput := func(op byte) {
+		output.Push(evaluateOp(output.Pop().(int), output.Pop().(int), op))
+	}
+
 	for _, c := range expr {
 		switch c {
 		case ' ':
@@ -75,7 +82,7 @@ func evaluateAdvance(expr []byte) int {
 				if top == '(' || top < c {
 					break
 				}
-				output.Enqueue(operator.Pop())
+				evalOutput(operator.Pop().(byte))
 			}
 			fallthrough
 		case '(':
@@ -89,10 +96,10 @@ func evaluateAdvance(expr []byte) int {
 				if top == '(' { // discard the left parenthesis
 					break
 				}
-				output.Enqueue(top)
+				evalOutput(top)
 			}
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-			output.Enqueue(c)
+			output.Push(int(c - '0'))
 		default:
 			panic("invalid char: " + string(c))
 		}
@@ -103,21 +110,10 @@ func evaluateAdvance(expr []byte) int {
 		if top == '(' {
 			panic("mismatched parenthesis")
 		}
-		output.Enqueue(top)
+		evalOutput(top)
 	}
 
-	numbers := stack.New()
-	for !output.IsEmpty() {
-		switch c := output.Dequeue().(byte); c {
-		case '+', '*':
-			n1 := numbers.Pop().(int)
-			n2 := numbers.Pop().(int)
-			numbers.Push(evaluateOp(n1, n2, c))
-		default:
-			numbers.Push(int(c - '0'))
-		}
-	}
-	return numbers.Pop().(int)
+	return output.Pop().(int)
 }
 
 func Sol18(input string) error {
