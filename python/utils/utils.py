@@ -36,4 +36,4 @@ def read(*, day: int, year: int, test: bool = False) -> str:
     )
     if not datafile.exists():
         raise FileNotFoundError(datafile)
-    return datafile.read_text().strip()
+    return datafile.read_text().strip("\n")
