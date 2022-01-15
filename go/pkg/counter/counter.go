@@ -2,7 +2,9 @@
 package counter
 
 import (
+	"fmt"
 	"math"
+	"strings"
 )
 
 // Counter is a generic counter for counting items.
@@ -168,6 +170,14 @@ func (c *Counter) Iter() <-chan interface{} {
 		close(ch)
 	}()
 	return ch
+}
+
+func (c *Counter) String() string {
+	counts := make([]string, 0, c.Len())
+	for item, count := range c.m {
+		counts = append(counts, fmt.Sprintf("%v:%d", item, count))
+	}
+	return fmt.Sprintf("Counter{%s}", strings.Join(counts, " "))
 }
 
 // Internal method to ease up checking whether an item exists in the counter.

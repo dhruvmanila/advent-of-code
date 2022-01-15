@@ -3,6 +3,8 @@ package stack
 
 import (
 	"container/list"
+	"fmt"
+	"strings"
 )
 
 // Stack represents the stack data structure.
@@ -47,4 +49,12 @@ func (s *Stack) Len() int {
 // IsEmpty is used to check whether the stack is empty or not.
 func (s *Stack) IsEmpty() bool {
 	return s.Len() == 0
+}
+
+func (s *Stack) String() string {
+	res := make([]string, 0, s.Len())
+	for e := s.list.Front(); e != nil; e = e.Next() {
+		res = append(res, fmt.Sprintf("%v", e.Value))
+	}
+	return "Stack[" + strings.Join(res, " ") + "]"
 }

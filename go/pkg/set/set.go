@@ -2,6 +2,11 @@
 // duplicates.
 package set
 
+import (
+	"fmt"
+	"strings"
+)
+
 var exist = struct{}{}
 
 // Set represents an unordered list of elements.
@@ -187,4 +192,21 @@ func (s *Set) IsEqual(other *Set) bool {
 		}
 	}
 	return true
+}
+
+// ToSlice returns the members of the receiver set as a slice.
+func (s *Set) ToSlice() []interface{} {
+	slice := make([]interface{}, 0, s.Len())
+	for e := range s.m {
+		slice = append(slice, e)
+	}
+	return slice
+}
+
+func (s *Set) String() string {
+	items := make([]string, 0, s.Len())
+	for e := range s.m {
+		items = append(items, fmt.Sprintf("%v", e))
+	}
+	return fmt.Sprintf("Set{%s}", strings.Join(items, ", "))
 }
