@@ -10,4 +10,4 @@ clean: ## Remove build artifacts
 tidy: ## Tidy the module
 	go mod tidy
 
-.PHONY: build clean tidy help
+.PHONY: build clean tidy
