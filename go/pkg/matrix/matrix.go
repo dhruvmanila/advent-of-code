@@ -24,6 +24,11 @@ type Dense struct {
 	Rows int
 	Cols int
 
+	// Stride is the number of elements between beginnings of successive
+	// array elements. In other words, it tells us how many elements to skip
+	// to move to the next position along a certain axis.
+	Stride int
+
 	// Data is an array of elements contained in the matrix. The order is from
 	// top to bottom, left to right.
 	Data []interface{}
@@ -51,9 +56,10 @@ func NewDense(r, c int, data []interface{}) *Dense {
 		data = make([]interface{}, r*c)
 	}
 	return &Dense{
-		Rows: r,
-		Cols: c,
-		Data: data,
+		Rows:   r,
+		Cols:   c,
+		Stride: c,
+		Data:   data,
 	}
 }
 
@@ -66,14 +72,14 @@ func (m *Dense) Dims() (r, c int) {
 // if i or j are out of bounds for the matrix.
 func (m *Dense) At(i, j int) interface{} {
 	m.checkBounds(i, j)
-	return m.Data[i*m.Cols+j]
+	return m.Data[i*m.Stride+j]
 }
 
 // Set sets the element at row i, column j to the value v. It will panic if i
 // or j are out of bounds for the matrix.
 func (m *Dense) Set(i, j int, v interface{}) {
 	m.checkBounds(i, j)
-	m.Data[i*m.Cols+j] = v
+	m.Data[i*m.Stride+j] = v
 }
 
 // SetRow sets the values in the specified row i of the matrix to the values
@@ -86,7 +92,53 @@ func (m *Dense) SetRow(i int, src []interface{}) {
 	if len(src) != m.Cols {
 		panic(ErrRowLength)
 	}
-	copy(m.Data[i*m.Cols:i*m.Cols+m.Cols], src)
+	copy(m.Data[i*m.Stride:i*m.Stride+m.Cols], src)
+}
+
+// AppendRow appends a new row at the end of the matrix with the values in src.
+// If the receiver is not empty, then it will panic if len(src) is not equal to
+// the number of columns in the receiver.
+func (m *Dense) AppendRow(src []interface{}) {
+	m.Rows++
+	switch {
+	case m.IsEmpty():
+		m.Cols = len(src)
+		m.Stride = m.Cols
+	case len(src) != m.Cols:
+		panic(ErrRowLength)
+	}
+	m.Data = append(m.Data, src...)
+}
+
+// RowView returns a slice for the specified row backed by the same array as
+// backing the receiver.
+func (m *Dense) RowView(i int) interface{} {
+	if i >= m.Rows || i < 0 {
+		panic(ErrRowAccess)
+	}
+	return m.Data[i*m.Stride : i*m.Stride+m.Cols]
+}
+
+// SliceRow returns a slice of the specified row `r` starting at `from`
+// (inclusive) upto `to` (exclusive). The same rule applies for the slice
+// parameters as governed by the language except this requires both the start
+// and stop index.
+//
+// It will panic if `r`, `from`, `to` is out of bounds with an exception that
+// `to` can equal to the number of columns.
+func (m *Dense) SliceRow(r, from, to int) interface{} {
+	if r >= m.Rows || r < 0 {
+		panic(ErrRowAccess)
+	}
+	if from < 0 || to < 0 || from >= m.Cols || to > m.Cols {
+		panic("matrix: out of bound slice")
+	}
+	return m.Data[r*m.Stride+from : r*m.Stride+to]
+}
+
+// IsEmpty returns whether the receiver is empty.
+func (m *Dense) IsEmpty() bool {
+	return m.Stride == 0
 }
 
 // T performs an implicit transpose by returning the receiver inside a Transpose.
