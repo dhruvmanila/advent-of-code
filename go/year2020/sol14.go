@@ -82,7 +82,7 @@ func runV2(program []string) int {
 			// The initial possible address where all the Xs are zero.
 			addr = (addr & clearMask) | setMask
 			mem[addr] = val
-			for _, comb := range combinations.AllInt(floatingBits) {
+			for _, comb := range combinations.All(floatingBits) {
 				nextAddr := addr
 				for _, c := range comb {
 					nextAddr |= c

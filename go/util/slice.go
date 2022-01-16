@@ -1,7 +1,7 @@
 package util
 
 // Reverse reverses the order of elements in the given slice in place.
-func Reverse(sl []interface{}) {
+func Reverse[T any](sl []T) {
 	for i, j := 0, len(sl)-1; i < j; i, j = i+1, j-1 {
 		sl[i], sl[j] = sl[j], sl[i]
 	}
