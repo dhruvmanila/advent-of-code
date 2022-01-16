@@ -27,34 +27,34 @@ func evaluateOp(a, b int, op byte) int {
 func evaluate(expr string) int {
 	result := 0
 	op := opAdd
-	it := iterator.NewString(expr)
+	it := iterator.New([]byte(expr))
 	for it.Next() {
 		switch it.Value() {
-		case " ":
+		case ' ':
 			continue
-		case "+":
+		case '+':
 			op = opAdd
-		case "*":
+		case '*':
 			op = opMult
-		case "(":
+		case '(':
 			subExpr := ""
 			openParen := 0
 		Loop:
 			for it.Next() {
 				switch it.Value() {
-				case "(":
+				case '(':
 					openParen++
-				case ")":
+				case ')':
 					if openParen == 0 {
 						break Loop
 					}
 					openParen--
 				}
-				subExpr += it.Value()
+				subExpr += string(it.Value())
 			}
 			result = evaluateOp(result, evaluate(subExpr), op)
-		default: // number
-			result = evaluateOp(result, util.MustAtoi(it.Value()), op)
+		default: // digit
+			result = evaluateOp(result, int(it.Value()-'0'), op)
 		}
 	}
 	return result
