@@ -8,8 +8,7 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-func getNeighbours3D(e interface{}) [][3]int {
-	cube := e.([3]int)
+func getNeighbours3D(cube [3]int) [][3]int {
 	neighbours := make([][3]int, 0, 26)
 	for dx := -1; dx <= 1; dx++ {
 		for dy := -1; dy <= 1; dy++ {
@@ -28,8 +27,7 @@ func getNeighbours3D(e interface{}) [][3]int {
 	return neighbours
 }
 
-func getNeighbours4D(e interface{}) [][4]int {
-	cube := e.([4]int)
+func getNeighbours4D(cube [4]int) [][4]int {
 	neighbours := make([][4]int, 0, 80)
 	for dx := -1; dx <= 1; dx++ {
 		for dy := -1; dy <= 1; dy++ {
@@ -51,30 +49,19 @@ func getNeighbours4D(e interface{}) [][4]int {
 	return neighbours
 }
 
-func executeCycle(activeCubes *set.Set, n, dimensions int) int {
+func executeCycle3D(activeCubes set.Set[[3]int], n int) int {
 	if n == 0 {
 		return activeCubes.Len()
 	}
-	nextActiveCubes := set.New()
-	inactiveActiveNeighbours := counter.New()
-	activeCubes.ForEach(func(cube interface{}) {
+	nextActiveCubes := set.New[[3]int]()
+	inactiveActiveNeighbours := counter.New[[3]int]()
+	activeCubes.ForEach(func(cube [3]int) {
 		activeNeighbours := 0
-		switch dimensions {
-		case 3:
-			for _, neighbour := range getNeighbours3D(cube) {
-				if activeCubes.Contains(neighbour) {
-					activeNeighbours++
-				} else {
-					inactiveActiveNeighbours.Increment(neighbour)
-				}
-			}
-		case 4:
-			for _, neighbour := range getNeighbours4D(cube) {
-				if activeCubes.Contains(neighbour) {
-					activeNeighbours++
-				} else {
-					inactiveActiveNeighbours.Increment(neighbour)
-				}
+		for _, neighbour := range getNeighbours3D(cube) {
+			if activeCubes.Contains(neighbour) {
+				activeNeighbours++
+			} else {
+				inactiveActiveNeighbours.Increment(neighbour)
 			}
 		}
 		switch activeNeighbours {
@@ -82,25 +69,60 @@ func executeCycle(activeCubes *set.Set, n, dimensions int) int {
 			nextActiveCubes.Add(cube)
 		}
 	})
-	inactiveActiveNeighbours.ForEach(func(item interface{}, count int) {
+	inactiveActiveNeighbours.ForEach(func(item [3]int, count int) {
 		if count == 3 {
 			nextActiveCubes.Add(item)
 		}
 	})
-	return executeCycle(nextActiveCubes, n-1, dimensions)
+	return executeCycle3D(nextActiveCubes, n-1)
 }
 
-func parseInitialCubes(state []string, dimensions int) *set.Set {
-	activeCubes := set.New()
+func executeCycle4D(activeCubes set.Set[[4]int], n int) int {
+	if n == 0 {
+		return activeCubes.Len()
+	}
+	nextActiveCubes := set.New[[4]int]()
+	inactiveActiveNeighbours := counter.New[[4]int]()
+	activeCubes.ForEach(func(cube [4]int) {
+		activeNeighbours := 0
+		for _, neighbour := range getNeighbours4D(cube) {
+			if activeCubes.Contains(neighbour) {
+				activeNeighbours++
+			} else {
+				inactiveActiveNeighbours.Increment(neighbour)
+			}
+		}
+		switch activeNeighbours {
+		case 2, 3:
+			nextActiveCubes.Add(cube)
+		}
+	})
+	inactiveActiveNeighbours.ForEach(func(item [4]int, count int) {
+		if count == 3 {
+			nextActiveCubes.Add(item)
+		}
+	})
+	return executeCycle4D(nextActiveCubes, n-1)
+}
+
+func parseInitialCubes3D(state []string) set.Set[[3]int] {
+	activeCubes := set.New[[3]int]()
 	for y, line := range state {
 		for x, char := range line {
 			if char == '#' {
-				switch dimensions {
-				case 3:
-					activeCubes.Add([3]int{x, y, 0})
-				case 4:
-					activeCubes.Add([4]int{x, y, 0, 0})
-				}
+				activeCubes.Add([3]int{x, y, 0})
+			}
+		}
+	}
+	return activeCubes
+}
+
+func parseInitialCubes4D(state []string) set.Set[[4]int] {
+	activeCubes := set.New[[4]int]()
+	for y, line := range state {
+		for x, char := range line {
+			if char == '#' {
+				activeCubes.Add([4]int{x, y, 0})
 			}
 		}
 	}
@@ -113,8 +135,8 @@ func Sol17(input string) error {
 		return err
 	}
 
-	cubes3D := parseInitialCubes(lines, 3)
-	cubes4D := parseInitialCubes(lines, 4)
-	fmt.Printf("17.1: %d\n17.2: %d\n", executeCycle(cubes3D, 6, 3), executeCycle(cubes4D, 6, 4))
+	count1 := executeCycle3D(parseInitialCubes3D(lines), 6)
+	count2 := executeCycle4D(parseInitialCubes4D(lines), 6)
+	fmt.Printf("17.1: %d\n17.2: %d\n", count1, count2)
 	return nil
 }

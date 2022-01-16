@@ -17,11 +17,11 @@ type memoKey struct {
 type polymer struct {
 	template string
 	rules    map[string]string
-	c        *counter.Counter
+	c        counter.Counter[string]
 }
 
 func newPolymer(template string, rules map[string]string) *polymer {
-	c := counter.New()
+	c := counter.New[string]()
 	for _, letter := range template {
 		c.Increment(string(letter))
 	}
@@ -33,13 +33,13 @@ func newPolymer(template string, rules map[string]string) *polymer {
 }
 
 func (p *polymer) process(steps int) {
-	var recursiveProcess func(string, int) *counter.Counter
-	memo := make(map[memoKey]*counter.Counter)
+	var recursiveProcess func(string, int) counter.Counter[string]
+	memo := make(map[memoKey]counter.Counter[string])
 
-	recursiveProcess = func(pair string, steps int) *counter.Counter {
+	recursiveProcess = func(pair string, steps int) counter.Counter[string] {
 		// Base case: No steps remaining.
 		if steps == 0 {
-			return counter.New()
+			return counter.New[string]()
 		}
 
 		// Check if the function has been called with the exact arguments
@@ -54,7 +54,7 @@ func (p *polymer) process(steps int) {
 		// We only need to add the new element to the frequency map as we've
 		// already added all the characters from the template when creating
 		// the polymer.
-		c := counter.New()
+		c := counter.New[string]()
 		c.Increment(element)
 
 		// Recursion case:
@@ -79,7 +79,7 @@ func (p *polymer) process(steps int) {
 }
 
 func (p *polymer) reset() {
-	p.c = counter.New()
+	p.c = counter.New[string]()
 	for _, letter := range p.template {
 		p.c.Increment(string(letter))
 	}

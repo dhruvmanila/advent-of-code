@@ -17,7 +17,7 @@ type food struct {
 
 func identifyAllergens(foods []*food) (map[string]string, int) {
 	candidates := make(map[string]set.Set[string])
-	ingredientCount := counter.New()
+	ingredientCount := counter.New[string]()
 	for _, food := range foods {
 		ingredientCount.Update(counter.NewFromSlice(food.ingredients.ToSlice()))
 		food.allergens.ForEach(func(allergen string) {

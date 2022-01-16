@@ -51,7 +51,7 @@ func Sol10(input string) error {
 	sort.Ints(ratings)
 
 	// dc is a difference counter.
-	dc := counter.New()
+	dc := counter.New[int]()
 	dc.Increment(ratings[0] - effectiveRating)
 	for i := 0; i < len(ratings)-1; i++ {
 		dc.Increment(ratings[i+1] - ratings[i])

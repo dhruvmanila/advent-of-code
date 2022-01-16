@@ -145,7 +145,7 @@ func Sol05(input string) error {
 
 	// counter1 and counter2 represents the counter for the first and second
 	// part of the puzzle respectively.
-	counter1, counter2 := counter.New(), counter.New()
+	counter1, counter2 := counter.New[point](), counter.New[point]()
 
 	for _, ls := range lineSegments {
 		for _, p := range ls.allPoints() {
@@ -160,12 +160,12 @@ func Sol05(input string) error {
 	}
 
 	var count1, count2 int
-	counter1.ForEach(func(_ interface{}, count int) {
+	counter1.ForEach(func(_ point, count int) {
 		if count >= 2 {
 			count1++
 		}
 	})
-	counter2.ForEach(func(_ interface{}, count int) {
+	counter2.ForEach(func(_ point, count int) {
 		if count >= 2 {
 			count2++
 		}

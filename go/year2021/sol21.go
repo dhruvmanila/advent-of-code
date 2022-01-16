@@ -91,12 +91,12 @@ var quantumRolls = map[int]int{
 }
 
 func realGame(p1, p2 player) int {
-	memo := make(map[[2]player]*counter.Counter)
-	var loop func(p, other player) *counter.Counter
+	memo := make(map[[2]player]counter.Counter[int])
+	var loop func(p, other player) counter.Counter[int]
 
 	// Here, p represents the currently playing player while other is waiting
 	// for its turn.
-	loop = func(p, other player) *counter.Counter {
+	loop = func(p, other player) counter.Counter[int] {
 		// Base case: One of the player have score equal to or greater than 21.
 		switch {
 		case p.score >= 21:
@@ -110,7 +110,7 @@ func realGame(p1, p2 player) int {
 			return value
 		}
 
-		c := counter.New()
+		c := counter.New[int]()
 		for steps, freq := range quantumRolls {
 			// We cannot update the original struct as we still have other
 			// rolls to play. This is creating a copy of the struct and works
