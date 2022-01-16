@@ -10,11 +10,11 @@ import (
 
 type player struct {
 	id   uint8
-	deck queue.Queue
+	deck queue.Queue[int]
 }
 
 func newPlayer(playerId uint8, cards []int) *player {
-	deck := queue.New()
+	deck := queue.New[int]()
 	for _, card := range cards {
 		deck.Enqueue(card)
 	}
@@ -30,8 +30,8 @@ func (p *player) String() string {
 
 func playCombat(p1, p2 *player) *player {
 	for !(p1.deck.IsEmpty() || p2.deck.IsEmpty()) {
-		c1 := p1.deck.Dequeue().(int)
-		c2 := p2.deck.Dequeue().(int)
+		c1, _ := p1.deck.Dequeue()
+		c2, _ := p2.deck.Dequeue()
 		if c1 > c2 {
 			p1.deck.Enqueue(c1, c2)
 		} else {
@@ -61,13 +61,13 @@ func playRecursiveCombat(p1, p2 *player) *player {
 			}
 			seen.Add(state)
 			// Begin the round by drawing the top card from each player's deck.
-			c1 := p1.deck.Dequeue().(int)
-			c2 := p2.deck.Dequeue().(int)
+			c1, _ := p1.deck.Dequeue()
+			c2, _ := p2.deck.Dequeue()
 			var p1wins bool
 			if p1.deck.Len() < c1 || p2.deck.Len() < c2 {
 				p1wins = c1 > c2
 			} else {
-				d1, d2 := make(queue.Queue, c1), make(queue.Queue, c2)
+				d1, d2 := make(queue.Queue[int], c1), make(queue.Queue[int], c2)
 				copy(d1, p1.deck[:c1])
 				copy(d2, p2.deck[:c2])
 				// Recursive call for the sub-game
@@ -94,8 +94,12 @@ func playRecursiveCombat(p1, p2 *player) *player {
 func calculateScore(p *player) int {
 	score := 0
 	multiplier := p.deck.Len()
-	for !p.deck.IsEmpty() {
-		score += p.deck.Dequeue().(int) * multiplier
+	for {
+		if card, ok := p.deck.Dequeue(); ok {
+			score += card * multiplier
+		} else {
+			break
+		}
 		multiplier--
 	}
 	return score

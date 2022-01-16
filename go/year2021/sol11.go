@@ -14,14 +14,14 @@ type octopusGrid struct {
 
 	// flashQueue is a position queue used to enqueue all the positions which
 	// needs to be flashed.
-	flashQueue *queue.Queue
+	flashQueue *queue.Queue[position]
 }
 
 // newOctopusGrid is used to create a new octopus grid.
 func newOctopusGrid(grid map[position]int) *octopusGrid {
 	return &octopusGrid{
 		grid:       grid,
-		flashQueue: queue.New(),
+		flashQueue: queue.New[position](),
 	}
 }
 
@@ -62,11 +62,10 @@ func (og *octopusGrid) step() int {
 func (og *octopusGrid) flash() int {
 	flashes := 0
 	for {
-		e := og.flashQueue.Dequeue()
-		if e == nil {
+		pos, ok := og.flashQueue.Dequeue()
+		if !ok {
 			break
 		}
-		pos := e.(position)
 		if og.grid[pos] == 0 {
 			continue
 		}

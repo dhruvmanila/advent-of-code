@@ -2,13 +2,14 @@ package queue
 
 import "fmt"
 
-// Queue represents a simple queue data structure.
-type Queue []interface{}
+// Queue represents a simple queue data structure. It is backed by a slice of
+// an unconstrained type T.
+type Queue[T any] []T
 
 // New returns an initialized queue, optionally with the given elements. The
 // elements are added in the same order as provided.
-func New(es ...interface{}) *Queue {
-	q := new(Queue)
+func New[T any](es ...T) *Queue[T] {
+	q := new(Queue[T])
 	if es != nil {
 		q.Enqueue(es...)
 	}
@@ -17,56 +18,64 @@ func New(es ...interface{}) *Queue {
 
 // Enqueue is used to enqueue all the given elements to the queue. Multiple
 // elements are added in the same order as provided.
-func (q *Queue) Enqueue(es ...interface{}) {
+func (q *Queue[T]) Enqueue(es ...T) {
 	*q = append(*q, es...)
 }
 
 // Dequeue is used to dequeue or remove the frontmost element from the queue
-// and returns it, or nil if the queue is empty.
-func (q *Queue) Dequeue() interface{} {
+// and return it.
+//
+// An attempt to dequeue when the queue is empty will return the zero value for
+// the type of the elements in the queue. Using multiple assignment, one can
+// distinguish a missing entry from a zero value. This is referred to as the
+// "comma ok" idiom.
+func (q *Queue[T]) Dequeue() (e T, ok bool) {
 	sl := *q
 	if len(sl) == 0 {
-		return nil
+		return e, false
 	}
-	e := sl[0]
+	e = sl[0]
 	if len(sl) == 1 {
-		// Clear the slice
-		*q = nil
+		*q = nil // Clear the slice
 	} else {
 		*q = sl[1:]
 	}
-	return e
+	return e, true
 }
 
-// Peek returns the frontmost element of the queue without removing it, or nil
-// if the queue is empty.
-func (q *Queue) Peek() interface{} {
+// Peek returns the frontmost element of the queue without removing it.
+//
+// An attempt to peek when the queue is empty will return the zero value for
+// the type of the elements in the queue. Using multiple assignment, one can
+// distinguish a missing entry from a zero value. This is referred to as the
+// "comma ok" idiom.
+func (q *Queue[T]) Peek() (e T, ok bool) {
 	sl := *q
 	if len(sl) == 0 {
-		return nil
+		return e, false
 	}
-	return sl[0]
+	return sl[0], true
 }
 
 // Len returns the number of elements in the queue.
-func (q *Queue) Len() int {
+func (q *Queue[T]) Len() int {
 	return len(*q)
 }
 
 // IsEmpty is used to check whether the queue is empty or not.
-func (q *Queue) IsEmpty() bool {
+func (q *Queue[T]) IsEmpty() bool {
 	return q.Len() == 0
 }
 
 // ToSlice returns a slice containing the elements of the queue where the first
 // element is the start of the queue. Mutating the returned slice will not
 // affect the underlying implementation.
-func (q *Queue) ToSlice() []interface{} {
-	sl := make([]interface{}, 0, q.Len())
+func (q *Queue[T]) ToSlice() []T {
+	sl := make([]T, q.Len())
 	copy(sl, *q)
 	return sl
 }
 
-func (q *Queue) String() string {
+func (q *Queue[T]) String() string {
 	return fmt.Sprintf("Queue%v", *q)
 }
