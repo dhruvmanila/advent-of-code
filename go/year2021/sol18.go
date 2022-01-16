@@ -161,7 +161,7 @@ func dump(node *number) string {
 }
 
 func parseNumber(line string) *number {
-	nodes := stack.New()
+	nodes := stack.New[*number]()
 	for _, char := range line {
 		switch char {
 		case '[', ',':
@@ -169,19 +169,18 @@ func parseNumber(line string) *number {
 		case ']':
 			// Order matters here: first pop should be the right node and the
 			// second should be the left node.
-			nodes.Push(&number{
-				value: sentinel,
-				right: nodes.Pop().(*number),
-				left:  nodes.Pop().(*number),
-			})
+			right, _ := nodes.Pop()
+			left, _ := nodes.Pop()
+			nodes.Push(&number{value: sentinel, right: right, left: left})
 		default:
 			nodes.Push(newNumber(int(char - '0')))
 		}
 	}
-	if nodes.Len() != 1 {
+	result, ok := nodes.Pop()
+	if !ok {
 		panic("parse error")
 	}
-	return nodes.Pop().(*number)
+	return result
 }
 
 func Sol18(input string) error {

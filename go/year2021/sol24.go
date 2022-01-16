@@ -229,7 +229,7 @@ func (eq *equation) minimizeSolve() {
 }
 
 func formEquations(instructions []string) []*equation {
-	s := stack.New()
+	s := stack.New[*equation]()
 	equations := make([]*equation, 0, 7)
 	pos := 13
 
@@ -242,14 +242,13 @@ func formEquations(instructions []string) []*equation {
 				constant: util.MustAtoi(group[15][6:]),
 			})
 		case "div z 26":
-			item := s.Pop()
-			if item == nil {
+			if eq, ok := s.Pop(); !ok {
 				panic("empty stack")
+			} else {
+				eq.constant += util.MustAtoi(group[5][6:])
+				eq.right = &digitVar{pos: pos}
+				equations = append(equations, eq)
 			}
-			eq := item.(*equation)
-			eq.constant += util.MustAtoi(group[5][6:])
-			eq.right = &digitVar{pos: pos}
-			equations = append(equations, eq)
 		}
 		pos--
 	}

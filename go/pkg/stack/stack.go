@@ -1,60 +1,67 @@
 // Package stack implements a generic stack data structure.
 package stack
 
-import (
-	"container/list"
-	"fmt"
-	"strings"
-)
+import "fmt"
 
 // Stack represents the stack data structure.
-type Stack struct {
-	list *list.List
-}
+type Stack[T any] []T
 
 // New returns an initialized and empty stack.
-func New() *Stack {
-	return &Stack{list: list.New()}
+func New[T any]() *Stack[T] {
+	return new(Stack[T])
 }
 
-// Push adds a value to the top of a stack.
-func (s *Stack) Push(v interface{}) {
-	s.list.PushFront(v)
+// Push adds an element to the top of a stack.
+func (s *Stack[T]) Push(e T) {
+	*s = append(*s, e)
 }
 
 // Pop removes the top element on the stack and returns it, or nil if the stack
 // is empty.
-func (s *Stack) Pop() interface{} {
-	if e := s.list.Front(); e != nil {
-		s.list.Remove(e)
-		return e.Value
+//
+// An attempt to pop when the stack is empty will return the zero value for
+// the type of the elements in the stack. Using multiple assignment, one can
+// distinguish a missing entry from a zero value. This is referred to as the
+// "comma ok" idiom.
+func (s *Stack[T]) Pop() (e T, ok bool) {
+	sl := *s
+	if len(sl) == 0 {
+		return e, false
 	}
-	return nil
+	e = sl[len(sl)-1]
+	if len(sl) == 1 {
+		*s = nil // Clear the slice
+	} else {
+		*s = sl[:len(sl)-1]
+	}
+	return e, true
 }
 
 // Peek returns the top element on the stack without removing it, or nil if the
 // stack is empty.
-func (s *Stack) Peek() interface{} {
-	if e := s.list.Front(); e != nil {
-		return e.Value
+//
+// An attempt to peek when the stack is empty will return the zero value for
+// the type of the elements in the stack. Using multiple assignment, one can
+// distinguish a missing entry from a zero value. This is referred to as the
+// "comma ok" idiom.
+func (s *Stack[T]) Peek() (e T, ok bool) {
+	sl := *s
+	if len(sl) == 0 {
+		return e, false
 	}
-	return nil
+	return sl[len(sl)-1], true
 }
 
 // Len returns the number of elements on the stack.
-func (s *Stack) Len() int {
-	return s.list.Len()
+func (s *Stack[T]) Len() int {
+	return len(*s)
 }
 
 // IsEmpty is used to check whether the stack is empty or not.
-func (s *Stack) IsEmpty() bool {
+func (s *Stack[T]) IsEmpty() bool {
 	return s.Len() == 0
 }
 
-func (s *Stack) String() string {
-	res := make([]string, 0, s.Len())
-	for e := s.list.Front(); e != nil; e = e.Next() {
-		res = append(res, fmt.Sprintf("%v", e.Value))
-	}
-	return "Stack[" + strings.Join(res, " ") + "]"
+func (s *Stack[T]) String() string {
+	return fmt.Sprintf("Stack%v", *s)
 }

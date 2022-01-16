@@ -8,40 +8,40 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-var legalPairs = map[rune]rune{
+var legalPairs = map[byte]byte{
 	'(': ')',
 	'[': ']',
 	'{': '}',
 	'<': '>',
 }
 
-var illegalCharPoints = map[rune]int{
+var illegalCharPoints = map[byte]int{
 	')': 3,
 	']': 57,
 	'}': 1197,
 	'>': 25137,
 }
 
-var completionCharPoints = map[rune]int{
+var completionCharPoints = map[byte]int{
 	')': 1,
 	']': 2,
 	'}': 3,
 	'>': 4,
 }
 
-func closeChunks(s *stack.Stack) string {
-	var closed string
+func closeChunks(s *stack.Stack[byte]) []byte {
+	closed := make([]byte, 0, s.Len())
 	for {
-		elem, ok := s.Pop().(rune)
+		elem, ok := s.Pop()
 		if !ok {
 			break
 		}
-		closed += string(legalPairs[elem])
+		closed = append(closed, legalPairs[elem])
 	}
 	return closed
 }
 
-func calculateCompletionScore(s string) int {
+func calculateCompletionScore(s []byte) int {
 	score := 0
 	for _, char := range s {
 		score *= 5
@@ -61,11 +61,11 @@ func Sol10(input string) error {
 
 Line:
 	for _, line := range lines {
-		s := stack.New()
-		for _, char := range line {
+		s := stack.New[byte]()
+		for _, char := range []byte(line) {
 			switch char {
 			case ')', ']', '}', '>':
-				last := s.Pop().(rune)
+				last, _ := s.Pop()
 				if legalPairs[last] != char {
 					syntaxErrorScore += illegalCharPoints[char]
 					continue Line

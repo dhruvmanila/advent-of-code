@@ -63,13 +63,15 @@ func evaluate(expr string) int {
 func evaluateAdvance(expr []byte) int {
 	// Shunting-yard algorithm
 	// https://en.wikipedia.org/wiki/Shunting-yard_algorithm
-	output := stack.New()
-	operator := stack.New()
+	output := stack.New[int]()
+	operator := stack.New[byte]()
 
 	// evalOutput is helper function to evaluate the two numbers on top of the
 	// output stack as per the given op.
 	evalOutput := func(op byte) {
-		output.Push(evaluateOp(output.Pop().(int), output.Pop().(int), op))
+		n1, _ := output.Pop()
+		n2, _ := output.Pop()
+		output.Push(evaluateOp(n1, n2, op))
 	}
 
 	for _, c := range expr {
@@ -77,22 +79,22 @@ func evaluateAdvance(expr []byte) int {
 		case ' ':
 			continue
 		case '+', '*':
-			for !operator.IsEmpty() {
-				top := operator.Peek().(byte)
-				if top == '(' || top < c {
+			for {
+				if top, ok := operator.Peek(); !ok || top == '(' || top < c {
 					break
 				}
-				evalOutput(operator.Pop().(byte))
+				top, _ := operator.Pop()
+				evalOutput(top)
 			}
 			fallthrough
 		case '(':
 			operator.Push(c)
 		case ')':
 			for {
-				if operator.IsEmpty() {
+				top, ok := operator.Pop()
+				if !ok {
 					panic("mismatched parenthesis")
 				}
-				top := operator.Pop().(byte)
 				if top == '(' { // discard the left parenthesis
 					break
 				}
@@ -105,15 +107,18 @@ func evaluateAdvance(expr []byte) int {
 		}
 	}
 	// Add rest of the operators onto the ouput stack.
-	for !operator.IsEmpty() {
-		top := operator.Pop().(byte)
+	for {
+		top, ok := operator.Pop()
+		if !ok {
+			break
+		}
 		if top == '(' {
 			panic("mismatched parenthesis")
 		}
 		evalOutput(top)
 	}
-
-	return output.Pop().(int)
+	result, _ := output.Pop()
+	return result
 }
 
 func Sol18(input string) error {
