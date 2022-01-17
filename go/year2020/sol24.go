@@ -77,16 +77,16 @@ func (h *hex) String() string {
 	return fmt.Sprintf("(%d, %d)", h.q, h.r)
 }
 
-func getBlackTiles(instructions []string) *set.Set {
-	blackTiles := set.New()
+func getBlackTiles(instructions []string) set.Set[hex] {
+	blackTiles := set.New[hex]()
 	for _, instruction := range instructions {
 		position := newHex(0, 0)
-		it := iterator.NewString(instruction)
+		it := iterator.New([]byte(instruction))
 		for it.Next() {
-			d := it.Value()
+			d := string(it.Value())
 			if d == "s" || d == "n" {
 				it.Next()
-				d += it.Value()
+				d += string(it.Value())
 			}
 			position = position.neighbor(hexDirectionMap[d])
 		}
@@ -99,12 +99,11 @@ func getBlackTiles(instructions []string) *set.Set {
 	return blackTiles
 }
 
-func runArtExhibit(blackTiles *set.Set, days int) int {
+func runArtExhibit(blackTiles set.Set[hex], days int) int {
 	for ; days > 0; days-- {
-		newBlackTiles := set.New()
-		whiteTiles := set.New()
-		blackTiles.ForEach(func(e interface{}) {
-			tile := e.(hex)
+		newBlackTiles := set.New[hex]()
+		whiteTiles := set.New[hex]()
+		blackTiles.ForEach(func(tile hex) {
 			blackCount := 0
 			for _, neighbor := range tile.allNeighbors() {
 				if blackTiles.Contains(neighbor) {
@@ -118,8 +117,7 @@ func runArtExhibit(blackTiles *set.Set, days int) int {
 				newBlackTiles.Add(tile)
 			}
 		})
-		whiteTiles.ForEach(func(e interface{}) {
-			tile := e.(hex)
+		whiteTiles.ForEach(func(tile hex) {
 			blackCount := 0
 			for _, neighbor := range tile.allNeighbors() {
 				if blackTiles.Contains(neighbor) {

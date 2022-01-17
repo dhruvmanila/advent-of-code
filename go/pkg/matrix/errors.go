@@ -9,4 +9,5 @@ var (
 	ErrRowAccess         = errors.New("matrix: row index out of range")
 	ErrColAccess         = errors.New("matrix: column index out of range")
 	ErrRowLength         = errors.New("matrix: row length mismatch")
+	ErrColLength         = errors.New("matrix: column length mismatch")
 )

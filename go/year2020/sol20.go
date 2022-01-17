@@ -91,13 +91,13 @@ func (t *imageTile) String() string {
 	return s
 }
 
-func search(tiles []*imageTile) *matrix.Dense {
+func search(tiles []*imageTile) *matrix.Dense[*imageTile] {
 	// gridSize is the size of the main image. It is calculated based on the
 	// total possible tiles which includes all the rotations and flips.
 	gridSize := int(math.Sqrt(float64(len(tiles) / 8)))
 
 	// grid is the main image matrix of (gridSize x gridSize).
-	grid := matrix.NewDense(gridSize, gridSize, nil)
+	grid := matrix.NewDense[*imageTile](gridSize, gridSize, nil)
 
 	// visited is a set of image ids which have been visited.
 	visited := set.New[int]()
@@ -123,13 +123,13 @@ func search(tiles []*imageTile) *matrix.Dense {
 				// If we're not on the first row, then check if the top row of
 				// the current tile matches the bottom row of the tile right
 				// above the current position.
-				if row > 0 && !tile.topMatch(grid.At(row-1, col).(*imageTile)) {
+				if row > 0 && !tile.topMatch(grid.At(row-1, col)) {
 					continue
 				}
 				// If we're not on the first column, then check if the leftmost
 				// column of the current tile matches the rightmost column of
 				// the tile left to the current position.
-				if col > 0 && !tile.leftMatch(grid.At(row, col-1).(*imageTile)) {
+				if col > 0 && !tile.leftMatch(grid.At(row, col-1)) {
 					continue
 				}
 				// We found a possible tile for the current position.
@@ -162,7 +162,7 @@ func search(tiles []*imageTile) *matrix.Dense {
 
 // removeFrames will remove all the edges (top, bottom, left, right) from each
 // individual image in the grid.
-func removeFrames(grid *matrix.Dense) *imageTile {
+func removeFrames(grid *matrix.Dense[*imageTile]) *imageTile {
 	imageSize := (grid.Rows * size) - (grid.Rows * 2)
 	image := make([][]byte, 0, imageSize)
 	for row := 0; row < grid.Rows*size; row++ {
@@ -176,7 +176,7 @@ func removeFrames(grid *matrix.Dense) *imageTile {
 			if col%size == 0 || col%size == size-1 {
 				continue
 			}
-			imageRow = append(imageRow, grid.At(row/size, col/size).(*imageTile).image[row%size][col%size])
+			imageRow = append(imageRow, grid.At(row/size, col/size).image[row%size][col%size])
 		}
 		image = append(image, imageRow)
 	}
@@ -197,7 +197,7 @@ MainLoop:
 		for flips := 0; flips < 2; flips++ {
 			image = image.flip()
 			for row := 0; row+monsterHeight-1 < imageSize; row++ {
-			Column:
+			ColumnLoop:
 				for col := 0; col+monsterWidth-1 < imageSize; col++ {
 					// Consider a monster with its top-left corner at (row, col).
 					for dy := 0; dy < monsterHeight; dy++ {
@@ -205,7 +205,7 @@ MainLoop:
 							if monster[dy][dx] == '#' && image.image[row+dy][col+dx] != '#' {
 								// This position is not part of the monster
 								// starting at (row, col).
-								continue Column
+								continue ColumnLoop
 							}
 						}
 					}
@@ -273,10 +273,10 @@ func Sol20(input string) error {
 	grid := search(tiles)
 
 	// product is the product of ids of the four corner images.
-	product := grid.At(0, 0).(*imageTile).id *
-		grid.At(0, grid.Cols-1).(*imageTile).id *
-		grid.At(grid.Rows-1, 0).(*imageTile).id *
-		grid.At(grid.Rows-1, grid.Cols-1).(*imageTile).id
+	product := grid.At(0, 0).id *
+		grid.At(0, grid.Cols-1).id *
+		grid.At(grid.Rows-1, 0).id *
+		grid.At(grid.Rows-1, grid.Cols-1).id
 
 	// Remove the frames from the grid and form an image as a string slice.
 	// We could use matrix.Matrix again but comparing and slicing operation

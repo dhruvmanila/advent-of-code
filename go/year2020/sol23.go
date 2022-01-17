@@ -12,7 +12,7 @@ import (
 )
 
 func predict(current *ring.Ring, positions map[int]*ring.Ring, n int, extended bool) int {
-	removedLabels := set.New()
+	removedLabels := set.New[int]()
 	for ; n > 0; n-- {
 		removed := current.Unlink(3)
 		removed.Do(func(e interface{}) {
