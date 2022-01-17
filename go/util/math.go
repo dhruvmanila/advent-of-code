@@ -40,6 +40,15 @@ func AbsInt(n int) int {
 	return n
 }
 
+// Mod returns a % b, specifically the least positive remainder. This is
+// different than the builtin % operator which returns the least negative
+// remainder. This should only be used if either a or b is negative. Mod
+// behaves the same as the builtin % operator when both a and b are positive.
+func Mod(a, b int) int {
+	// https://stackoverflow.com/q/43018206
+	return ((a % b) + b) % b
+}
+
 // Digits is used to iterate over each digit of the given number from left to
 // right. This returns a channel from which you can only receive an integer one
 // at a time and can be used in various ways like so:
