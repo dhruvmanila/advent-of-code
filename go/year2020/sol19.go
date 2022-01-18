@@ -8,7 +8,7 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-func validMessages(rules map[string]string, messages []string) int {
+func validMessages(rules map[string]string, messages []string) (count1, count2 int) {
 	var genRegex func(string) string
 	genRegex = func(k string) (regex string) {
 		rule := rules[k]
@@ -24,17 +24,31 @@ func validMessages(rules map[string]string, messages []string) int {
 				}
 			}
 		}
-		return fmt.Sprintf("(?:%s)", regex)
+		return fmt.Sprintf("(%s)", regex)
 	}
 
 	rule0Regex := regexp.MustCompile("^" + genRegex("0") + "$")
-	count := 0
+	rule42Regex := regexp.MustCompile("^" + genRegex("42"))
+	rule31Regex := regexp.MustCompile("^" + genRegex("31"))
+
 	for _, message := range messages {
 		if rule0Regex.MatchString(message) {
-			count++
+			count1++
+		}
+		var pos, count42, count31 int
+		for match := rule42Regex.FindStringIndex(message); match != nil; {
+			count42++
+			pos, match = pos+match[1], rule42Regex.FindStringIndex(message[pos+match[1]:])
+		}
+		for match := rule31Regex.FindStringIndex(message[pos:]); match != nil; {
+			count31++
+			pos, match = pos+match[1], rule31Regex.FindStringIndex(message[pos+match[1]:])
+		}
+		if pos == len(message) && 0 < count31 && count31 < count42 {
+			count2++
 		}
 	}
-	return count
+	return count1, count2
 }
 
 func Sol19(input string) error {
@@ -53,6 +67,7 @@ func Sol19(input string) error {
 	}
 	messages := sections[1]
 
-	fmt.Printf("19.1: %d\n19.2: %d\n", validMessages(rules, messages), 0)
+	count1, count2 := validMessages(rules, messages)
+	fmt.Printf("19.1: %d\n19.2: %d\n", count1, count2)
 	return nil
 }

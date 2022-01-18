@@ -1,7 +1,5 @@
 # Advent of Code (Go)
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/dhruvmanila/advent-of-code/go.svg)](https://pkg.go.dev/github.com/dhruvmanila/advent-of-code/go)
-
 Advent of Code solutions in the Go Programming Language.
 
 ## `aoc` CLI tool
@@ -35,6 +33,8 @@ Options:
 at runtime as per the current date.
 
 ## Packages
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/dhruvmanila/advent-of-code/go.svg)](https://pkg.go.dev/github.com/dhruvmanila/advent-of-code/go)
 
 There are various utility functions provided in the `util` package. Additional
 packages which contains implementation for various data structures and
