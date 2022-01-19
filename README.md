@@ -7,6 +7,7 @@ the language directory.
 
 ## Language
 
+- [C](./c)
 - [Go](./go)
 - [Python](./python)
 
