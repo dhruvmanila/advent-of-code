@@ -90,7 +90,7 @@ func init() {
 	case month != time.December:
 		year--
 		fallthrough
-	case day >= 25:
+	case day > 25:
 		day = 25
 	}
 
@@ -110,6 +110,13 @@ Options:
 }
 
 func main() {
+	// Call realMain instead of doing the work here so we can use `defer`
+	// statements within the function and have them work properly.
+	// (defers aren't called with os.Exit)
+	os.Exit(realMain())
+}
+
+func realMain() int {
 	log.SetPrefix("aoc: ")
 	log.SetFlags(0)
 
@@ -128,7 +135,8 @@ func main() {
 	if cpuprofile {
 		f, err := os.Create("cpu.prof")
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
+			return 1
 		}
 		pprof.StartCPUProfile(f)
 		defer pprof.StopCPUProfile()
@@ -147,13 +155,17 @@ func main() {
 	if memprofile {
 		f, err := os.Create("mem.prof")
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
+			return 1
 		}
 		pprof.WriteHeapProfile(f)
 		f.Close()
 	}
 
 	if err != nil {
-		log.Fatal(fmt.Errorf("year %d: day %d: %w", aocYear, aocDay, err))
+		log.Print(fmt.Errorf("year %d: day %d: %w", aocYear, aocDay, err))
+		return 1
 	}
+
+	return 0
 }
