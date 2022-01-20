@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
       year = (int)strtol(optarg, &endptr, 10);
       if (endptr == optarg || *endptr != '\0' || errno == ERANGE) {
         fprintf(stderr, "aoc: invalid year: %s\n", optarg);
-        return 1;
+        return EXIT_FAILURE;
       }
       break;
     case 'd':
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
       day = (int)strtol(optarg, &endptr, 10);
       if (endptr == optarg || *endptr != '\0' || errno == ERANGE) {
         fprintf(stderr, "aoc: invalid day: %s\n", optarg);
-        return 1;
+        return EXIT_FAILURE;
       }
       break;
     case 't':
@@ -46,10 +46,10 @@ int main(int argc, char *argv[]) {
       break;
     case ':':
       fprintf(stderr, "aoc: option '-%c' requires an argument\n", optopt);
-      return 1;
+      return EXIT_FAILURE;
     case '?':
       fprintf(stderr, "aoc: unknown flag: %c\n", optopt);
-      return 1;
+      return EXIT_FAILURE;
     case 'h':
     default:
       fprintf(stderr, "Usage: %s [-y <year>] [-d <day>] [-t]\n", argv[0]);
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
       fprintf(stderr, "  -d <day>   run solution for given day (default: %d)\n", day);
       fprintf(stderr, "  -y <year>  run solution for given year (default: %d)\n", year);
       fputs("  -t         run the test input instead\n", stderr);
-      return 0;
+      return EXIT_SUCCESS;
     }
   }
 
@@ -67,16 +67,12 @@ int main(int argc, char *argv[]) {
   switch (year) {
   case 2015:
     switch (day) {
-    case 1: year2015_sol01(fname); break;
-    default:
-      fprintf(stderr, "aoc: year %d: day %d: unsolved\n", year, day);
-      return 1;
+    case 1: return year2015_sol01(fname);
+    case 2: return year2015_sol02(fname);
     }
     break;
-  default:
-    fprintf(stderr, "aoc: year %d: day %d: unsolved\n", year, day);
-    return 1;
   }
 
-  return 0;
+  fprintf(stderr, "aoc: year %d: day %d: unsolved\n", year, day);
+  return EXIT_FAILURE;
 }

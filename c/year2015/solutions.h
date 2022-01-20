@@ -1,3 +1,3 @@
 #pragma once
 
-void year2015_sol01(char *);
+int year2015_sol01(char *);

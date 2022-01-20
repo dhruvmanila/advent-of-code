@@ -1,17 +1,23 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-void year2015_sol01(char *input) {
+int year2015_sol01(char *input) {
   FILE *fp = fopen(input, "r");
   if (fp == NULL) {
-    fprintf(stderr, "unable to open file: %s\n", input);
+    perror(input);
+    return EXIT_FAILURE;
   }
 
   char *line = NULL;
   size_t linecap = 0;
   getline(&line, &linecap, fp);
-  fclose(fp);
+
+  if (fclose(fp)) {
+    perror(input);
+    return EXIT_FAILURE;
+  };
 
   int16_t floor = 0;
   uint16_t position = 0;
@@ -26,4 +32,5 @@ void year2015_sol01(char *input) {
   }
 
   printf("1.1: %d\n1.2: %d\n", floor, position);
+  return EXIT_SUCCESS;
 }

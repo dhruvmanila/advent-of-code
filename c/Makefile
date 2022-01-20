@@ -2,21 +2,17 @@ CC := clang
 CFLAGS += -O2 -Wall -Wextra -Werror -Wshadow -pedantic
 BIN = aoc
 
-SUBDIRS := $(wildcard ./*/.)
+SRC     = $(shell find . -type f -name "*.c")
+OBJECTS = $(SRC:.c=.o)
+HEADERS = $(shell find . -type f -name "*.h")
 
-.PHONY: all
-all: $(SUBDIRS) $(BIN)
+$(BIN): $(OBJECTS)
+	$(CC) -o $@ $^
 
-.PHONY: $(SUBDIRS)
-$(SUBDIRS):
-	$(MAKE) -C $@
-
-$(BIN): main.o
-	$(CC) $(CFLAGS) -o $@ $(wildcard year2015/*.o) $^
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c $<
+$(OBJECTS): %.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+$(OBJECTS): .EXTRA_PREREQS = $(HEADERS)
 
 .PHONY: clean
 clean: ## Remove build artifacts
-	rm $(BIN) *.o **/*.o
+	-rm $(BIN) *.o **/*.o
