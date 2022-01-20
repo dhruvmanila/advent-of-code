@@ -3,21 +3,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../lib/read.h"
+
 int year2015_sol01(char *input) {
-  FILE *fp = fopen(input, "r");
-  if (fp == NULL) {
-    perror(input);
+  char **lines = NULL;
+  int n = readlines(&lines, input);
+  if (n != 1) {
+    fprintf(stderr, "input contains only one line: %s\n", input);
     return EXIT_FAILURE;
   }
-
-  char *line = NULL;
-  size_t linecap = 0;
-  getline(&line, &linecap, fp);
-
-  if (fclose(fp)) {
-    perror(input);
-    return EXIT_FAILURE;
-  };
+  char *line = lines[0];
 
   int16_t floor = 0;
   uint16_t position = 0;
