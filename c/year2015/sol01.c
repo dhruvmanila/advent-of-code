@@ -7,12 +7,12 @@
 
 int year2015_sol01(char *input) {
   char **lines = NULL;
-  int n = readlines(&lines, input);
-  if (n != 1) {
-    fprintf(stderr, "input contains only one line: %s\n", input);
+  ssize_t linelen = readlines(&lines, input);
+  if (linelen == -1) {
+    perror(input);
     return EXIT_FAILURE;
   }
-  char *line = lines[0];
+  char *line = lines[0]; // one line file
 
   int16_t floor = 0;
   uint16_t position = 0;

@@ -1,3 +1,5 @@
 #pragma once
 
-int readlines(char ***lineptr, char *input);
+#include <stdio.h>
+
+ssize_t readlines(char ***lineptr, char *input);

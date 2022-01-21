@@ -38,9 +38,14 @@ int ribbon_length(box_t box) {
 
 int year2015_sol02(char *input) {
   char **lines = NULL;
-  int n = readlines(&lines, input);
+  ssize_t lineslen = readlines(&lines, input);
+  if (lineslen == -1) {
+    perror(input);
+    return EXIT_FAILURE;
+  }
+
   int area = 0, ribbon = 0;
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < lineslen; i++) {
     box_t box;
     sscanf(lines[i], "%dx%dx%d", &box.length, &box.width, &box.height);
     area += wrapping_paper_area(box);
