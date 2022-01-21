@@ -1,6 +1,13 @@
 CC := clang
-CFLAGS += -O2 -Wall -Wextra -Werror -Wshadow -pedantic
+CFLAGS += -Wall -Wextra -Werror
 BIN = aoc
+
+# No optimizations when debugging
+ifeq ($(strip $(DEBUG)), 1)
+	CFLAGS += -g
+else
+	CFLAGS += -O3
+endif
 
 SRC     = $(shell find . -type f -name "*.c")
 OBJECTS = $(SRC:.c=.o)
