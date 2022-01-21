@@ -12,14 +12,18 @@ int year2015_sol01(char *input) {
     perror(input);
     return EXIT_FAILURE;
   }
-  char *line = lines[0]; // one line file
+  char *line = lines[0];  // one line file
 
   int16_t floor = 0;
   uint16_t position = 0;
   for (uint16_t i = 0; i < (uint16_t)strlen(line); i++) {
     switch (line[i]) {
-    case '(': floor++; break;
-    case ')': floor--; break;
+      case '(':
+        floor++;
+        break;
+      case ')':
+        floor--;
+        break;
     }
     if (floor == -1 && position == 0) {
       position = i + 1;

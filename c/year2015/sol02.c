@@ -1,13 +1,13 @@
 #include <stddef.h>
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "../lib/read.h"
 
 // PRINT_BOX is a macro to print the box_t struct for debugging purposes.
-#define PRINT_BOX(b)                                                            \
-  fprintf(stdout, "box{length: %d width: %d height: %d}\n", b.length, b.width,  \
+#define PRINT_BOX(b)                                                           \
+  fprintf(stdout, "box{length: %d width: %d height: %d}\n", b.length, b.width, \
           b.height)
 
 #define MIN(a, b) ((a < b) ? a : b)
@@ -22,7 +22,7 @@ int wrapping_paper_area(box_t box) {
   int lw = box.length * box.width;
   int wh = box.width * box.height;
   int hl = box.height * box.length;
-  return 2*lw + 2*wh + 2*hl + MIN(MIN(lw, wh), hl);
+  return 2 * lw + 2 * wh + 2 * hl + MIN(MIN(lw, wh), hl);
 }
 
 int ribbon_length(box_t box) {

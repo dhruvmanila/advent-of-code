@@ -15,9 +15,9 @@ ssize_t readlines(char ***lineptr, char *input) {
     return -1;
   }
 
-  ssize_t result = -1; // return value
-  ssize_t maxsize = 1; // current maximum size of lines pointer
-  ssize_t cur_len = 0; // current length of lines pointer
+  ssize_t result = -1;  // return value
+  ssize_t maxsize = 1;  // current maximum size of lines pointer
+  ssize_t cur_len = 0;  // current length of lines pointer
 
   char **lines = malloc(maxsize * sizeof(char *));
   if (lines == NULL) {
