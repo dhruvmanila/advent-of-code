@@ -7,7 +7,7 @@
 
 #include "./year2015/solutions.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char** argv) {
   int ch, day, year;
   bool tflag = false;
 
@@ -80,6 +80,8 @@ int main(int argc, char* argv[]) {
           return year2015_sol02(fname);
         case 3:
           return year2015_sol03(fname);
+        case 4:
+          return year2015_sol04();
       }
       break;
   }

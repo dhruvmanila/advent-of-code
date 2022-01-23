@@ -1,5 +1,6 @@
 CC := clang
-CFLAGS += -Wall -Wextra -Werror
+CFLAGS += -Wall -Wextra
+LDFLAGS += -lssl -lcrypto
 BIN = aoc
 
 # No optimizations when debugging
@@ -14,7 +15,7 @@ OBJECTS = $(SRC:.c=.o)
 HEADERS = $(shell find . -type f -name "*.h")
 
 $(BIN): $(OBJECTS)
-	$(CC) -o $@ $^
+	$(CC) $(LDFLAGS) -o $@ $^
 
 $(OBJECTS): %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
