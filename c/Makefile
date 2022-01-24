@@ -23,4 +23,5 @@ $(OBJECTS): .EXTRA_PREREQS = $(HEADERS)
 
 .PHONY: clean
 clean: ## Remove build artifacts
-	-rm $(BIN) *.o **/*.o
+	find . -type f -name '*.o' -delete
+	-rm $(BIN)
