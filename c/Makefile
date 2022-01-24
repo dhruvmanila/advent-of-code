@@ -1,5 +1,5 @@
 CC := clang
-CFLAGS += -Wall -Wextra
+CFLAGS += -Wall -Wextra -Wpedantic
 LDFLAGS += -lssl -lcrypto
 BIN = aoc
 
