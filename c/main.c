@@ -88,6 +88,8 @@ int main(int argc, char** argv) {
           return year2015_sol06(fname);
         case 7:
           return year2015_sol07(fname);
+        case 8:
+          return year2015_sol08(fname);
       }
       break;
   }
