@@ -8,6 +8,10 @@
 
 #include "../lib/read.h"
 
+// Maximum number of out wires possible when using a maximum of two letters to
+// name them: 26 letters plus all combinations of them (26 * 26).
+#define MAX_WIRES 702  // 27 * 26
+
 typedef enum {
   OP_MOV,     // direct assignment; signal is provided to the wire
   OP_AND,     // bitwise AND
@@ -18,74 +22,80 @@ typedef enum {
 } op_t;
 
 typedef enum {
-  NAME,
-  SIGNAL,
-} datatype_t;
+  NAME,    // wire name
+  SIGNAL,  // wire signal
+} wire_data_type_t;
 
 typedef struct {
-  datatype_t dtype;  // type of data in the struct
+  wire_data_type_t type;  // type of data
   union {
     char *name;       // wire name
     uint16_t signal;  // wire signal
   } data;
-} data_t;
+} wire_data_t;
 
 typedef struct wire {
-  op_t op;          // operator
-  char *out;        // out wire name
-  data_t *in[2];    // in wire (x2) data (name or signal)
-  uint8_t shift;    // shift value for LSHIFT and RSHIFT
-  uint16_t signal;  // out wire signal
-  bool done;        // out signal calculated
+  op_t op;             // operator
+  char *out;           // out wire name
+  wire_data_t *in[2];  // in wire (x2) data (name or signal)
+  uint8_t shift;       // shift value for LSHIFT and RSHIFT
+  uint16_t signal;     // out wire signal
+  bool done;           // out signal calculated
 } wire_t;
 
-wire_t *wires[702] = {0};  // 27 * 26
+// Initialize MAX_WIRES number of wires in memory with all its field set to
+// the zero values of the respective type.
+wire_t wires[MAX_WIRES] = {0};
 
+// wire_hash computes the hash of the corresponding name. The computed hash is
+// basically the index of the respective wire_t object in the wires array. The
+// value calculated is based on the alphatical order of the name such that
+// 'a' = 0, 'b' = 1, ..., 'z' = 25, 'aa' = 26, 'ab' = 27, ..., 'az' = 51,
+// 'ba' = 52, ..., 'zz' = 701.
 uint16_t wire_hash(const char *name) {
   uint16_t hash;
   switch (strlen(name)) {
     case 1:
-      hash = *name;
+      hash = *name;  // ASCII value of the character
       break;
     case 2:
       hash = 26 * (name[0] - 96) + name[1];
       break;
   }
+  // Resolve the value to start at 0 as 'a' is 97 in ASCII.
   return hash - 97;
 }
 
-void wire_add(wire_t *w) {
-  uint16_t hash = wire_hash(w->out);
-  wires[hash] = w;
-}
-
+// Return the wire at index position corresponding to the given out wire name.
+// This returns a pointer to the wire object so that changes made is reflected
+// in the array.
 wire_t *wire_get(const char *name) {
-  uint16_t hash = wire_hash(name);
-  return wires[hash];
+  return &wires[wire_hash(name)];
 }
 
+// Free all the resources allocated during the runtime.
 void wire_free() {
-  for (int i = 0; i < 702; i++) {
-    wire_t *w = wires[i];
-    if (w) {
-      for (int i = 0; i < 2; i++) {
-        if (w->in[i]) {
-          free(w->in[i]);
-        }
+  for (int i = 0; i < MAX_WIRES; i++) {
+    wire_t *w = &wires[i];
+    for (int i = 0; i < 2; i++) {
+      if (w->in[i]) {
+        free(w->in[i]);
       }
-      free(w);
     }
   }
 }
 
-data_t *resolve_data(char *data) {
-  data_t *d = malloc(sizeof(data_t));
+// Resolve the given data which is either a wire name or wire signal to the
+// internal representation of union of those data types. This will allocate
+// the memory dynamically and use assertion to check for memory failure.
+wire_data_t *resolve_data(char *data) {
+  wire_data_t *d = malloc(sizeof(wire_data_t));
   assert(d);
   if (isdigit(*data)) {
-    d->dtype = SIGNAL;
+    d->type = SIGNAL;
     d->data.signal = atoi(data);
   } else {
-    d->dtype = NAME;
+    d->type = NAME;
     d->data.name = data;
   }
   return d;
@@ -98,12 +108,8 @@ bool parse_wire(char *line) {
     fields[nfields++] = strsep(&line, " ");
   }
 
-  wire_t *w = malloc(sizeof(wire_t));
-  if (w == NULL) {
-    return false;
-  }
+  wire_t *w = wire_get(fields[nfields - 1]);
   w->out = fields[nfields - 1];
-  w->done = false;
 
   switch (nfields) {
     case 3:
@@ -141,7 +147,6 @@ bool parse_wire(char *line) {
       return false;
   }
 
-  wire_add(w);
   return true;
 }
 
@@ -152,11 +157,11 @@ uint16_t wire_signal(char *name) {
   }
 
   uint16_t signals[2];
-  data_t *data;
+  wire_data_t *data;
   for (int i = 0; i < 2; i++) {
     data = w->in[i];
     if (data != NULL) {
-      switch (data->dtype) {
+      switch (data->type) {
         case NAME:
           signals[i] = wire_signal(data->data.name);
           break;
@@ -202,6 +207,7 @@ int year2015_sol07(char *input) {
 
   for (int i = 0; i < line_cnt; i++) {
     if (!parse_wire(lines[i])) {
+      wire_free();
       perror(NULL);
       return EXIT_FAILURE;
     }
@@ -210,13 +216,13 @@ int year2015_sol07(char *input) {
   uint16_t a_signal = wire_signal("a");
   printf("6.1: %d\n", a_signal);
 
-  for (int i = 0; i < 702; i++) {
-    if (wires[i]) {
-      wires[i]->done = false;
-    }
+  // Reset all the wires and set the out signal of wire A to wire B.
+  for (int i = 0; i < MAX_WIRES; i++) {
+    wires[i].done = false;
   }
   wire_get("b")->signal = a_signal;
   wire_get("b")->done = true;
+
   a_signal = wire_signal("a");
   printf("6.2: %d\n", a_signal);
 
