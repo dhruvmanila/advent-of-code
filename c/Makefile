@@ -1,6 +1,6 @@
 CC := clang
 CFLAGS += -Wall -Wextra -Wpedantic
-LDFLAGS += -lssl -lcrypto
+LDFLAGS += -lssl -lcrypto -lcjson
 BIN = aoc
 
 # No optimizations when debugging
