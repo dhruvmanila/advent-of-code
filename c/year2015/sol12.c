@@ -13,9 +13,10 @@
     char *str = cJSON_Print(element);                  \
     if (str == NULL) {                                 \
       fputs("failed to print JSON element\n", stderr); \
+    } else {                                           \
+      puts(str);                                       \
+      free(str);                                       \
     }                                                  \
-    puts(str);                                         \
-    free(str);                                         \
   } while (0)
 
 int sum(cJSON *json, const char *skip) {
