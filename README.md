@@ -7,9 +7,9 @@ the language directory.
 
 ## Language
 
-- [C](./c)
-- [Go](./go)
-- [Python](./python)
+- [C](./c) - [2015](./c/year2015)
+- [Go](./go) - [2020](./go/year2020) | [2021](./go/year2021)
+- [Python](./python) - [2018](./python/year2018) | [2019](./python/year2019)
 
 ## License
 
