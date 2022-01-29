@@ -17,3 +17,4 @@ int year2015_sol16(char *input);
 int year2015_sol18(char *input);
 int year2015_sol20();  // input is constant
 int year2015_sol21();  // input is constant
+int year2015_sol23(char *input);
