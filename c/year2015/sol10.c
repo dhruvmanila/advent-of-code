@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-const char *INPUT = "1113122113";
+static const char *input = "1113122113";
 
 int year2015_sol10() {
   int seqlen;         // current sequence length
@@ -16,12 +16,12 @@ int year2015_sol10() {
   char prev;          // previous character
   char nprev;         // prev character count
 
-  seqlen = strlen(INPUT);
+  seqlen = strlen(input);
   seq = calloc(seqlen + 1, sizeof(char));  // +1 for '\0'
   if (seq == NULL) {
     goto error;
   }
-  strcpy(seq, INPUT);
+  strcpy(seq, input);
 
   for (int i = 0; i < 50; i++) {
     maxsize = seqlen + 1;

@@ -5,7 +5,7 @@
 
 #include "../lib/read.h"
 
-const char *input = "hxbxwxba";
+static const char *input = "hxbxwxba";
 
 int year2015_sol11() {
   int len = strlen(input);
