@@ -4,7 +4,7 @@
 
 #include "../lib/read.h"
 
-int is_nice_string_v1(const char *str) {
+static int is_nice_string_v1(const char *str) {
   int vowel_cnt = 0;
   int twice_cnt = 0;
   int invalid_cnt = 0;
@@ -36,7 +36,7 @@ int is_nice_string_v1(const char *str) {
   return vowel_cnt >= 3 && twice_cnt >= 1 && invalid_cnt == 0;
 }
 
-int is_nice_string_v2(const char *str) {
+static int is_nice_string_v2(const char *str) {
   int pair = 0;    // any non-overlapping pair
   int repeat = 0;  // any letter repeated with one letter between them
   int len = strlen(str);

@@ -18,7 +18,7 @@ typedef struct {
 } item_t;
 
 // You must buy exactly one weapon.
-item_t weapons[] = {
+static item_t weapons[] = {
     {.name = "Dagger", .cost = 8, .damage = 4, .armor = 0},
     {.name = "Shortsword", .cost = 10, .damage = 5, .armor = 0},
     {.name = "Warhammer", .cost = 25, .damage = 6, .armor = 0},
@@ -27,7 +27,7 @@ item_t weapons[] = {
 };
 
 // Armor is optional, but you can't use more than one.
-item_t armors[] = {
+static item_t armors[] = {
     {.name = "", .cost = 0, .damage = 0, .armor = 0},  // noop
     {.name = "Leather", .cost = 13, .damage = 0, .armor = 1},
     {.name = "Chainmail", .cost = 31, .damage = 0, .armor = 2},
@@ -37,7 +37,7 @@ item_t armors[] = {
 };
 
 // You can buy 0-2 unique rings (at most one for each hand).
-item_t rings[] = {
+static item_t rings[] = {
     {.name = "", .cost = 0, .damage = 0, .armor = 0},  // noop
     {.name = "", .cost = 0, .damage = 0, .armor = 0},  // noop
     {.name = "Damage +1", .cost = 25, .damage = 1, .armor = 0},
@@ -49,7 +49,7 @@ item_t rings[] = {
 };
 
 // Return true if the player wins, false otherwise.
-bool player_win(player_t player, player_t boss) {
+static bool player_win(player_t player, player_t boss) {
   for (int turn = 0; player.hitpoints > 0 && boss.hitpoints > 0; turn++) {
     if (turn % 2 == 0) {  // player's turn
       int damage = player.damage - boss.armor;

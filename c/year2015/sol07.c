@@ -45,14 +45,14 @@ typedef struct wire {
 
 // Initialize MAX_WIRES number of wires in memory with all its field set to
 // the zero values of the respective type.
-wire_t wires[MAX_WIRES] = {0};
+static wire_t wires[MAX_WIRES];
 
 // wire_hash computes the hash of the corresponding name. The computed hash is
 // basically the index of the respective wire_t object in the wires array. The
 // value calculated is based on the alphatical order of the name such that
 // 'a' = 0, 'b' = 1, ..., 'z' = 25, 'aa' = 26, 'ab' = 27, ..., 'az' = 51,
 // 'ba' = 52, ..., 'zz' = 701.
-uint16_t wire_hash(const char *name) {
+static uint16_t wire_hash(const char *name) {
   uint16_t hash;
   switch (strlen(name)) {
     case 1:
@@ -69,12 +69,12 @@ uint16_t wire_hash(const char *name) {
 // Return the wire at index position corresponding to the given out wire name.
 // This returns a pointer to the wire object so that changes made is reflected
 // in the array.
-wire_t *wire_get(const char *name) {
+static wire_t *wire_get(const char *name) {
   return &wires[wire_hash(name)];
 }
 
 // Free all the resources allocated during the runtime.
-void wire_free() {
+static void wire_free() {
   for (int i = 0; i < MAX_WIRES; i++) {
     wire_t *w = &wires[i];
     for (int i = 0; i < 2; i++) {
@@ -88,7 +88,7 @@ void wire_free() {
 // Resolve the given data which is either a wire name or wire signal to the
 // internal representation of union of those data types. This will allocate
 // the memory dynamically and use assertion to check for memory failure.
-wire_data_t *resolve_data(char *data) {
+static wire_data_t *resolve_data(char *data) {
   wire_data_t *d = malloc(sizeof(wire_data_t));
   assert(d);
   if (isdigit(*data)) {
@@ -101,7 +101,7 @@ wire_data_t *resolve_data(char *data) {
   return d;
 }
 
-bool parse_wire(char *line) {
+static bool parse_wire(char *line) {
   size_t nfields = 0;
   char *fields[5];  // max words in a line separated by a space
   while (line) {
@@ -150,7 +150,7 @@ bool parse_wire(char *line) {
   return true;
 }
 
-uint16_t wire_signal(char *name) {
+static uint16_t wire_signal(char *name) {
   wire_t *w = wire_get(name);
   if (w->done) {
     return w->signal;

@@ -25,7 +25,7 @@ typedef struct {
 
 static ingredient_t cookie;
 
-void make_cookie(ingredient_t *ingredients, int proportions[4]) {
+static void make_cookie(ingredient_t *ingredients, int proportions[4]) {
   cookie = (ingredient_t){0};
   for (int i = 0; i < 4; i++) {
     cookie.capacity += ingredients[i].capacity * proportions[i];
@@ -36,7 +36,7 @@ void make_cookie(ingredient_t *ingredients, int proportions[4]) {
   }
 }
 
-uint64_t score_cookie() {
+static uint64_t score_cookie() {
   if (cookie.capacity < 0 || cookie.durability < 0 || cookie.flavor < 0 ||
       cookie.texture < 0) {
     return 0;

@@ -29,7 +29,7 @@ typedef struct compound {
   int quantity;
 } compound_t;
 
-compound_t aunts[MAX_AUNTS][MAX_COMPOUNDS_PER_AUNT];
+static compound_t aunts[MAX_AUNTS][MAX_COMPOUNDS_PER_AUNT];
 
 int year2015_sol16(char *input) {
   char **lines = NULL;

@@ -12,13 +12,13 @@ typedef struct house {
   struct house *next;
 } house_t;
 
-house_t *head = NULL;  // head pointing to the first element of linked list
+static house_t *head = NULL;  // pointer to the first element of linked list
 
 // house_new is used to allocate memory for a house_t struct and initialize it
 // with the given x and y values. It will initalize the next pointer to be NULL.
 // It returns a pointer to house_t or NULL, in case malloc() failed to allocate
 // memory.
-house_t *house_new(int64_t x, int64_t y) {
+static house_t *house_new(int64_t x, int64_t y) {
   house_t *house = malloc(sizeof(house_t));
   if (house == NULL) {
     return NULL;
@@ -31,7 +31,7 @@ house_t *house_new(int64_t x, int64_t y) {
 
 // house_find returns the true if there's a house containing the given value x
 // and y, false otherwise.
-bool house_find(house_t *head, int64_t x, int64_t y) {
+static bool house_find(house_t *head, int64_t x, int64_t y) {
   house_t *current = head;
   while (current != NULL) {
     if (current->x == x && current->y == y) {
@@ -45,7 +45,7 @@ bool house_find(house_t *head, int64_t x, int64_t y) {
 // house_add will add a house_t at given x and y position to the front of
 // the head pointer. It returns 1 if successful, 0 if the item already exists
 // and -1 if there were any errors during memory allocation.
-int8_t house_add(house_t **head, int64_t x, int64_t y) {
+static int8_t house_add(house_t **head, int64_t x, int64_t y) {
   bool house = house_find(*head, x, y);
   if (house) {
     return 0;
@@ -62,7 +62,7 @@ int8_t house_add(house_t **head, int64_t x, int64_t y) {
 }
 
 // house_free frees up all the memory allocated.
-void house_free() {
+static void house_free() {
   while (head != NULL) {
     house_t *tmp = head;
     head = head->next;
@@ -70,7 +70,7 @@ void house_free() {
   }
 }
 
-ssize_t presents_by_santa(char *moves) {
+static ssize_t presents_by_santa(char *moves) {
   int64_t pos[2] = {0, 0};  // x and y position of santa
   ssize_t result = -1;      // function result value
   ssize_t count = 0;        // number of houses the presents were delivered
@@ -112,7 +112,7 @@ done:
   return result;
 }
 
-ssize_t presents_by_robo_and_santa(char *moves) {
+static ssize_t presents_by_robo_and_santa(char *moves) {
   int64_t pos[2][2] = {{0, 0},   // x and y position for santa
                        {0, 0}};  // x and y position for robot-santa
   uint8_t turn = 0;     // current turn for moving (0: santa, 1: robot-santa)

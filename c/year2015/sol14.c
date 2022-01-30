@@ -31,7 +31,7 @@ typedef struct {
   state_t state;  // current state (resting or flying)
 } reindeer_t;
 
-void simulate(reindeer_t *rp, int until, int runners) {
+static void simulate(reindeer_t *rp, int until, int runners) {
   for (; until > 0; until--) {
     int maxdist = 0;  // maximum distance at time t
     for (int i = 0; i < runners; i++) {

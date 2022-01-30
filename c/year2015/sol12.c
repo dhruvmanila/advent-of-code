@@ -19,7 +19,7 @@
     }                                                  \
   } while (0)
 
-int sum(cJSON *json, const char *skip) {
+static int sum(cJSON *json, const char *skip) {
   int total = 0;
   if (cJSON_IsNumber(json)) {
     return json->valueint;

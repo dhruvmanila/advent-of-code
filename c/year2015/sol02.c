@@ -18,14 +18,14 @@ typedef struct {
   int height;
 } box_t;
 
-int wrapping_paper_area(box_t box) {
+static int wrapping_paper_area(box_t box) {
   int lw = box.length * box.width;
   int wh = box.width * box.height;
   int hl = box.height * box.length;
   return 2 * lw + 2 * wh + 2 * hl + MIN(MIN(lw, wh), hl);
 }
 
-int ribbon_length(box_t box) {
+static int ribbon_length(box_t box) {
   int length = 0;
   int lw_min = MIN(box.length, box.width);
   if (lw_min == box.length) {

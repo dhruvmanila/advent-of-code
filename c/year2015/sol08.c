@@ -5,7 +5,7 @@
 
 #include "../lib/read.h"
 
-void parsestr(const char *s, size_t *cnt1, size_t *cnt2) {
+static void parsestr(const char *s, size_t *cnt1, size_t *cnt2) {
   size_t memlen = 0;              // number of characters in-memory
   size_t len = strlen(s);         // number of characters of code
   const char *end = s + len - 1;  // skip the last quote char

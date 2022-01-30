@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-const char *SECRET_KEY = "ckczppom";       // puzzle input
-const char *TEST_SECRET_KEY1 = "abcdef";   // example key 1
-const char *TEST_SECRET_KEY2 = "pqrstuv";  // example key 2
+static const char *secret_key = "ckczppom";  // puzzle input
+// static const char *test_secret_key1 = "abcdef";   // example key 1
+// static const char *test_secret_key2 = "pqrstuv";  // example key 2
 
 int year2015_sol04() {
   int num1 = 0, num2 = 0;
@@ -23,7 +23,7 @@ int year2015_sol04() {
   uint8_t digest[EVP_MAX_MD_SIZE];  // digest value
 
   for (int i = 0; !num1 || !num2; i++) {
-    len = snprintf(message, sizeof(message), "%s%d", SECRET_KEY, i);
+    len = snprintf(message, sizeof(message), "%s%d", secret_key, i);
     if (len < 1 || len >= sizeof(message)) {  // len does not include '\0'
       perror("snprintf");
       goto free_ctx_and_return;

@@ -12,7 +12,7 @@ typedef enum {
   ON,
 } light_state_t;
 
-light_state_t *grid_new() {
+static light_state_t *grid_new() {
   light_state_t *grid = calloc(GRID_SIZE * GRID_SIZE, sizeof(light_state_t));
   if (grid == NULL) {
     return NULL;
@@ -20,18 +20,19 @@ light_state_t *grid_new() {
   return grid;
 }
 
-light_state_t grid_at(light_state_t *grid, int row, int col) {
+static light_state_t grid_at(light_state_t *grid, int row, int col) {
   if (row < 0 || col < 0 || row >= GRID_SIZE || col >= GRID_SIZE) {
     return OFF;
   }
   return grid[row * GRID_SIZE + col];
 }
 
-void grid_set(light_state_t *grid, int row, int col, light_state_t state) {
+static void grid_set(light_state_t *grid, int row, int col,
+                     light_state_t state) {
   grid[row * GRID_SIZE + col] = state;
 }
 
-int grid_neighbor_on_count(light_state_t *grid, int row, int col) {
+static int grid_neighbor_on_count(light_state_t *grid, int row, int col) {
   int count = 0;
   for (int dy = -1; dy <= 1; dy++) {
     for (int dx = -1; dx <= 1; dx++) {
@@ -46,7 +47,7 @@ int grid_neighbor_on_count(light_state_t *grid, int row, int col) {
   return count;
 }
 
-light_state_t *grid_step(light_state_t *grid) {
+static light_state_t *grid_step(light_state_t *grid) {
   light_state_t *new_grid = grid_new();
   if (new_grid == NULL) {
     return NULL;
@@ -68,7 +69,7 @@ light_state_t *grid_step(light_state_t *grid) {
   return new_grid;
 }
 
-int grid_on_count(light_state_t *grid) {
+static int grid_on_count(light_state_t *grid) {
   int count = 0;
   for (int i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
     count += grid[i];
