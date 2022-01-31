@@ -102,6 +102,8 @@ int main(int argc, char** argv) {
           return year2015_sol15(fname);
         case 16:
           return year2015_sol16(fname);
+        case 17:
+          return year2015_sol17(fname);
         case 18:
           return year2015_sol18(fname);
         case 20:
