@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"runtime/pprof"
+	"strings"
+	"text/template"
 	"time"
 
 	"github.com/dhruvmanila/advent-of-code/go/year2020"
@@ -138,7 +140,10 @@ func realMain() int {
 			log.Print(err)
 			return 1
 		}
-		pprof.StartCPUProfile(f)
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Print(err)
+			return 1
+		}
 		defer pprof.StopCPUProfile()
 	}
 
@@ -152,14 +157,52 @@ func realMain() int {
 		err = errUnsolved
 	}
 
+	if errors.Is(err, errUnsolved) {
+		var response string
+
+		fmt.Printf("./year%d/sol%02d.go does not exist. Generate? [y/n]: ", aocYear, aocDay)
+		_, err := fmt.Scan(&response)
+		if err != nil {
+			log.Print(err)
+			return 1
+		}
+
+		switch strings.ToLower(strings.TrimSpace(response)) {
+		case "y", "yes":
+			t, err := template.ParseFiles("templates/solution")
+			if err != nil {
+				log.Print(err)
+				return 1
+			}
+
+			f, err := os.Create(fmt.Sprintf("./year%d/sol%02d.go", aocYear, aocDay))
+			if err != nil {
+				log.Print(err)
+				return 1
+			}
+			defer f.Close()
+
+			if err := t.Execute(f, map[string]int{"Year": aocYear, "Day": aocDay}); err != nil {
+				log.Print(err)
+				return 1
+			}
+
+			return 0
+		}
+	}
+
 	if memprofile {
 		f, err := os.Create("mem.prof")
 		if err != nil {
 			log.Print(err)
 			return 1
 		}
-		pprof.WriteHeapProfile(f)
-		f.Close()
+		defer f.Close()
+
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			log.Print(err)
+			return 1
+		}
 	}
 
 	if err != nil {

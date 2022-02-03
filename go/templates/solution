@@ -1,0 +1,17 @@
+package year{{ .Year }}
+
+import (
+	"fmt"
+
+	"github.com/dhruvmanila/advent-of-code/go/util"
+)
+
+func Sol{{ .Day | printf "%02d" }}(input string) error {
+	lines, err := util.ReadLines(input)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("{{ .Day }}.1: %d\n{{ .Day }}.2: %d\n", 0, 0)
+	return nil
+}
