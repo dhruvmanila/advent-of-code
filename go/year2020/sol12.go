@@ -34,7 +34,7 @@ func handleInstructionsV1(instructions []navInstruction) int {
 			y += directions[curdir][1] * instruction.value
 		}
 	}
-	return util.AbsInt(x) + util.AbsInt(y)
+	return util.Abs(x) + util.Abs(y)
 }
 
 func handleInstructionsV2(instructions []navInstruction) int {
@@ -62,7 +62,7 @@ func handleInstructionsV2(instructions []navInstruction) int {
 			y += wy * instruction.value
 		}
 	}
-	return util.AbsInt(x) + util.AbsInt(y)
+	return util.Abs(x) + util.Abs(y)
 }
 
 func Sol12(input string) error {

@@ -1,10 +1,14 @@
 package util
 
-import "strconv"
+import (
+	"strconv"
+
+	"golang.org/x/exp/constraints"
+)
 
 // Sum is used to add all the integers in a given array.
-func Sum(arr []int) int {
-	total := 0
+func Sum[T constraints.Integer | constraints.Float | constraints.Complex](arr []T) T {
+	var total T
 	for _, n := range arr {
 		total += n
 	}
@@ -12,28 +16,28 @@ func Sum(arr []int) int {
 }
 
 // SumN is used to sum 1 to n integers.
-func SumN(n int) int {
+func SumN[T constraints.Integer](n T) T {
 	return n * (n + 1) / 2
 }
 
-// IntMax returns the larger of x or y integer.
-func IntMax(x, y int) int {
+// Max returns the larger of x or y.
+func Max[T constraints.Integer | constraints.Float](x, y T) T {
 	if x > y {
 		return x
 	}
 	return y
 }
 
-// IntMin returns the smaller of x or y integer.
-func IntMin(x, y int) int {
+// Min returns the smaller of x or y.
+func Min[T constraints.Integer | constraints.Float](x, y T) T {
 	if x < y {
 		return x
 	}
 	return y
 }
 
-// AbsInt returns an absolute value of the given integer.
-func AbsInt(n int) int {
+// Abs returns an absolute value of the given integer or floating-point number.
+func Abs[T constraints.Integer | constraints.Float](n T) T {
 	if n < 0 {
 		return -n
 	}
@@ -44,7 +48,7 @@ func AbsInt(n int) int {
 // different than the builtin % operator which returns the least negative
 // remainder. This should only be used if either a or b is negative. Mod
 // behaves the same as the builtin % operator when both a and b are positive.
-func Mod(a, b int) int {
+func Mod[T constraints.Integer](a, b T) T {
 	// https://stackoverflow.com/q/43018206
 	return ((a % b) + b) % b
 }

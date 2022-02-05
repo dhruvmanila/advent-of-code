@@ -27,10 +27,10 @@ func newImage(lines []string) *image {
 		for col, pixel := range line {
 			if pixel == '#' {
 				pixels.Add(position{row, col})
-				minx = util.IntMin(minx, col)
-				maxx = util.IntMax(maxx, col)
-				miny = util.IntMin(miny, row)
-				maxy = util.IntMax(maxy, row)
+				minx = util.Min(minx, col)
+				maxx = util.Max(maxx, col)
+				miny = util.Min(miny, row)
+				maxy = util.Max(maxy, row)
 			}
 		}
 	}
@@ -91,10 +91,10 @@ func (i *image) apply(algorithm string, times int) {
 			}
 			if algorithm[idx] == '#' {
 				newImage.Add(position{row, col})
-				minx = util.IntMin(minx, col)
-				maxx = util.IntMax(maxx, col)
-				miny = util.IntMin(miny, row)
-				maxy = util.IntMax(maxy, row)
+				minx = util.Min(minx, col)
+				maxx = util.Max(maxx, col)
+				miny = util.Min(miny, row)
+				maxy = util.Max(maxy, row)
 			}
 		}
 	}

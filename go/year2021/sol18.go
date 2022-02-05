@@ -204,7 +204,7 @@ func Sol18(input string) error {
 			if i == j {
 				continue
 			}
-			maxMagnitude = util.IntMax(
+			maxMagnitude = util.Max(
 				maxMagnitude,
 				parseNumber(lines[i]).
 					Add(parseNumber(lines[j])).

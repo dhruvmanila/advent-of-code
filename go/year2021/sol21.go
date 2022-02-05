@@ -129,7 +129,7 @@ func realGame(p1, p2 player) int {
 	}
 
 	wins := loop(p1, p2)
-	return util.IntMax(wins.Get(p1.id), wins.Get(p2.id))
+	return util.Max(wins.Get(p1.id), wins.Get(p2.id))
 }
 
 func Sol21(input string) error {

@@ -29,8 +29,8 @@ Loop:
 		min, max = num1, num1
 		for _, num2 := range numbers[start+1:] {
 			total += num2
-			min = util.IntMin(min, num2)
-			max = util.IntMax(max, num2)
+			min = util.Min(min, num2)
+			max = util.Max(max, num2)
 			if total == invalidNum {
 				break Loop
 			}

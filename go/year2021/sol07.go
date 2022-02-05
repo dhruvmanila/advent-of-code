@@ -24,12 +24,12 @@ func Sol07(input string) error {
 	for p := minPos; p <= maxPos; p++ {
 		var totalFuel1, totalFuel2 int
 		for _, hp := range currentPos {
-			steps := util.AbsInt(hp - p)
+			steps := util.Abs(hp - p)
 			totalFuel1 += steps
 			totalFuel2 += util.SumN(steps)
 		}
-		minFuel1 = util.IntMin(minFuel1, totalFuel1)
-		minFuel2 = util.IntMin(minFuel2, totalFuel2)
+		minFuel1 = util.Min(minFuel1, totalFuel1)
+		minFuel2 = util.Min(minFuel2, totalFuel2)
 	}
 
 	fmt.Printf("7.1: %d\n7.2: %d\n", minFuel1, minFuel2)

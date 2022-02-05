@@ -70,13 +70,13 @@ func (p *operatorPacket) evaluate() int {
 	case 2:
 		minimum := math.MaxInt
 		for _, sp := range p.subPackets {
-			minimum = util.IntMin(minimum, sp.evaluate())
+			minimum = util.Min(minimum, sp.evaluate())
 		}
 		return minimum
 	case 3:
 		maximum := math.MinInt
 		for _, sp := range p.subPackets {
-			maximum = util.IntMax(maximum, sp.evaluate())
+			maximum = util.Max(maximum, sp.evaluate())
 		}
 		return maximum
 	case 5:

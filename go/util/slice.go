@@ -15,8 +15,8 @@ func MinMax(sl []int) (int, int) {
 	}
 	min, max := sl[0], sl[0]
 	for _, val := range sl {
-		min = IntMin(min, val)
-		max = IntMax(max, val)
+		min = Min(min, val)
+		max = Max(max, val)
 	}
 	return min, max
 }

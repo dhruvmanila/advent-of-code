@@ -45,7 +45,7 @@ func (p *probe) launch(target *geom.BoundingBox2D) (maxHeight int, reached bool)
 	for !p.isOutside(target) {
 		p.x += p.vx
 		p.y += p.vy
-		maxHeight = util.IntMax(maxHeight, p.y)
+		maxHeight = util.Max(maxHeight, p.y)
 		if target.Contains(p.x, p.y) {
 			reached = true
 			break
@@ -85,10 +85,10 @@ func Sol17(input string) error {
 	// moving away from the target. It cannot be 0 as well which would just
 	// move the probe in a vertical direction.
 	for vx := 1; vx <= maxx; vx++ {
-		for vy := miny; vy <= util.AbsInt(miny); vy++ {
+		for vy := miny; vy <= util.Abs(miny); vy++ {
 			height, reached := newProbe(vx, vy).launch(target)
 			if reached {
-				maxHeight = util.IntMax(maxHeight, height)
+				maxHeight = util.Max(maxHeight, height)
 				count++
 			}
 		}

@@ -31,10 +31,10 @@ func (b *BoundingBox2D) Contains(x, y int) bool {
 // Intersection returns the bounding box formed by the intersection of bbox2d
 // with other, nil if they do not intersect.
 func (b *BoundingBox2D) Intersection(other *BoundingBox2D) *BoundingBox2D {
-	minx := util.IntMax(b.MinX, other.MinX)
-	maxx := util.IntMin(b.MaxX, other.MaxX)
-	miny := util.IntMax(b.MinY, other.MinY)
-	maxy := util.IntMin(b.MaxY, other.MaxY)
+	minx := util.Max(b.MinX, other.MinX)
+	maxx := util.Min(b.MaxX, other.MaxX)
+	miny := util.Max(b.MinY, other.MinY)
+	maxy := util.Min(b.MaxY, other.MaxY)
 
 	if minx <= maxx && miny <= maxy {
 		return NewBoundingBox2D(minx, maxx, miny, maxy)
@@ -81,12 +81,12 @@ func (b *BoundingBox3D) Contains(x, y, z int) bool {
 // Intersection returns the bounding box formed by the intersection of bbox3d
 // with other, nil if they do not intersect.
 func (b *BoundingBox3D) Intersection(other *BoundingBox3D) *BoundingBox3D {
-	minx := util.IntMax(b.MinX, other.MinX)
-	maxx := util.IntMin(b.MaxX, other.MaxX)
-	miny := util.IntMax(b.MinY, other.MinY)
-	maxy := util.IntMin(b.MaxY, other.MaxY)
-	minz := util.IntMax(b.MinZ, other.MinZ)
-	maxz := util.IntMin(b.MaxZ, other.MaxZ)
+	minx := util.Max(b.MinX, other.MinX)
+	maxx := util.Min(b.MaxX, other.MaxX)
+	miny := util.Max(b.MinY, other.MinY)
+	maxy := util.Min(b.MaxY, other.MaxY)
+	minz := util.Max(b.MinZ, other.MinZ)
+	maxz := util.Min(b.MaxZ, other.MaxZ)
 
 	if minx <= maxx && miny <= maxy && minz <= maxz {
 		return NewBoundingBox3D(minx, maxx, miny, maxy, minz, maxz)

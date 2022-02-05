@@ -43,7 +43,7 @@ func newPaper(lines []string) *paper {
 	for _, line := range lines {
 		xy := strings.Split(line, ",")
 		x, y := util.MustAtoi(xy[0]), util.MustAtoi(xy[1])
-		rows, columns = util.IntMax(rows, y), util.IntMax(columns, x)
+		rows, columns = util.Max(rows, y), util.Max(columns, x)
 		p.dots[point{x, y}] = struct{}{}
 	}
 	p.rows = rows + 1
