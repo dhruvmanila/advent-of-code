@@ -11,6 +11,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/dhruvmanila/advent-of-code/go/year2016"
 	"github.com/dhruvmanila/advent-of-code/go/year2020"
 	"github.com/dhruvmanila/advent-of-code/go/year2021"
 )
@@ -21,6 +22,9 @@ type solutionFunc func(string) error
 
 // solutions is a map from year to day to the solution function.
 var solutions = map[int]map[int]solutionFunc{
+	2016: {
+		1: year2016.Sol01,
+	},
 	2020: {
 		1:  year2020.Sol01,
 		2:  year2020.Sol02,
