@@ -24,6 +24,8 @@ type solutionFunc func(string) error
 var solutions = map[int]map[int]solutionFunc{
 	2016: {
 		1: year2016.Sol01,
+		2: year2016.Sol02,
+		3: year2016.Sol03,
 	},
 	2020: {
 		1:  year2020.Sol01,
