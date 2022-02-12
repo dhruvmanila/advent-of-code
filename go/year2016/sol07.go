@@ -78,7 +78,7 @@ func (addr *ipAddress) supportsSSL() bool {
 	supported := false
 	for _, seq := range addr.hypernet {
 		for i := 0; i <= len(seq)-3; i++ {
-			if hasABA(seq[i:i+3]) && candidates.Contains(seq[i:i+3]) {
+			if s := seq[i : i+3]; hasABA(s) && candidates.Contains(s) {
 				supported = true
 				break
 			}
