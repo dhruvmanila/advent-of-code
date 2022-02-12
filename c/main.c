@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
       case 'h':
       default:
-        fprintf(stderr,
+        fprintf(stdout,
                 "Usage: %s [-y <year>] [-d <day>] [-t]\n"
                 "\n"
                 "Options:\n"
@@ -67,9 +67,9 @@ int main(int argc, char** argv) {
     }
   }
 
-  char fname[30];
-  sprintf(fname, "./year%d/input%s/%02d.txt", year, (tflag == 1) ? "/test" : "",
-          day);
+  char fname[32];
+  snprintf(fname, sizeof(fname), "./year%d/input%s/%02d.txt", year,
+           (tflag == 1) ? "/test" : "", day);
 
   switch (year) {
     case 2015:
