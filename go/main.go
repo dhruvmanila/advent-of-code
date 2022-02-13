@@ -23,15 +23,16 @@ type solutionFunc func(string) error
 // solutions is a map from year to day to the solution function.
 var solutions = map[int]map[int]solutionFunc{
 	2016: {
-		1: year2016.Sol01,
-		2: year2016.Sol02,
-		3: year2016.Sol03,
-		4: year2016.Sol04,
-		5: year2016.Sol05,
-		6: year2016.Sol06,
-		7: year2016.Sol07,
-		8: year2016.Sol08,
-		9: year2016.Sol09,
+		1:  year2016.Sol01,
+		2:  year2016.Sol02,
+		3:  year2016.Sol03,
+		4:  year2016.Sol04,
+		5:  year2016.Sol05,
+		6:  year2016.Sol06,
+		7:  year2016.Sol07,
+		8:  year2016.Sol08,
+		9:  year2016.Sol09,
+		10: year2016.Sol10,
 	},
 	2020: {
 		1:  year2020.Sol01,
