@@ -23,6 +23,11 @@ func (it *Iterator[T]) Value() T {
 	return it.data[it.idx]
 }
 
+// Move moves the iterator i number of elements forward.
+func (it *Iterator[T]) Move(i int) {
+	it.idx += i
+}
+
 // Reset resets the iterator index.
 func (it *Iterator[T]) Reset() {
 	it.idx = -1

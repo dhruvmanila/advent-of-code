@@ -36,9 +36,7 @@ func decompress(data []byte, version formatVersion) int {
 			switch version {
 			case v1:
 				decompressedLen += count * length
-				for ; length > 0; length-- {
-					it.Next()
-				}
+				it.Move(length)
 			case v2:
 				// Collect all the bytes which needs to be repeated. Here, the
 				// condition to compare the length should appear first as we
