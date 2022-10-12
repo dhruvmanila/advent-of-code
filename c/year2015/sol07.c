@@ -74,7 +74,7 @@ static wire_t *wire_get(const char *name) {
 }
 
 // Free all the resources allocated during the runtime.
-static void wire_free() {
+static void wire_free(void) {
   for (int i = 0; i < MAX_WIRES; i++) {
     wire_t *w = &wires[i];
     for (int i = 0; i < 2; i++) {

@@ -36,7 +36,7 @@ static void make_cookie(ingredient_t *ingredients, int proportions[4]) {
   }
 }
 
-static uint64_t score_cookie() {
+static uint64_t score_cookie(void) {
   if (cookie.capacity < 0 || cookie.durability < 0 || cookie.flavor < 0 ||
       cookie.texture < 0) {
     return 0;

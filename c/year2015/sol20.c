@@ -31,7 +31,7 @@ static int presents2(int dividend) {
   return sum;
 }
 
-int year2015_sol20() {
+int year2015_sol20(void) {
   int house1 = 0, house2 = 0;
   for (int i = 1; !(house1 && house2); i++) {
     if (!house1 && presents1(i) > input) {

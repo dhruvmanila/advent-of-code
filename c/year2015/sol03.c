@@ -62,7 +62,7 @@ static int8_t house_add(house_t **head, int64_t x, int64_t y) {
 }
 
 // house_free frees up all the memory allocated.
-static void house_free() {
+static void house_free(void) {
   while (head != NULL) {
     house_t *tmp = head;
     head = head->next;

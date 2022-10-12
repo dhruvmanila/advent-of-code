@@ -62,7 +62,7 @@ static bool player_win(player_t player, player_t boss) {
   return player.hitpoints > 0;
 }
 
-int year2015_sol21() {
+int year2015_sol21(void) {
   player_t boss = {.hitpoints = 100, .damage = 8, .armor = 2};
   player_t player = {.hitpoints = 100, .damage = 0, .armor = 0};
 

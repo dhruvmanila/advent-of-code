@@ -6,7 +6,7 @@
 
 static const char *input = "1113122113";
 
-int year2015_sol10() {
+int year2015_sol10(void) {
   int seqlen;         // current sequence length
   int maxsize;        // maxsize of next sequence buffer
   int len;            // current length of next sequence buffer

@@ -8,7 +8,7 @@ static const char *secret_key = "ckczppom";  // puzzle input
 // static const char *test_secret_key1 = "abcdef";   // example key 1
 // static const char *test_secret_key2 = "pqrstuv";  // example key 2
 
-int year2015_sol04() {
+int year2015_sol04(void) {
   int num1 = 0, num2 = 0;
   int retval = EXIT_FAILURE;
   char message[32];

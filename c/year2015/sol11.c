@@ -7,7 +7,7 @@
 
 static const char *input = "hxbxwxba";
 
-int year2015_sol11() {
+int year2015_sol11(void) {
   int len = strlen(input);
   char *pass = malloc((len + 1) * sizeof(char));
   if (pass == NULL) {

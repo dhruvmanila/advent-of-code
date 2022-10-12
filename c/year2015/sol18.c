@@ -12,7 +12,7 @@ typedef enum {
   ON,
 } light_state_t;
 
-static light_state_t *grid_new() {
+static light_state_t *grid_new(void) {
   light_state_t *grid = calloc(GRID_SIZE * GRID_SIZE, sizeof(light_state_t));
   if (grid == NULL) {
     return NULL;
