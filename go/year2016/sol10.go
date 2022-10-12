@@ -36,13 +36,11 @@ type bot struct {
 	highTargetId   int
 }
 
-func (b *bot) init(wg *sync.WaitGroup) {
+func (b *bot) start(wg *sync.WaitGroup) {
 	wg.Add(1)
 	go func() {
-		// Simulating the fact that the bot proceeds only when it has two
-		// microchips.
-		inputLow := <-b.inputCh
-		inputHigh := <-b.inputCh
+		// The bot proceeds only when it has two microchips.
+		inputLow, inputHigh := <-b.inputCh, <-b.inputCh
 		if inputLow > inputHigh {
 			inputLow, inputHigh = inputHigh, inputLow
 		}
@@ -99,7 +97,7 @@ func executeInstructions(instructions []string) error {
 				highTargetName: highTargetName,
 				highTargetId:   highTargetId,
 			}
-			bots[id].init(&wg)
+			bots[id].start(&wg)
 		default:
 			return fmt.Errorf("invalid instruction: %q", instruction)
 		}
@@ -118,7 +116,10 @@ func Sol10(input string) error {
 	if err != nil {
 		return err
 	}
-	executeInstructions(lines)
+
+	if err := executeInstructions(lines); err != nil {
+		return err
+	}
 
 	fmt.Printf("10.2: %d\n", output[0]*output[1]*output[2])
 	return nil
