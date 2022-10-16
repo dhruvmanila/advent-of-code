@@ -1,3 +1,5 @@
+import curses
+import time
 from collections.abc import Generator, MutableSequence
 from dataclasses import dataclass, field
 from enum import Enum
@@ -164,7 +166,7 @@ class CaveCombat:
         """
         lines: list[str] = []
         if round:
-            lines.append(f"After {self.round} round{'s' if round > 1 else ''}:")
+            lines.append(f"After {self.round} round{'s' if self.round > 1 else ''}:")
         for y, line in enumerate(self.map):
             s = "".join(line)
             if units:
@@ -194,10 +196,45 @@ def compute_elves_win(lines: Iterable[str]) -> int:
             pass
 
 
+def render_full_combat(
+    screen: curses.window, lines: Iterable[str], frame_rate: int
+) -> int:
+    curses.curs_set(0)
+    combat = CaveCombat.from_lines(lines)
+    while True:
+        screen.addstr(0, 0, combat.render(round=True, units=True))
+        screen.refresh()
+        outcome = combat.turn()
+        if outcome is not None:
+            break
+        time.sleep(1 / frame_rate)
+    return outcome
+
+
 if __name__ == "__main__":
-    lines = utils.read(day=15, year=2018).splitlines()
-    cave = CaveCombat.from_lines(lines)
-    outcome = cave.do_battle()
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--test", action="store_true", help="use the test input")
+    parser.add_argument(
+        "--render", action="store_true", help="render the combat in the terminal"
+    )
+    parser.add_argument(
+        "--frame-rate",
+        type=int,
+        default=30,
+        help="frame rate of the rendered combat (default: 30)",
+    )
+    args = parser.parse_args()
+
+    lines = utils.read(day=15, year=2018, test=args.test).splitlines()
+    if args.render:
+        outcome = curses.wrapper(
+            render_full_combat, lines=lines, frame_rate=args.frame_rate
+        )
+    else:
+        cave = CaveCombat.from_lines(lines)
+        outcome = cave.do_battle()
 
     print(f"15.1: {outcome}")
     print(f"15.2: {compute_elves_win(lines)}")
