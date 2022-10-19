@@ -228,7 +228,7 @@ if __name__ == "__main__":
         "--frame-rate",
         type=int,
         default=30,
-        help="frame rate of the rendered combat (default: 30)",
+        help="frame rate of the rendered combat (default: %(default)s)",
     )
     args = parser.parse_args()
 

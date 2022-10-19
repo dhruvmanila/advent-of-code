@@ -40,9 +40,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-t", help="use the test input instead", action="store_true", dest="test"
-    )
+    parser.add_argument("-t", "--test", action="store_true", help="use the test input")
     args = parser.parse_args()
 
     data = utils.read(year=2016, day=1, test=args.test)
