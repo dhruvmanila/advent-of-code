@@ -32,7 +32,7 @@ class State(Enum):
 class Scanline:
     """Scanline is used to scan the grid and simulate the flow of water."""
 
-    def __init__(self, grid: list[list[str]], initial_stream: int) -> None:
+    def __init__(self, grid: list[list[str]], tap: int) -> None:
         self.y = 0
         self.grid = grid
 
@@ -45,7 +45,7 @@ class Scanline:
 
         # Current streams are the streams that are flowing or filling in the
         # current scanline.
-        self._current_streams: set[int] = {initial_stream}
+        self._current_streams: set[int] = {tap}
 
         # Paused streams are the streams that are paused due to a change in state
         # to filling some streams in the current scanline. As there could be multiple
@@ -160,9 +160,17 @@ class Scanline:
 
 
 class Reservoir:
-    def __init__(self, grid: list[list[str]], initial_stream: int) -> None:
+    def __init__(self, grid: list[list[str]], tap: int) -> None:
+        """Initialize the reservoir with the grid and the tap position.
+
+        Args:
+            grid: The grid of the reservoir.
+            tap: The tap position. This is the x position as the tap is always at the
+                top of the grid.
+        """
         self.grid = grid
-        self.scanline = Scanline(grid, initial_stream)
+        self.tap = tap
+        self.scanline = Scanline(grid, tap=tap)
         self._first_y = next(y for y, row in enumerate(grid) if "#" in row)
 
     @classmethod
@@ -185,7 +193,7 @@ class Reservoir:
         grid = [["."] * (max_x - min_x + 1) for _ in range(max_y + 1)]
         for point in points:
             grid[point.y][point.x - min_x] = "#"
-        return cls(grid, initial_stream=500 - min_x)
+        return cls(grid, tap=(500 - min_x))
 
     def fill(self) -> None:
         while not self.scanline.done():
@@ -201,11 +209,46 @@ class Reservoir:
         return "\n".join("".join(row) for row in self.grid)
 
 
+def generate_image(reservoir: Reservoir, scale: int = 1) -> None:
+    try:
+        from PIL import Image
+    except ImportError:
+        print("Image generation requires the Pillow package, install it with:")
+        print("  pip install pillow")
+        return
+
+    width = len(reservoir.grid[0])
+    height = len(reservoir.grid)
+    colors = {
+        "#": (0x8B, 0x45, 0x13),
+        "~": (0x41, 0x69, 0xE1),
+        "|": (0xB0, 0xE0, 0xE6),
+    }
+
+    img = Image.new("RGB", size=(width, height), color=(0xDE, 0xBE, 0x87))
+    for y, row in enumerate(reservoir.grid):
+        for x, char in enumerate(row):
+            if char in colors:
+                img.putpixel((x, y), colors[char])
+    img.putpixel((reservoir.tap, 0), (0, 0, 0x80))
+
+    if scale != 1:
+        img = img.resize(
+            (width * scale, height * scale), resample=Image.Resampling.NEAREST
+        )
+
+    img.save("reservoir.png")
+
+
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--test", action="store_true", help="use the test input")
+    parser.add_argument(
+        "-i", "--image", action="store_true", help="generate an image (reservoir.png)"
+    )
+    parser.add_argument("--scale", type=int, default=1, help="image scale")
     args = parser.parse_args()
 
     lines = utils.read(year=2018, day=17, test=args.test).splitlines()
@@ -215,3 +258,6 @@ if __name__ == "__main__":
     standing_water, flowing_water = reservoir.water_count()
     print(f"Part 1: {standing_water + flowing_water}")
     print(f"Part 2: {standing_water}")
+
+    if args.image:
+        generate_image(reservoir, scale=args.scale)
