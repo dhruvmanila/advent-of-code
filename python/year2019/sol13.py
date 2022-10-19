@@ -1,12 +1,15 @@
+import curses
+import time
+
 try:
     from intcode import IntcodeComputer
 except ImportError:
     from .intcode import IntcodeComputer
 
+import utils
 
+DEFAULT_FRAME_RATE = 600
 COMPONENTS = {0: " ", 1: "|", 2: chr(9604), 3: chr(9620), 4: "o"}
-RENDER_GAME = True
-FRAME_RATE = 0.0005
 
 
 def count_block_tiles(program):
@@ -52,8 +55,8 @@ def ball_and_paddle_x(game_tiles):
     return keys[values.index(4)][0], keys[values.index(3)][0]
 
 
-def play(screen, program):
-    if RENDER_GAME:
+def play(screen, program, render=False, frame_rate=DEFAULT_FRAME_RATE):
+    if render:
         curses.curs_set(0)
         y_max = 0
     computer = IntcodeComputer(program, return_output=True, return_before_input=True)
@@ -73,42 +76,45 @@ def play(screen, program):
             break
         if x == -1 and y == 0:
             current_score = tile_id
-            if RENDER_GAME:
+            if render:
                 screen.addstr(y_max + 2, 0, f"Score => {current_score}")
                 screen.refresh()
         else:
             game_tiles[(x, y)] = tile_id
-            if RENDER_GAME:
+            if render:
                 y_max = max(y_max, y)
                 screen.addstr(y, x, COMPONENTS[tile_id])
                 screen.refresh()
-                sleep(FRAME_RATE)
+                time.sleep(1 / frame_rate)
     return current_score
 
 
 if __name__ == "__main__":
-    from pathlib import Path
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--test", action="store_true", help="use the test input")
+    parser.add_argument("--render", action="store_true", help="render the game")
+    parser.add_argument(
+        "--frame-rate",
+        type=int,
+        default=DEFAULT_FRAME_RATE,
+        help="frame rate of the rendered game (default: %(default)s)",
+    )
+    args = parser.parse_args()
 
     intcode_program = list(
-        map(
-            int,
-            Path(__file__)
-            .parent.joinpath("input", "13.txt")
-            .read_text()
-            .strip()
-            .split(","),
-        )
+        map(int, utils.read(day=13, year=2019, test=args.test).split(","))
     )
 
     print(f"Number of block tiles => {count_block_tiles(intcode_program)}")
 
     # Adding a quarter to the program
     intcode_program[0] = 2
-    if RENDER_GAME:
-        import curses
-        from time import sleep
-
-        score = curses.wrapper(play, intcode_program)
+    if args.render:
+        score = curses.wrapper(
+            play, intcode_program, render=True, frame_rate=args.frame_rate
+        )
     else:
         score = play(object(), intcode_program)
     print(f"Score after playing the game => {score}")
