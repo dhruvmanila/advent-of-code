@@ -365,5 +365,5 @@ def test_outcome(map: str, expected: int) -> None:
         ),
     ),
 )
-def test_outcome_with_boost(map: str, expected: int) -> None:
+def test_compute_elves_win(map: str, expected: int) -> None:
     assert compute_elves_win(map.splitlines()) == expected

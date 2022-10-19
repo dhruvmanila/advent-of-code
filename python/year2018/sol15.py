@@ -3,7 +3,6 @@ import time
 from collections.abc import Generator, MutableSequence
 from dataclasses import dataclass, field
 from enum import Enum
-from itertools import count
 from operator import attrgetter
 from typing import Iterable, Sequence, TypeAlias
 
@@ -186,14 +185,20 @@ class CaveCombat:
         return self.render()
 
 
-def compute_elves_win(lines: Iterable[str]) -> int:
-    """Compute the outcome of the battle when the elves win."""
-    for elf_attack_power in count(4):
+def compute_elves_win(lines: Iterable[str], max_elf_attack_power: int = 100) -> int:
+    """Compute the outcome of the battle when the elves win.
+
+    This is done by increasing the attack power of the elves until they win.
+    """
+    for elf_attack_power in range(4, max_elf_attack_power + 1):
         try:
             combat = CaveCombat.from_lines(lines, elf_attack_power)
-            return combat.do_battle(no_elf_dies=True)
+            outcome = combat.do_battle(no_elf_dies=True)
         except ElfDied:
-            pass
+            continue
+        else:
+            return outcome
+    raise ValueError(f"No elf attack power between 4 and {max_elf_attack_power} wins")
 
 
 def render_full_combat(
