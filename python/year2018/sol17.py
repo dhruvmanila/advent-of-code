@@ -210,12 +210,7 @@ class Reservoir:
 
 
 def generate_image(reservoir: Reservoir, scale: int = 1) -> None:
-    try:
-        from PIL import Image
-    except ImportError:
-        print("Image generation requires the Pillow package, install it with:")
-        print("  pip install pillow")
-        return
+    from PIL import Image
 
     width = len(reservoir.grid[0])
     height = len(reservoir.grid)
