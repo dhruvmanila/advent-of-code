@@ -16,7 +16,12 @@ class CPU(BaseCPU):
             self.registers[ipregister] += 1
 
 
-def parser_lines(lines: Sequence[str]) -> tuple[int, Sequence[Instruction]]:
+def sum_of_divisors(n: int) -> int:
+    """Return the sum of all divisors of n."""
+    return sum(i + n // i for i in range(1, int(n**0.5) + 1) if n % i == 0)
+
+
+def parse_lines(lines: Sequence[str]) -> tuple[int, Sequence[Instruction]]:
     ipregister = int(lines[0].split()[-1])
     instructions = []
     for line in lines[1:]:
@@ -31,12 +36,21 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--test", action="store_true", help="use the test input")
+    parser.add_argument(
+        "--fast", action="store_true", help="skip executing the instructions"
+    )
     args = parser.parse_args()
 
-    lines = utils.read(day=19, year=2018, test=args.test).splitlines()
-    ipregister, instructions = parser_lines(lines)
+    if args.fast:
+        # Analyzing the instructions, we see that it computes the sum of divisors
+        # of the given number. In my case, the number is stored in register 5.
+        print(f"Part 1: {sum_of_divisors(914)}")
+        print(f"Part 2: {sum_of_divisors(10551314)}")
+    else:
+        lines = utils.read(day=19, year=2018, test=args.test).splitlines()
+        ipregister, instructions = parse_lines(lines)
 
-    cpu = CPU(register_count=6)
-    cpu.execute(ipregister, instructions)
-
-    print(f"Part 1: {cpu.registers[0]}")
+        cpu = CPU(register_count=6)
+        cpu.execute(ipregister, instructions)
+        print(f"Part 1: {cpu.registers[0]}")
+        print("Use the `--fast` flag for part 2.")
