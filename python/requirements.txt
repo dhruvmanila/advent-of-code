@@ -1,5 +1,2 @@
 -e utils
-ipython
-line-profiler
-mypy
-pytest
+Pillow
