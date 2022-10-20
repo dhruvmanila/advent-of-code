@@ -1,10 +1,9 @@
 import re
 from dataclasses import dataclass
-from typing import Callable, Iterable, Mapping, Sequence
+from typing import Iterable, Sequence
 
 import utils
-
-Opcode = Callable[[int, int, int], None]
+from common.year2018.cpu import BaseCPU, OpcodeFunc
 
 
 @dataclass(frozen=True)
@@ -14,20 +13,7 @@ class Sample:
     expected: Sequence[int]
 
 
-class CPU:
-    registers: list[int]
-    opcodes: Mapping[str, Opcode]
-
-    def __init__(self) -> None:
-        self.registers = [0, 0, 0, 0]
-        self.opcodes = {
-            attr: getattr(self, attr) for attr in dir(self) if attr.startswith("op")
-        }
-
-    def reset(self) -> None:
-        """Reset the registers."""
-        self.registers = [0, 0, 0, 0]
-
+class CPU(BaseCPU):
     def execute_sample(self, sample: Sample) -> set[str]:
         """Returns a set of opcode names which matches the given sample."""
         possible = set()
@@ -38,90 +24,11 @@ class CPU:
                 possible.add(name)
         return possible
 
-    def op_addr(self, a: int, b: int, c: int) -> None:
-        """addr (add register) stores into register C the result of adding register A
-        and register B."""
-        self.registers[c] = self.registers[a] + self.registers[b]
-
-    def op_addi(self, a: int, b: int, c: int) -> None:
-        """addi (add immediate) stores into register C the result of adding register A
-        and value B."""
-        self.registers[c] = self.registers[a] + b
-
-    def op_mulr(self, a: int, b: int, c: int) -> None:
-        """mulr (multiply register) stores into register C the result of multiplying
-        register A and register B."""
-        self.registers[c] = self.registers[a] * self.registers[b]
-
-    def op_muli(self, a: int, b: int, c: int) -> None:
-        """muli (multiply immediate) stores into register C the result of multiplying
-        register A and value B."""
-        self.registers[c] = self.registers[a] * b
-
-    def op_banr(self, a: int, b: int, c: int) -> None:
-        """banr (bitwise AND register) stores into register C the result of the
-        bitwise AND of register A and register B."""
-        self.registers[c] = self.registers[a] & self.registers[b]
-
-    def op_bani(self, a: int, b: int, c: int) -> None:
-        """bani (bitwise AND immediate) stores into register C the result of the
-        bitwise AND of register A and value B."""
-        self.registers[c] = self.registers[a] & b
-
-    def op_borr(self, a: int, b: int, c: int) -> None:
-        """borr (bitwise OR register) stores into register C the result of the
-        bitwise OR of register A and register B."""
-        self.registers[c] = self.registers[a] | self.registers[b]
-
-    def op_bori(self, a: int, b: int, c: int) -> None:
-        """bori (bitwise OR immediate) stores into register C the result of the
-        bitwise OR of register A and value B."""
-        self.registers[c] = self.registers[a] | b
-
-    def op_setr(self, a: int, _: int, c: int) -> None:
-        """setr (set register) copies the contents of register A into register C.
-        (Input B is ignored.)"""
-        self.registers[c] = self.registers[a]
-
-    def op_seti(self, a: int, _: int, c: int) -> None:
-        """seti (set immediate) stores value A into register C. (Input B is ignored.)"""
-        self.registers[c] = a
-
-    def op_gtir(self, a: int, b: int, c: int) -> None:
-        """gtir (greater-than immediate/register) sets register C to 1 if value A is
-        greater than register B. Otherwise, register C is set to 0."""
-        self.registers[c] = int(a > self.registers[b])
-
-    def op_gtri(self, a: int, b: int, c: int) -> None:
-        """gtri (greater-than register/immediate) sets register C to 1 if register A is
-        greater than value B. Otherwise, register C is set to 0."""
-        self.registers[c] = int(self.registers[a] > b)
-
-    def op_gtrr(self, a: int, b: int, c: int) -> None:
-        """gtrr (greater-than register/register) sets register C to 1 if register A is
-        greater than register B. Otherwise, register C is set to 0."""
-        self.registers[c] = int(self.registers[a] > self.registers[b])
-
-    def op_eqir(self, a: int, b: int, c: int) -> None:
-        """eqir (equal immediate/register) sets register C to 1 if value A is equal to
-        register B. Otherwise, register C is set to 0."""
-        self.registers[c] = int(a == self.registers[b])
-
-    def op_eqri(self, a: int, b: int, c: int) -> None:
-        """eqri (equal register/immediate) sets register C to 1 if register A is equal
-        to value B. Otherwise, register C is set to 0."""
-        self.registers[c] = int(self.registers[a] == b)
-
-    def op_eqrr(self, a: int, b: int, c: int) -> None:
-        """eqrr (equal register/register) sets register C to 1 if register A is equal to
-        register B. Otherwise, register C is set to 0."""
-        self.registers[c] = int(self.registers[a] == self.registers[b])
-
 
 def compute(
     samples: Iterable[Sample], instructions: Iterable[list[int]]
 ) -> tuple[int, int]:
-    cpu = CPU()
+    cpu = CPU(register_count=4)
     similar_count = 0
     possible_opcodes: dict[int, set[str]] = {}
     for sample in samples:
@@ -130,7 +37,7 @@ def compute(
         if len(opcodes) > 2:
             similar_count += 1
 
-    opcode_map: dict[int, Opcode] = {}
+    opcode_map: dict[int, OpcodeFunc] = {}
     while len(opcode_map) < 16:
         for op, opcodes in possible_opcodes.items():
             if len(opcodes) == 1:
