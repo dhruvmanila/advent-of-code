@@ -35,8 +35,9 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--test", action="store_true", help="use the test input")
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-t", "--test", action="store_true", help="use the test input")
+    group.add_argument(
         "--fast", action="store_true", help="skip executing the instructions"
     )
     args = parser.parse_args()
@@ -53,4 +54,13 @@ if __name__ == "__main__":
         cpu = CPU(register_count=6)
         cpu.execute(ipregister, instructions)
         print(f"Part 1: {cpu.registers[0]}")
-        print("Use the `--fast` flag for part 2.")
+
+        if args.test:
+            # Although the test input is small, the intruction pointer register is 0,
+            # which means that initializing register 0 with 1 has no effect.
+            cpu.reset()
+            cpu.registers[0] = 1
+            cpu.execute(ipregister, instructions)
+            print(f"Part 2: {cpu.registers[0]}")
+        else:
+            print("Use the `--fast` flag for part 2.")
