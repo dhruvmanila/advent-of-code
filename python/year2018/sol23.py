@@ -2,6 +2,7 @@ import re
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from operator import attrgetter
+from typing import Any
 
 import utils
 
@@ -56,6 +57,43 @@ def in_range_count(bots: Sequence[Bot]) -> int:
     return sum(strongest_bot.in_range(bot.pos) for bot in bots)
 
 
+def solve(bots: Sequence[Bot]) -> int:
+    from z3 import If, Int, Optimize, Sum
+
+    def zabs(expr: Any) -> If:
+        """Create a z3 absolute value expression."""
+        return If(expr >= 0, expr, -expr)
+
+    x, y, z = Int("x"), Int("y"), Int("z")
+    distance_from_zero = Int("distance_from_zero")
+    in_range_count = Int("in_range_count")
+
+    o = Optimize()
+    in_range_vars = []
+    for i, bot in enumerate(bots):
+        in_range = Int(f"in_range_{i}")
+        o.add(
+            in_range
+            == If(
+                zabs(x - bot.x) + zabs(y - bot.y) + zabs(z - bot.z) <= bot.r,
+                1,
+                0,
+            )
+        )
+        in_range_vars.append(in_range)
+
+    o.add(in_range_count == Sum(in_range_vars))
+    o.add(distance_from_zero == zabs(x) + zabs(y) + zabs(z))
+
+    o.maximize(in_range_count)
+    o.minimize(distance_from_zero)
+
+    o.check()
+    model = o.model()
+
+    return model[distance_from_zero].as_long()
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -67,3 +105,4 @@ if __name__ == "__main__":
     bots = parse_lines(lines)
 
     print(f"Part 1: {in_range_count(bots)}")
+    print(f"Part 2: {solve(bots)}")

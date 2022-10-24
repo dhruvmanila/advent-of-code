@@ -1,3 +1,4 @@
 -e common
 -e utils
 Pillow
+z3-solver
