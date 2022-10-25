@@ -95,9 +95,51 @@ def execute_steps(
     return time
 
 
+def render_graph(g: Graph, **graph_attr) -> None:
+    import subprocess
+    import tempfile
+
+    import graphviz
+
+    dot = graphviz.Digraph(strict=True)
+    dot.attr(**graph_attr)
+    dot.attr("node", shape="circle")
+
+    with dot.subgraph(graph_attr={"rank": "min"}) as startnodes:
+        for node in set(g) - set().union(*g.values()):
+            startnodes.node(node)
+    with dot.subgraph(graph_attr={"rank": "max"}) as endnodes:
+        for node in set().union(*g.values()) - set(g):
+            endnodes.node(node)
+    for dep, nodes in sorted(g.items()):
+        dot.edges((dep, n) for n in nodes)
+
+    try:
+        # Attempt to process the graph through tred, if available
+        result = subprocess.run(
+            "tred", input=dot.source, capture_output=True, encoding="utf8"
+        )
+        if result.returncode == 0:
+            dot = graphviz.Source(result.stdout)
+    except OSError:
+        pass
+
+    dot.render(tempfile.mktemp(prefix="aoc_2018_07_graph_"), view=True, cleanup=True)
+
+
 if __name__ == "__main__":
-    data = utils.read(day=7, year=2018)
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--test", action="store_true", help="use the test input")
+    parser.add_argument("--render", action="store_true", help="render the graph")
+    args = parser.parse_args()
+
+    data = utils.read(day=7, year=2018, test=args.test)
     graph = parse_graph(data)
 
     print(f"7.1: {topological_sort(graph)}")
     print(f"7.2: {execute_steps(graph, 5)}")
+
+    if args.render:
+        render_graph(graph, rankdir="LR")
