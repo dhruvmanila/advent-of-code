@@ -1,4 +1,5 @@
 -e common
 -e utils
-Pillow
-z3-solver
+Pillow==9.2.0
+graphviz==0.20.1
+z3-solver==4.11.2.0

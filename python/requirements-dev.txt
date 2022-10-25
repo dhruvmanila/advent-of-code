@@ -1,4 +1,4 @@
 -r requirements.txt
-ipython
-mypy
-pytest
+ipython==8.4.0
+mypy==0.971
+pytest==7.1.2
