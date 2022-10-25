@@ -55,9 +55,21 @@ class Node:
 
 
 if __name__ == "__main__":
-    data = utils.read(day=8, year=2018)
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--test", action="store_true", help="use the test input")
+    parser.add_argument(
+        "-p", "--print", action="store_true", help="pretty print the root node"
+    )
+    args = parser.parse_args()
+
+    data = utils.read(day=8, year=2018, test=args.test)
     datastream = map(int, data.split())
     root = Node.from_datastream(datastream)
 
     print(f"8.1: {root.checksum}")
     print(f"8.2: {root.value}")
+
+    if args.print:
+        print(root)
