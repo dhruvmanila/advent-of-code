@@ -26,4 +26,4 @@ def test_recipe_chart(recipes, expected):
     ),
 )
 def test_recipe_chart_substring(target, expected):
-    assert recipe_chart_substring(target) == expected
+    assert recipe_chart_substring(list(map(int, target))) == expected
