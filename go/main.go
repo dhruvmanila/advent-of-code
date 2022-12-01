@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"runtime/pprof"
@@ -14,6 +15,7 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/year2016"
 	"github.com/dhruvmanila/advent-of-code/go/year2020"
 	"github.com/dhruvmanila/advent-of-code/go/year2021"
+	"github.com/dhruvmanila/advent-of-code/go/year2022"
 )
 
 var errUnsolved = errors.New("unsolved")
@@ -88,6 +90,9 @@ var solutions = map[int]map[int]solutionFunc{
 		24: year2021.Sol24,
 		25: year2021.Sol25,
 	},
+	2022: {
+		1: year2022.Sol01,
+	},
 }
 
 // Command line options.
@@ -138,7 +143,6 @@ func realMain() int {
 	flag.Usage = usage
 	flag.Parse()
 
-	var err error
 	var input string
 
 	if useTestInput {
@@ -160,6 +164,7 @@ func realMain() int {
 		defer pprof.StopCPUProfile()
 	}
 
+	var err error
 	if yearSolutions, exist := solutions[aocYear]; exist {
 		if solution, exist := yearSolutions[aocDay]; exist {
 			err = solution(input)
@@ -182,25 +187,14 @@ func realMain() int {
 
 		switch strings.ToLower(strings.TrimSpace(response)) {
 		case "y", "yes":
-			t, err := template.ParseFiles("templates/solution")
+			err := createSolution(aocYear, aocDay)
 			if err != nil {
 				log.Print(err)
 				return 1
 			}
-
-			f, err := os.Create(fmt.Sprintf("./year%d/sol%02d.go", aocYear, aocDay))
-			if err != nil {
-				log.Print(err)
-				return 1
-			}
-			defer f.Close()
-
-			if err := t.Execute(f, map[string]int{"Year": aocYear, "Day": aocDay}); err != nil {
-				log.Print(err)
-				return 1
-			}
-
 			return 0
+		default:
+			return 1
 		}
 	}
 
@@ -224,4 +218,40 @@ func realMain() int {
 	}
 
 	return 0
+}
+
+func createSolution(year, day int) error {
+	yearDir := fmt.Sprintf("./year%d", year)
+	if _, err := os.Stat(yearDir); errors.Is(err, fs.ErrNotExist) {
+		os.MkdirAll(fmt.Sprintf("./year%d/input/test", year), 0o755)
+	}
+
+	// Create the input files.
+	for _, filepath := range []string{
+		fmt.Sprintf("./year%d/input/test/%02d.txt", year, day),
+		fmt.Sprintf("./year%d/input/%02d.txt", year, day),
+	} {
+		f, err := os.Create(filepath)
+		if err != nil {
+			return err
+		}
+		f.Close()
+	}
+
+	t, err := template.ParseFiles("templates/solution")
+	if err != nil {
+		return err
+	}
+
+	f, err := os.OpenFile(fmt.Sprintf("./year%d/sol%02d.go", year, day), os.O_CREATE|os.O_WRONLY, 0o644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if err := t.Execute(f, map[string]int{"Year": year, "Day": day}); err != nil {
+		return err
+	}
+
+	return nil
 }
