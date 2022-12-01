@@ -65,8 +65,8 @@ func (s Set[T]) Contains(e T) bool {
 }
 
 // Clear removes all the elements from the set.
-func (s Set[T]) Clear() {
-	s = make(Set[T])
+func (s *Set[T]) Clear() {
+	*s = make(Set[T])
 }
 
 // Len returns the number of elements in the set.
