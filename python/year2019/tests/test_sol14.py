@@ -2,21 +2,24 @@ import pytest
 
 from year2019.sol14 import maximum_fuel, minimum_ore, parse_reactions
 
-REACTIONS_DATA: list[str] = [
-    """10 ORE => 10 A
+REACTIONS_DATA = (
+    """\
+10 ORE => 10 A
 1 ORE => 1 B
 7 A, 1 B => 1 C
 7 A, 1 C => 1 D
 7 A, 1 D => 1 E
 7 A, 1 E => 1 FUEL""",
-    """9 ORE => 2 A
+    """\
+9 ORE => 2 A
 8 ORE => 3 B
 7 ORE => 5 C
 3 A, 4 B => 1 AB
 5 B, 7 C => 1 BC
 4 C, 1 A => 1 CA
 2 AB, 3 BC, 4 CA => 1 FUEL""",
-    """157 ORE => 5 NZVS
+    """\
+157 ORE => 5 NZVS
 165 ORE => 6 DCFZ
 44 XJWVT, 5 KHKGT, 1 QDVJ, 29 NZVS, 9 GPVTF, 48 HKGWZ => 1 FUEL
 12 HKGWZ, 1 GPVTF, 8 PSHF => 9 QDVJ
@@ -25,7 +28,8 @@ REACTIONS_DATA: list[str] = [
 7 DCFZ, 7 PSHF => 2 XJWVT
 165 ORE => 2 GPVTF
 3 DCFZ, 7 NZVS, 5 HKGWZ, 10 PSHF => 8 KHKGT""",
-    """2 VPVL, 7 FWMGM, 2 CXFTF, 11 MNCFX => 1 STKFG
+    """\
+2 VPVL, 7 FWMGM, 2 CXFTF, 11 MNCFX => 1 STKFG
 17 NVRVD, 3 JNWZP => 8 VPVL
 53 STKFG, 6 MNCFX, 46 VJHF, 81 HVMC, 68 CXFTF, 25 GNMV => 1 FUEL
 22 VJHF, 37 MNCFX => 5 FWMGM
@@ -37,7 +41,8 @@ REACTIONS_DATA: list[str] = [
 1 NVRVD => 8 CXFTF
 1 VJHF, 6 MNCFX => 4 RFSQX
 176 ORE => 6 VJHF""",
-    """171 ORE => 8 CNZTR
+    """\
+171 ORE => 8 CNZTR
 7 ZLQW, 3 BMBT, 9 XCVML, 26 XMNCP, 1 WPTQ, 2 MZWV, 1 RJRHP => 4 PLWSL
 114 ORE => 4 BHXH
 14 VRPVC => 6 BMBT
@@ -54,31 +59,32 @@ REACTIONS_DATA: list[str] = [
 121 ORE => 7 VRPVC
 7 XCVML => 6 RJRHP
 5 BHXH, 4 VRPVC => 5 LTCX""",
-]
-
-
-PART1_TEST_CASES = (
-    (0, 31),
-    (1, 165),
-    (2, 13312),
-    (3, 180697),
-    (4, 2210736),
-)
-
-PART2_TEST_CASES = (
-    (2, 82892753),
-    (3, 5586022),
-    (4, 460664),
 )
 
 
-@pytest.mark.parametrize(("idx", "expected"), PART1_TEST_CASES)
+@pytest.mark.parametrize(
+    ("idx", "expected"),
+    (
+        (0, 31),
+        (1, 165),
+        (2, 13312),
+        (3, 180697),
+        (4, 2210736),
+    ),
+)
 def test_minimum_ore(idx: int, expected: int):
     lines = REACTIONS_DATA[idx].splitlines()
     assert minimum_ore(parse_reactions(lines)) == expected
 
 
-@pytest.mark.parametrize(("idx", "expected"), PART2_TEST_CASES)
-def test_maximum_fuel(idx: int, expected: int):
+@pytest.mark.parametrize(
+    ("idx", "expected"),
+    (
+        (2, 82892753),
+        (3, 5586022),
+        (4, 460664),
+    ),
+)
+def test_maximum_fuel(idx: int, expected: int) -> None:
     lines = REACTIONS_DATA[idx].splitlines()
     assert maximum_fuel(parse_reactions(lines)) == expected

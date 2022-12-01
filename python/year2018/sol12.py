@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Mapping
 
@@ -9,8 +10,11 @@ import utils
 @dataclass
 class Garden:
     # A list of pot numbers which contain a plant.
-    plants: list[int]
+    plants: Sequence[int]
     notes: Mapping[str, str]
+
+    def __post_init__(self) -> None:
+        self.first_pot = min(self.plants)
 
     @classmethod
     def from_lines(cls, lines: list[str]) -> Garden:
@@ -23,15 +27,17 @@ class Garden:
         return cls(plants, notes)
 
     def step(self) -> bool:
-        next = []
+        changed = True
+        next_plants: list[int] = []
         for n in range(min(self.plants) - 3, max(self.plants) + 4):
             group = self[n - 2 : n + 3]
             if (pot := self.notes.get(group)) and pot != ".":
-                next.append(n)
-        if all(p - n == -1 for p, n in zip(self.plants, next)):
-            return False
-        self.plants = next
-        return True
+                next_plants.append(n)
+        if all(prev - next_ == -1 for prev, next_ in zip(self.plants, next_plants)):
+            changed = False
+        self.first_pot = min(self.first_pot, min(next_plants))
+        self.plants = next_plants
+        return changed
 
     def score(self) -> int:
         return sum(self.plants)
@@ -52,7 +58,13 @@ class Garden:
 
 
 if __name__ == "__main__":
-    data = utils.read(day=12, year=2018, test=False)
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--test", action="store_true", help="use the test input")
+    args = parser.parse_args()
+
+    data = utils.read(day=12, year=2018, test=args.test)
 
     garden = Garden.from_lines(data.splitlines())
     for generations in range(1, 21):

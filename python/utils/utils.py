@@ -37,3 +37,8 @@ def read(*, day: int, year: int, test: bool = False) -> str:
     if not datafile.exists():
         raise FileNotFoundError(datafile)
     return datafile.read_text().strip("\n")
+
+
+def supports_unicode() -> bool:
+    """Return `True` if the terminal supports unicode."""
+    return sys.stdout.encoding.lower().startswith("utf")

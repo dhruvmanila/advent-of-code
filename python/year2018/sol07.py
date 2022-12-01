@@ -124,7 +124,12 @@ def render_graph(g: Graph, **graph_attr) -> None:
     except OSError:
         pass
 
-    dot.render(tempfile.mktemp(prefix="aoc_2018_07_graph_"), view=True, cleanup=True)
+    dot.render(
+        tempfile.mktemp(prefix="aoc_2018_07_graph_"),
+        format="png",
+        view=True,
+        cleanup=True,
+    )
 
 
 if __name__ == "__main__":
