@@ -93,8 +93,8 @@ func (c Counter[T]) Update(other Counter[T]) {
 
 // Get is used to get the count for an item, 0 if the item does not exists.
 func (c Counter[T]) Get(item T) int {
-	if c.contains(item) {
-		return c[item]
+	if count, exists := c[item]; exists {
+		return count
 	}
 	return 0
 }
@@ -154,10 +154,10 @@ func (c Counter[T]) ForEach(f func(item T, count int)) {
 //
 // This can be used as:
 //
-//   for item := range counter.iter {
-//     count := counter.Get(item)
-//     // do something with item and count
-//   }
+//	for item := range counter.Iter() {
+//	  count := counter.Get(item)
+//	  // do something with item and count
+//	}
 func (c Counter[T]) Iter() <-chan T {
 	// Use a buffered channel to avoid blocking the main goroutine.
 	ch := make(chan T, c.Len()/2)
