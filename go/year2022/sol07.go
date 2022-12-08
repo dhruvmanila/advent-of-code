@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/dustin/go-humanize"
+
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -23,9 +25,9 @@ const (
 )
 
 const (
-	commandPrefix       = '$'
-	totalDiskSpace uint = 70000000
-	requiredSpace  uint = 30000000
+	commandPrefix         = '$'
+	totalDiskSpace uint64 = 70000000
+	requiredSpace  uint64 = 30000000
 )
 
 // fileSystem represents an entire file system.
@@ -41,21 +43,21 @@ type fsNode struct {
 	Type fileMode
 	Path string
 	Name string
-	Size uint
+	Size uint64
 
 	parent   *fsNode
 	children []*fsNode
 }
 
-func (fs *fileSystem) dirSize() map[string]uint {
-	m := make(map[string]uint)
-	var computeSize func(node *fsNode) uint
+func (fs *fileSystem) dirSize() map[string]uint64 {
+	m := make(map[string]uint64)
+	var computeSize func(node *fsNode) uint64
 
-	computeSize = func(node *fsNode) uint {
+	computeSize = func(node *fsNode) uint64 {
 		if node.Type == modeFile {
 			return node.Size
 		}
-		var size uint = 0
+		var size uint64 = 0
 		for _, child := range node.children {
 			size += computeSize(child)
 		}
@@ -104,7 +106,20 @@ func (fs *fileSystem) String() string {
 				filePart = partEdge
 			}
 		}
-		s := fmt.Sprintf("%s%s%s\n", leading, filePart, node.Name)
+
+		var icon string
+		switch node.Type {
+		case modeDir:
+			icon = " "
+		case modeFile:
+			icon = " "
+		}
+
+		s := fmt.Sprintf("%s%s%s%s", leading, filePart, icon, node.Name)
+		if node.Type == modeFile {
+			s += fmt.Sprintf(" (%s)", humanize.Bytes(node.Size))
+		}
+		s += "\n"
 
 		// lastIdx is the index of the last child of the current node.
 		lastIdx := len(node.children) - 1
@@ -201,7 +216,7 @@ CmdLoop:
 						Type:     modeFile,
 						Path:     filepath.Join(currentDir.Path, name),
 						Name:     name,
-						Size:     uint(size),
+						Size:     uint64(size),
 						parent:   currentDir,
 						children: nil,
 					})
@@ -271,7 +286,7 @@ func Sol07(input string) error {
 	// minSpaceToDelete is the minimum space to be freed up to run the update.
 	minSpaceToDelete := (requiredSpace - (totalDiskSpace - dirSize[fs.root.Path]))
 
-	var totalSize uint = 0
+	var totalSize uint64 = 0
 	toDeleteSpace := totalDiskSpace // take the largest number
 	for _, size := range dirSize {
 		if size <= 100000 {
