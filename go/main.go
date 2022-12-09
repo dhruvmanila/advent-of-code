@@ -109,6 +109,7 @@ var (
 	aocDay       int
 	cpuprofile   bool
 	memprofile   bool
+	timeSolution bool
 )
 
 func init() {
@@ -126,6 +127,7 @@ func init() {
 	flag.IntVar(&aocDay, "d", day, "run solution for given day")
 	flag.BoolVar(&cpuprofile, "cpuprofile", false, "write a CPU profile")
 	flag.BoolVar(&memprofile, "memprofile", false, "write a memory profile")
+	flag.BoolVar(&timeSolution, "time", false, "time the solution")
 }
 
 func usage() {
@@ -174,7 +176,14 @@ func realMain() int {
 	var err error
 	if yearSolutions, exist := solutions[aocYear]; exist {
 		if solution, exist := yearSolutions[aocDay]; exist {
+			var start time.Time
+			if timeSolution {
+				start = time.Now()
+			}
 			err = solution(input)
+			if timeSolution {
+				fmt.Printf("> %s\n", time.Since(start))
+			}
 		} else {
 			err = errUnsolved
 		}
