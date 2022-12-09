@@ -57,15 +57,15 @@ func Mod[T constraints.Integer](a, b T) T {
 // right. This returns a channel from which you can only receive an integer one
 // at a time and can be used in various ways like so:
 //
-//   for d := range Digits(123) {
-//     // do something with d
-//   }
+//	for d := range Digits(123) {
+//	  // do something with d
+//	}
 //
-//   ch := Digits(123)
-//   // ... other code
-//   fmt.Println(<-ch)
-//   // ... other code
-//   fmt.Println(<-ch)
+//	ch := Digits(123)
+//	// ... other code
+//	fmt.Println(<-ch)
+//	// ... other code
+//	fmt.Println(<-ch)
 func Digits(n int) <-chan int {
 	ns := strconv.Itoa(n)
 	ch := make(chan int, len(ns))
