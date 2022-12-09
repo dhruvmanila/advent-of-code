@@ -77,3 +77,19 @@ func Digits(n int) <-chan int {
 	}()
 	return ch
 }
+
+// Returns a number representing sign of n.
+//
+//   - 0 if the number is zero
+//   - 1 if the number is positive
+//   - -1 if the number is negative
+func Signum[T constraints.Signed | constraints.Float](n T) T {
+	switch {
+	case n == 0:
+		return 0
+	case n > 0:
+		return 1
+	default:
+		return -1
+	}
+}

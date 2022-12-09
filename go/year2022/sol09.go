@@ -32,8 +32,9 @@ func parseMotions(lines []string) []*motion {
 }
 
 // isTouching returns true if tail is adjacent to the head in either of
-// the 9 direction (adjacent and diagonal).
-func isTouching(head, tail geom.Point2D[int]) bool {
+// the 8 direction (adjacent and diagonal) or both head and tail are at
+// the same position.
+func isTouching(head, tail *geom.Point2D[int]) bool {
 	for dx := -1; dx <= 1; dx++ {
 		for dy := -1; dy <= 1; dy++ {
 			if tail.X+dx == head.X && tail.Y+dy == head.Y {
@@ -56,51 +57,18 @@ func simulateMotions(motions []*motion, n int) int {
 		delta := directionDelta[m.direction]
 
 		for s := 0; s < m.steps; s++ {
-			// Update the position of the head knot. The points are passed
-			// by value so we can update them in place.
 			knots[0].X += delta.X
 			knots[0].Y += delta.Y
 
 			for i := 0; i < n-1; i++ {
-				head, tail := knots[i], knots[i+1]
-				if isTouching(head, tail) {
+				head, tail := knots[i], &knots[i+1]
+				if isTouching(&head, tail) {
 					continue
 				}
-
-				var delta geom.Point2D[int]
-
-				// Compute the delta for the current tail knot.
-				switch {
-				case head.X == tail.X:
-					if head.Y > tail.Y {
-						delta.Y = 1
-					} else {
-						delta.Y = -1
-					}
-				case head.Y == tail.Y:
-					if head.X > tail.X {
-						delta.X = 1
-					} else {
-						delta.X = -1
-					}
-				default:
-					if head.X > tail.X {
-						delta.X = 1
-					} else {
-						delta.X = -1
-					}
-					if head.Y > tail.Y {
-						delta.Y = 1
-					} else {
-						delta.Y = -1
-					}
-				}
-
-				// Update the position of the current tail knot. The points are
-				// passed by value so we can update them in place.
-				knots[i+1].X = tail.X + delta.X
-				knots[i+1].Y = tail.Y + delta.Y
+				tail.X += util.Signum(head.X - tail.X)
+				tail.Y += util.Signum(head.Y - tail.Y)
 			}
+
 			seen.Add(knots[n-1])
 		}
 	}
