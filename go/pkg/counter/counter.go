@@ -91,6 +91,15 @@ func (c Counter[T]) Update(other Counter[T]) {
 	}
 }
 
+// KeepPositive will delete negative and zero count items from the counter.
+func (c Counter[T]) KeepPositive() {
+	for item, count := range c {
+		if count <= 0 {
+			delete(c, item)
+		}
+	}
+}
+
 // Get is used to get the count for an item, 0 if the item does not exists.
 func (c Counter[T]) Get(item T) int {
 	if count, exists := c[item]; exists {
