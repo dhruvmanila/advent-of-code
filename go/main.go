@@ -132,7 +132,7 @@ func init() {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, `Usage: %s [-y <year>] [-d <day>] [-t] [-cpuprofile] [-memprofile]
+	fmt.Fprintf(os.Stderr, `Usage: %s [-y <year>] [-d <day>] [-t] [-cpuprofile] [-memprofile] [-time]
 
 Options:
 `, os.Args[0])
