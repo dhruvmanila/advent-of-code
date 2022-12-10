@@ -5,12 +5,13 @@ import (
 	"strings"
 
 	"github.com/dhruvmanila/advent-of-code/go/pkg/matrix"
+	"github.com/dhruvmanila/advent-of-code/go/pkg/ocr"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
 const (
-	pixelOn      = '\u2588'
-	pixelOff     = ' '
+	pixelOn      = '#' // '\u2588'
+	pixelOff     = '.'
 	screenWidth  = 40
 	screenHeight = 6
 	pixelCount   = screenHeight * screenWidth
@@ -63,13 +64,15 @@ func Sol10(input string) error {
 		}
 	}
 
-	fmt.Printf("10.1: %d\n10.2:\n", totalSignal)
+	lines := make([]string, 0, screen.Rows)
 	for r := 0; r < screen.Rows; r++ {
-		for _, pixel := range screen.RawRowView(r) {
-			fmt.Printf("%s", string(pixel))
-		}
-		fmt.Println()
+		lines = append(lines, string(screen.RawRowView(r)))
+	}
+	letters, err := ocr.ConvertSlice6(lines)
+	if err != nil {
+		return err
 	}
 
+	fmt.Printf("10.1: %d\n10.2: %s\n", totalSignal, letters)
 	return nil
 }
