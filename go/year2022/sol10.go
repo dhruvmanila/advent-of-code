@@ -29,15 +29,18 @@ func Sol10(input string) error {
 	screen := matrix.NewDense[rune](screenHeight, screenWidth, nil)
 
 	var cycles, value int
-	for _, instruction := range instructions {
+	for idx, instruction := range instructions {
 		fields := strings.Fields(instruction)
+		if len(fields) < 1 {
+			return fmt.Errorf("line %d: %q: invalid instruction", idx, instruction)
+		}
 		switch fields[0] {
 		case "noop":
 			cycles, value = 1, 0
 		case "addx":
 			cycles, value = 2, util.MustAtoi(fields[1])
 		default:
-			panic("invalid instruction: " + instruction)
+			return fmt.Errorf("line %d: %q: invalid instruction", idx, instruction)
 		}
 
 		for c := 0; c < cycles; c++ {
@@ -61,7 +64,6 @@ func Sol10(input string) error {
 	}
 
 	fmt.Printf("10.1: %d\n10.2:\n", totalSignal)
-
 	for r := 0; r < screen.Rows; r++ {
 		for _, pixel := range screen.RawRowView(r) {
 			fmt.Printf("%s", string(pixel))
