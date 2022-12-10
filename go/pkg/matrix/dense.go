@@ -93,8 +93,10 @@ func (m *Dense[T]) AppendRow(src []T) {
 
 // RowView returns row i of the matrix data represented as a column vector,
 // backed by the matrix data. It will panic if i is out of bounds for the matrix.
-func (m *Dense[T]) RowView(i int) {
-	// TODO
+func (m *Dense[T]) RowView(i int) *VecDense[T] {
+	var v VecDense[T]
+	v.RowViewOf(m, i)
+	return &v
 }
 
 // RawRowView returns a slice for the specified row backed by the same array
@@ -109,12 +111,24 @@ func (m *Dense[T]) RawRowView(i int) []T {
 // SetCol sets the values in the specified column of the matrix to the values
 // in src. len(src) must equal the number of rows in the receiver.
 func (m *Dense[T]) SetCol(j int, src []T) {
-	// TODO
+	if j >= m.Cols || j < 0 {
+		panic(ErrColAccess)
+	}
+	if len(src) != m.Rows {
+		panic(ErrColLength)
+	}
+	vectorCopy(
+		VecDense[T]{N: m.Rows, Inc: 1, Data: src},
+		VecDense[T]{N: m.Rows, Inc: m.Stride, Data: m.Data[j:]},
+	)
 }
 
 // ColView returns a Vector reflecting the column j, backed by the matrix data.
-func (m *Dense[T]) ColView(j int) {
-	// TODO
+// It will panic if j is out of bounds for the matrix.
+func (m *Dense[T]) ColView(j int) *VecDense[T] {
+	var v VecDense[T]
+	v.ColViewOf(m, j)
+	return &v
 }
 
 // SliceRow returns a slice of the specified row `r` from `start` (inclusive)
