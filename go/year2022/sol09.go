@@ -57,8 +57,7 @@ func simulateMotions(motions []*motion, n int) int {
 		delta := directionDelta[m.direction]
 
 		for s := 0; s < m.steps; s++ {
-			knots[0].X += delta.X
-			knots[0].Y += delta.Y
+			knots[0] = knots[0].Add(delta)
 
 			for i := 0; i < n-1; i++ {
 				head, tail := knots[i], &knots[i+1]
