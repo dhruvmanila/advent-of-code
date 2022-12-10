@@ -35,14 +35,7 @@ func parseMotions(lines []string) []*motion {
 // the 8 direction (adjacent and diagonal) or both head and tail are at
 // the same position.
 func isTouching(head, tail *geom.Point2D[int]) bool {
-	for dx := -1; dx <= 1; dx++ {
-		for dy := -1; dy <= 1; dy++ {
-			if tail.X+dx == head.X && tail.Y+dy == head.Y {
-				return true
-			}
-		}
-	}
-	return false
+	return util.Abs(head.X-tail.X) <= 1 && util.Abs(head.Y-tail.Y) <= 1
 }
 
 // simulateMotions simulates the rope motions consisting of n knots.
