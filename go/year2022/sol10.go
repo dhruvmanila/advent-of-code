@@ -41,7 +41,7 @@ func Sol10(input string) error {
 		}
 
 		for c := 0; c < cycles; c++ {
-			crtCol, crtRow := currentCycle%40, currentCycle/40
+			crtCol, crtRow := currentCycle%screenWidth, currentCycle/screenWidth
 			if registerX-1 <= crtCol && crtCol <= registerX+1 {
 				screen.Set(crtRow, crtCol, pixelOn)
 			} else {
