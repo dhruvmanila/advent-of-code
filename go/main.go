@@ -111,6 +111,7 @@ var (
 	aocDay       int
 	cpuprofile   bool
 	memprofile   bool
+	runs         int
 	timeSolution bool
 )
 
@@ -129,11 +130,12 @@ func init() {
 	flag.IntVar(&aocDay, "d", day, "run solution for given day")
 	flag.BoolVar(&cpuprofile, "cpuprofile", false, "write a CPU profile")
 	flag.BoolVar(&memprofile, "memprofile", false, "write a memory profile")
+	flag.IntVar(&runs, "runs", 100, "run solution n times for profiling")
 	flag.BoolVar(&timeSolution, "time", false, "time the solution")
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, `Usage: %s [-y <year>] [-d <day>] [-t] [-cpuprofile] [-memprofile] [-time]
+	fmt.Fprintf(os.Stderr, `Usage: %s [OPTIONS]
 
 Options:
 `, os.Args[0])
@@ -172,28 +174,49 @@ func realMain() int {
 			log.Print(err)
 			return 1
 		}
-		defer pprof.StopCPUProfile()
 	}
 
-	var err error
+	var solutionErr error
+
 	if yearSolutions, exist := solutions[aocYear]; exist {
 		if solution, exist := yearSolutions[aocDay]; exist {
+			// If profiling is turned on, show the time it took to profile. If
+			// it's off, then the solution should only run one time.
+			if cpuprofile || memprofile {
+				timeSolution = true
+			} else {
+				runs = 1
+			}
+
 			var start time.Time
 			if timeSolution {
 				start = time.Now()
 			}
-			err = solution(input)
+
+			for i := 0; i < runs; i++ {
+				solutionErr = solution(input)
+				// Stop re-running the solution if there's an error.
+				if solutionErr != nil && cpuprofile {
+					log.Println("error in solution: profiling stopped")
+					break
+				}
+			}
+
+			// This is safe to call without starting the profiler. It is called
+			// here so as to only profile the solution function.
+			pprof.StopCPUProfile()
+
 			if timeSolution {
 				fmt.Printf("> %s\n", time.Since(start))
 			}
 		} else {
-			err = errUnsolved
+			solutionErr = errUnsolved
 		}
 	} else {
-		err = errUnsolved
+		solutionErr = errUnsolved
 	}
 
-	if errors.Is(err, errUnsolved) {
+	if errors.Is(solutionErr, errUnsolved) {
 		var response string
 
 		fmt.Printf("./year%d/sol%02d.go does not exist. Generate? [y/n]: ", aocYear, aocDay)
@@ -230,8 +253,8 @@ func realMain() int {
 		}
 	}
 
-	if err != nil {
-		log.Print(fmt.Errorf("year %d: day %d: %w", aocYear, aocDay, err))
+	if solutionErr != nil {
+		log.Print(fmt.Errorf("year %d: day %d: %w", aocYear, aocDay, solutionErr))
 		return 1
 	}
 
