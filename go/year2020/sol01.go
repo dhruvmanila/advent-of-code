@@ -7,10 +7,10 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-func Sol01(input string) error {
+func Sol01(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// entries is a slice of all the expense entry.
@@ -45,6 +45,5 @@ Loop:
 		}
 	}
 
-	fmt.Printf("1.1: %d\n1.2: %d\n", x*y, a*b*c)
-	return nil
+	return fmt.Sprintf("1.1: %d\n1.2: %d\n", x*y, a*b*c), nil
 }

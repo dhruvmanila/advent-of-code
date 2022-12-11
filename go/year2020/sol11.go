@@ -145,10 +145,10 @@ func parseSeatLayout(lines []string) *seatLayout {
 	return newSeatLayout(layout)
 }
 
-func Sol11(input string) error {
+func Sol11(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	layout := parseSeatLayout(lines)
@@ -161,6 +161,5 @@ func Sol11(input string) error {
 	}
 	count2 := layout.totalOccupied()
 
-	fmt.Printf("11.1: %d\n11.2: %d\n", count1, count2)
-	return nil
+	return fmt.Sprintf("11.1: %d\n11.2: %d\n", count1, count2), nil
 }

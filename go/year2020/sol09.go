@@ -39,10 +39,10 @@ Loop:
 	return min + max
 }
 
-func Sol09(input string) error {
+func Sol09(input string) (string, error) {
 	numbers, err := util.ReadLinesAsInt(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var invalidNum int
@@ -52,6 +52,5 @@ func Sol09(input string) error {
 		}
 	}
 
-	fmt.Printf("9.1: %d\n9.2: %d\n", invalidNum, encryptionWeakness(invalidNum, numbers))
-	return nil
+	return fmt.Sprintf("9.1: %d\n9.2: %d\n", invalidNum, encryptionWeakness(invalidNum, numbers)), nil
 }

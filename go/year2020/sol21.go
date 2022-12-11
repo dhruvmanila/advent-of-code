@@ -66,10 +66,10 @@ func parseFoods(lines []string) []*food {
 	return foods
 }
 
-func Sol21(input string) error {
+func Sol21(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	allergens, count := identifyAllergens(parseFoods(lines))
@@ -84,6 +84,5 @@ func Sol21(input string) error {
 		ingredients[i] = allergens[key]
 	}
 
-	fmt.Printf("21.1: %d\n21.2: %s\n", count, strings.Join(ingredients, ","))
-	return nil
+	return fmt.Sprintf("21.1: %d\n21.2: %s\n", count, strings.Join(ingredients, ",")), nil
 }

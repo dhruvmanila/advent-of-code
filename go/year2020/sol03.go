@@ -20,10 +20,10 @@ func treesForSlope(lines []string, right, down int) int {
 	return trees
 }
 
-func Sol03(input string) error {
+func Sol03(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	trees11 := treesForSlope(lines, 1, 1)
@@ -32,6 +32,5 @@ func Sol03(input string) error {
 	trees71 := treesForSlope(lines, 7, 1)
 	trees12 := treesForSlope(lines, 1, 2)
 
-	fmt.Printf("3.1: %d\n3.2: %d\n", trees31, trees11*trees31*trees51*trees71*trees12)
-	return nil
+	return fmt.Sprintf("3.1: %d\n3.2: %d\n", trees31, trees11*trees31*trees51*trees71*trees12), nil
 }

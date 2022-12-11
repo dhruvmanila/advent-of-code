@@ -65,10 +65,10 @@ func handleInstructionsV2(instructions []navInstruction) int {
 	return util.Abs(x) + util.Abs(y)
 }
 
-func Sol12(input string) error {
+func Sol12(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	instructions := make([]navInstruction, len(lines))
@@ -79,10 +79,9 @@ func Sol12(input string) error {
 		}
 	}
 
-	fmt.Printf(
+	return fmt.Sprintf(
 		"12.1: %d\n12.2: %d\n",
 		handleInstructionsV1(instructions),
 		handleInstructionsV2(instructions),
-	)
-	return nil
+	), nil
 }

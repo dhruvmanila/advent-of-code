@@ -63,15 +63,15 @@ func (m bagMap) childCount(origin string) int {
 	return count
 }
 
-func Sol07(input string) error {
+func Sol07(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	bm, err := newBagMapFromRules(lines)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	count := 0
@@ -81,6 +81,5 @@ func Sol07(input string) error {
 		}
 	}
 
-	fmt.Printf("7.1: %d\n7.2: %d\n", count, bm.childCount("shiny gold"))
-	return nil
+	return fmt.Sprintf("7.1: %d\n7.2: %d\n", count, bm.childCount("shiny gold")), nil
 }

@@ -44,10 +44,10 @@ func topCrates(stacks []*stack.Stack[byte]) string {
 	return crates
 }
 
-func Sol05(input string) error {
+func Sol05(input string) (string, error) {
 	sections, err := util.ReadSections(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// There are two sections separated by a blank line where the first
@@ -67,7 +67,7 @@ func Sol05(input string) error {
 	for idx, instruction := range instructions {
 		_, err := fmt.Sscanf(instruction, "move %d from %d to %d", &quantity, &from, &to)
 		if err != nil {
-			return fmt.Errorf("line %d: %q: %w", idx, instruction, err)
+			return "", fmt.Errorf("line %d: %q: %w", idx, instruction, err)
 		}
 
 		// Part 1: This is just a simple pop "from" crate and push "to" crate.
@@ -94,6 +94,5 @@ func Sol05(input string) error {
 		}
 	}
 
-	fmt.Printf("5.1: %s\n5.2: %s\n", topCrates(stacks1), topCrates(stacks2))
-	return nil
+	return fmt.Sprintf("5.1: %s\n5.2: %s\n", topCrates(stacks1), topCrates(stacks2)), nil
 }

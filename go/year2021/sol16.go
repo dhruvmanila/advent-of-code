@@ -195,20 +195,19 @@ func hexToBinary(h string) (string, error) {
 	return s, nil
 }
 
-func Sol16(input string) error {
+func Sol16(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	h, err := hexToBinary(lines[0])
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	p := newParser(h)
 	packet := p.parse()
 
-	fmt.Printf("16.1: %d\n16.2: %d\n", packet.versionSum(), packet.evaluate())
-	return nil
+	return fmt.Sprintf("16.1: %d\n16.2: %d\n", packet.versionSum(), packet.evaluate()), nil
 }

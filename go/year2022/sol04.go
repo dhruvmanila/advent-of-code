@@ -6,10 +6,10 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-func Sol04(input string) error {
+func Sol04(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	fullyContained, overlapping := 0, 0
@@ -17,7 +17,7 @@ func Sol04(input string) error {
 		var min1, max1, min2, max2 int
 		_, err := fmt.Sscanf(line, "%d-%d,%d-%d", &min1, &max1, &min2, &max2)
 		if err != nil {
-			return fmt.Errorf("line %d: %q: %w", idx, line, err)
+			return "", fmt.Errorf("line %d: %q: %w", idx, line, err)
 		}
 		// Check if the first range is entirely within the second range or
 		// vice versa.
@@ -30,6 +30,5 @@ func Sol04(input string) error {
 		}
 	}
 
-	fmt.Printf("4.1: %d\n4.2: %d\n", fullyContained, overlapping)
-	return nil
+	return fmt.Sprintf("4.1: %d\n4.2: %d\n", fullyContained, overlapping), nil
 }

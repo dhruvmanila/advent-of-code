@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-func Sol06(input string) error {
+func Sol06(input string) (string, error) {
 	content, err := os.ReadFile(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 	// Remove the trailing newlines.
 	content = bytes.Trim(content, "\n")
@@ -36,6 +36,5 @@ func Sol06(input string) error {
 		count2 += bits.OnesCount(set2)
 	}
 
-	fmt.Printf("6.1: %d\n6.2: %d\n", count1, count2)
-	return nil
+	return fmt.Sprintf("6.1: %d\n6.2: %d\n", count1, count2), nil
 }

@@ -125,10 +125,10 @@ func (i *image) String() string {
 	return s
 }
 
-func Sol20(input string) error {
+func Sol20(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// algorithm is the image enhancement algorithm string.
@@ -138,10 +138,8 @@ func Sol20(input string) error {
 	image := newImage(lines[2:])
 
 	image.apply(algorithm, 2)
-	fmt.Printf("20.1: %d\n", image.pixels.Len())
+	s := fmt.Sprintf("20.1: %d\n", image.pixels.Len())
 
 	image.apply(algorithm, 48)
-	fmt.Printf("20.2: %d\n", image.pixels.Len())
-
-	return nil
+	return fmt.Sprintf("%s20.2: %d\n", s, image.pixels.Len()), nil
 }

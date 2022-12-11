@@ -134,14 +134,13 @@ func (t *heightMap) String() string {
 	return s
 }
 
-func Sol08(input string) error {
+func Sol08(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	t := newHeightMap(lines)
 
-	fmt.Printf("8.1: %d\n8.2: %d\n", t.VisibleCount(), t.MaxScore())
-	return nil
+	return fmt.Sprintf("8.1: %d\n8.2: %d\n", t.VisibleCount(), t.MaxScore()), nil
 }

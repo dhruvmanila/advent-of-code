@@ -91,10 +91,10 @@ func (og *octopusGrid) isAllFlashing() bool {
 	return true
 }
 
-func Sol11(input string) error {
+func Sol11(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	grid := make(map[position]int)
@@ -118,6 +118,5 @@ func Sol11(input string) error {
 		step++
 	}
 
-	fmt.Printf("11.1: %d\n11.2: %d\n", flashes, step)
-	return nil
+	return fmt.Sprintf("11.1: %d\n11.2: %d\n", flashes, step), nil
 }

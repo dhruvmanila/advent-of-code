@@ -6,12 +6,11 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-func Sol{{ .Day | printf "%02d" }}(input string) error {
+func Sol{{ .Day | printf "%02d" }}(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	fmt.Printf("{{ .Day }}.1: %d\n{{ .Day }}.2: %d\n", 0, 0)
-	return nil
+	return fmt.Sprintf("{{ .Day }}.1: %d\n{{ .Day }}.2: %d\n", 0, 0), nil
 }

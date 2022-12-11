@@ -7,10 +7,10 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-func Sol06(input string) error {
+func Sol06(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// size is the length of the message.
@@ -32,6 +32,5 @@ func Sol06(input string) error {
 		message2 += string(counters[i].LeastCommon())
 	}
 
-	fmt.Printf("6.1: %s\n6.2: %s\n", message1, message2)
-	return nil
+	return fmt.Sprintf("6.1: %s\n6.2: %s\n", message1, message2), nil
 }

@@ -70,15 +70,15 @@ func parsePassword(lines []string) ([]*password, error) {
 	return passwords, nil
 }
 
-func Sol02(input string) error {
+func Sol02(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	passwords, err := parsePassword(lines)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var count1, count2 int
@@ -91,6 +91,5 @@ func Sol02(input string) error {
 		}
 	}
 
-	fmt.Printf("2.1: %d\n2.2: %d\n", count1, count2)
-	return nil
+	return fmt.Sprintf("2.1: %d\n2.2: %d\n", count1, count2), nil
 }

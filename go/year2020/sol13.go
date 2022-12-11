@@ -34,10 +34,10 @@ func earliestTimestamp(buses [][2]int) int {
 	return t
 }
 
-func Sol13(input string) error {
+func Sol13(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	earliest := util.MustAtoi(lines[0])
@@ -51,6 +51,5 @@ func Sol13(input string) error {
 
 	earliestBus, wait := earliestDeparture(earliest, buses)
 
-	fmt.Printf("13.1: %d\n13.2: %d\n", earliestBus*wait, earliestTimestamp(buses))
-	return nil
+	return fmt.Sprintf("13.1: %d\n13.2: %d\n", earliestBus*wait, earliestTimestamp(buses)), nil
 }

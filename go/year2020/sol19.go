@@ -51,10 +51,10 @@ func validMessages(rules map[string]string, messages []string) (count1, count2 i
 	return count1, count2
 }
 
-func Sol19(input string) error {
+func Sol19(input string) (string, error) {
 	sections, err := util.ReadSections(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	rules := make(map[string]string, len(sections[0]))
@@ -68,6 +68,6 @@ func Sol19(input string) error {
 	messages := sections[1]
 
 	count1, count2 := validMessages(rules, messages)
-	fmt.Printf("19.1: %d\n19.2: %d\n", count1, count2)
-	return nil
+
+	return fmt.Sprintf("19.1: %d\n19.2: %d\n", count1, count2), nil
 }

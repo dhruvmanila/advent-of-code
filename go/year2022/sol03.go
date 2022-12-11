@@ -17,10 +17,10 @@ func getPriority(item rune) int {
 	panic(fmt.Sprintf("invalid item: %q", item))
 }
 
-func Sol03(input string) error {
+func Sol03(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	sharedItemPriority, badgePriority := 0, 0
@@ -34,7 +34,7 @@ func Sol03(input string) error {
 			first, second := set.NewFromSlice([]rune(line[:mid])), set.NewFromSlice([]rune(line[mid:]))
 			shared := first.Intersection(second)
 			if shared.Len() != 1 {
-				return fmt.Errorf(
+				return "", fmt.Errorf(
 					"%q %q: expected only 1 shared rucksack item, got %q",
 					line[:mid], line[mid:], shared.ToSlice(),
 				)
@@ -47,7 +47,7 @@ func Sol03(input string) error {
 			Intersection(set.NewFromSlice([]rune(group[1]))).
 			Intersection(set.NewFromSlice([]rune(group[2])))
 		if badge.Len() != 1 {
-			return fmt.Errorf(
+			return "", fmt.Errorf(
 				"group %q: expected only 1 badge for the group, got %q",
 				group, badge.ToSlice(),
 			)
@@ -55,6 +55,5 @@ func Sol03(input string) error {
 		badgePriority += getPriority(badge.Pop())
 	}
 
-	fmt.Printf("3.1: %d\n3.2: %d\n", sharedItemPriority, badgePriority)
-	return nil
+	return fmt.Sprintf("3.1: %d\n3.2: %d\n", sharedItemPriority, badgePriority), nil
 }

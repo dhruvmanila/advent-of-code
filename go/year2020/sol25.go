@@ -27,10 +27,10 @@ func getLoopSize(publicKey int) int {
 	return loopSize
 }
 
-func Sol25(input string) error {
+func Sol25(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	cardPublicKey := util.MustAtoi(lines[0])
@@ -40,9 +40,8 @@ func Sol25(input string) error {
 
 	encryptionKey := transformSubjectNumber(doorPublicKey, cardLoopSize)
 	if otherKey := transformSubjectNumber(cardPublicKey, doorLoopSize); encryptionKey != otherKey {
-		return fmt.Errorf("keys do not match: %d != %d", encryptionKey, otherKey)
+		return "", fmt.Errorf("keys do not match: %d != %d", encryptionKey, otherKey)
 	}
 
-	fmt.Printf("25.1: %d\n", encryptionKey)
-	return nil
+	return fmt.Sprintf("25.1: %d\n", encryptionKey), nil
 }

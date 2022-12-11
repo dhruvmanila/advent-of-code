@@ -133,16 +133,15 @@ func runArtExhibit(blackTiles set.Set[hex], days int) int {
 	return blackTiles.Len()
 }
 
-func Sol24(input string) error {
+func Sol24(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	blackTiles := getBlackTiles(lines)
 	count1 := blackTiles.Len()
 	count2 := runArtExhibit(blackTiles, 100)
 
-	fmt.Printf("24.1: %d\n24.2: %d\n", count1, count2)
-	return nil
+	return fmt.Sprintf("24.1: %d\n24.2: %d\n", count1, count2), nil
 }

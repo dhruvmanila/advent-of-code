@@ -11,10 +11,10 @@ func isValidTriangle(x int, y int, z int) bool {
 	return x+y > z && x+z > y && y+z > x
 }
 
-func Sol03(input string) error {
+func Sol03(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	triangles := make([][3]int, len(lines))
@@ -38,6 +38,5 @@ func Sol03(input string) error {
 		}
 	}
 
-	fmt.Printf("3.1: %d\n3.2: %d\n", valid1, valid2)
-	return nil
+	return fmt.Sprintf("3.1: %d\n3.2: %d\n", valid1, valid2), nil
 }

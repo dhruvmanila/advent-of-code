@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/dhruvmanila/advent-of-code/go/pkg/ocr"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -86,23 +87,25 @@ func (p *paper) dotCount() int {
 
 // String is used for presenting the paper.
 func (p *paper) String() string {
-	var s string
+	lines := make([]string, p.rows)
 	for y := 0; y < p.rows; y++ {
+		line := ""
 		for x := 0; x < p.columns; x++ {
 			if _, exist := p.dots[point{x, y}]; exist {
-				s += "█"
+				line += "#"
 			} else {
-				s += " "
+				line += "."
 			}
 		}
-		s += "\n"
+		lines[y] = line
 	}
-	return s
+	return strings.Join(lines, "\n")
 }
 
 // parseFoldInstructions is used to parse the fold instructions mentioned in
 // the given set of lines. The lines are of the form:
-//     `fold along <direction>=<value>`
+//
+//	`fold along <direction>=<value>`
 func parseFoldInstructions(lines []string) []foldInstruction {
 	instructions := make([]foldInstruction, len(lines))
 	for i, line := range lines {
@@ -114,10 +117,10 @@ func parseFoldInstructions(lines []string) []foldInstruction {
 	return instructions
 }
 
-func Sol13(input string) error {
+func Sol13(input string) (string, error) {
 	content, err := os.ReadFile(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 	content = bytes.Trim(content, "\n")
 
@@ -131,6 +134,10 @@ func Sol13(input string) error {
 		p.fold(instruction)
 	}
 
-	fmt.Printf("13.1: %d\n13.2:\n%s\n", count, p)
-	return nil
+	code, err := ocr.Convert6(p.String())
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("13.1: %d\n13.2: %s\n", count, code), nil
 }

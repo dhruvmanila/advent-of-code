@@ -8,7 +8,7 @@ import (
 
 const input = "cxdnnyjw"
 
-func Sol05(_ string) error {
+func Sol05(_ string) (string, error) {
 	password1 := make([]byte, 0, 8)
 	passwordLetters := make(map[int]byte, 8)
 	for i := 0; len(password1) != 8 || len(passwordLetters) != 8; i++ {
@@ -35,6 +35,5 @@ func Sol05(_ string) error {
 		password2[position] = letter
 	}
 
-	fmt.Printf("5.1: %s\n5.2: %s\n", string(password1), string(password2))
-	return nil
+	return fmt.Sprintf("5.1: %s\n5.2: %s\n", string(password1), string(password2)), nil
 }

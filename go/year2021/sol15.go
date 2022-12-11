@@ -133,20 +133,19 @@ func constructGraphV2(lines []string) *graph {
 	return newGraph(nodes)
 }
 
-func Sol15(input string) error {
+func Sol15(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	from := position{0, 0}
 	to1 := position{len(lines[0]) - 1, len(lines) - 1}
 	to2 := position{len(lines[0])*5 - 1, len(lines)*5 - 1}
 
-	fmt.Printf(
+	return fmt.Sprintf(
 		"15.1: %d\n15.2: %d\n",
 		lowestTotalRiskPath(from, to1, constructGraph(lines)),
 		lowestTotalRiskPath(from, to2, constructGraphV2(lines)),
-	)
-	return nil
+	), nil
 }

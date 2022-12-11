@@ -183,10 +183,10 @@ func parseNumber(line string) *number {
 	return result
 }
 
-func Sol18(input string) error {
+func Sol18(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// As we're using pointers and also mutating the values in place, we need
@@ -214,6 +214,5 @@ func Sol18(input string) error {
 		}
 	}
 
-	fmt.Printf("18.1: %d\n18.2: %d\n", total.Magnitude(), maxMagnitude)
-	return nil
+	return fmt.Sprintf("18.1: %d\n18.2: %d\n", total.Magnitude(), maxMagnitude), nil
 }

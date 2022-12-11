@@ -20,7 +20,7 @@ import (
 
 var errUnsolved = errors.New("unsolved")
 
-type solutionFunc func(string) error
+type solutionFunc func(string) (string, error)
 
 // solutions is a map from year to day to the solution function.
 var solutions = map[int]map[int]solutionFunc{
@@ -176,6 +176,7 @@ func realMain() int {
 		}
 	}
 
+	var s string
 	var solutionErr error
 
 	if yearSolutions, exist := solutions[aocYear]; exist {
@@ -194,7 +195,7 @@ func realMain() int {
 			}
 
 			for i := 0; i < runs; i++ {
-				solutionErr = solution(input)
+				s, solutionErr = solution(input)
 				// Stop re-running the solution if there's an error.
 				if solutionErr != nil && cpuprofile {
 					log.Println("error in solution: profiling stopped")
@@ -207,7 +208,7 @@ func realMain() int {
 			pprof.StopCPUProfile()
 
 			if timeSolution {
-				fmt.Printf("> %s\n", time.Since(start))
+				s = fmt.Sprintf("%s> %s\n", s, time.Since(start))
 			}
 		} else {
 			solutionErr = errUnsolved
@@ -258,6 +259,7 @@ func realMain() int {
 		return 1
 	}
 
+	fmt.Print(s)
 	return 0
 }
 

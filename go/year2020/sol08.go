@@ -92,18 +92,19 @@ func (p *program) reset() {
 	p.ptr = 0
 }
 
-func Sol08(input string) error {
+func Sol08(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
+	var s string
 	p := newProgramFromCode(lines)
 	if err := p.run(); err != nil {
 		if errors.Is(err, errInfiniteLoop) {
-			fmt.Printf("8.1: %d\n", p.accumulator)
+			s = fmt.Sprintf("8.1: %d\n", p.accumulator)
 		} else {
-			return err
+			return "", err
 		}
 	}
 
@@ -126,6 +127,5 @@ func Sol08(input string) error {
 		instruction.op = original
 	}
 
-	fmt.Printf("8.2: %d\n", p.accumulator)
-	return nil
+	return fmt.Sprintf("%s8.2: %d\n", s, p.accumulator), nil
 }

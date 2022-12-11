@@ -17,10 +17,10 @@ const (
 	pixelCount   = screenHeight * screenWidth
 )
 
-func Sol10(input string) error {
+func Sol10(input string) (string, error) {
 	instructions, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	registerX := 1
@@ -33,7 +33,7 @@ func Sol10(input string) error {
 	for idx, instruction := range instructions {
 		fields := strings.Fields(instruction)
 		if len(fields) < 1 {
-			return fmt.Errorf("line %d: %q: invalid instruction", idx, instruction)
+			return "", fmt.Errorf("line %d: %q: invalid instruction", idx, instruction)
 		}
 		switch fields[0] {
 		case "noop":
@@ -41,7 +41,7 @@ func Sol10(input string) error {
 		case "addx":
 			cycles, value = 2, util.MustAtoi(fields[1])
 		default:
-			return fmt.Errorf("line %d: %q: invalid instruction", idx, instruction)
+			return "", fmt.Errorf("line %d: %q: invalid instruction", idx, instruction)
 		}
 
 		for c := 0; c < cycles; c++ {
@@ -70,9 +70,8 @@ func Sol10(input string) error {
 	}
 	letters, err := ocr.ConvertSlice6(lines)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	fmt.Printf("10.1: %d\n10.2: %s\n", totalSignal, letters)
-	return nil
+	return fmt.Sprintf("10.1: %d\n10.2: %s\n", totalSignal, letters), nil
 }

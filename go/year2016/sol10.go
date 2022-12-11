@@ -111,16 +111,15 @@ func executeInstructions(instructions []string) error {
 	return nil
 }
 
-func Sol10(input string) error {
+func Sol10(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if err := executeInstructions(lines); err != nil {
-		return err
+		return "", err
 	}
 
-	fmt.Printf("10.2: %d\n", output[0]*output[1]*output[2])
-	return nil
+	return fmt.Sprintf("10.2: %d\n", output[0]*output[1]*output[2]), nil
 }

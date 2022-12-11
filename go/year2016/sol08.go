@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/dhruvmanila/advent-of-code/go/pkg/ocr"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -81,25 +82,26 @@ func (d *display) onCount() int {
 }
 
 func (d *display) String() string {
-	var s string
-	for _, row := range d.pixels {
+	lines := make([]string, d.rows)
+	for i, row := range d.pixels {
+		line := ""
 		for _, pixel := range row {
 			switch pixel {
 			case ON:
-				s += "█"
+				line += "#"
 			case OFF:
-				s += " "
+				line += "."
 			}
 		}
-		s += "\n"
+		lines[i] = line
 	}
-	return s
+	return strings.Join(lines, "\n")
 }
 
-func Sol08(input string) error {
+func Sol08(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	d := newDisplay(6, 50)
@@ -107,6 +109,10 @@ func Sol08(input string) error {
 		d.executeInstruction(line)
 	}
 
-	fmt.Printf("8.1: %d\n8.2:\n%s\n", d.onCount(), d.String())
-	return nil
+	code, err := ocr.Convert6(d.String())
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("8.1: %d\n8.2: %s\n", d.onCount(), code), nil
 }

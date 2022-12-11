@@ -68,18 +68,17 @@ func simulateMotions(motions []*motion, n int) int {
 	return seen.Len()
 }
 
-func Sol09(input string) error {
+func Sol09(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	motions := parseMotions(lines)
 
-	fmt.Printf(
+	return fmt.Sprintf(
 		"9.1: %d\n9.2: %d\n",
 		simulateMotions(motions, 2),
 		simulateMotions(motions, 10),
-	)
-	return nil
+	), nil
 }

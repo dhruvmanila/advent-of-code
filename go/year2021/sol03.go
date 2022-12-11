@@ -49,10 +49,10 @@ func recursiveFilter(binaryNums []string, rt ratingType, pos int) string {
 	}
 }
 
-func Sol03(input string) error {
+func Sol03(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// size is the length of a single binary number.
@@ -93,10 +93,9 @@ func Sol03(input string) error {
 		recursiveFilter(lines, co2Scrubber, 0), 2, 0,
 	)
 
-	fmt.Printf(
+	return fmt.Sprintf(
 		"3.1: %d\n3.2: %d\n",
 		gammaRate*epsilonRate,
 		oxygenGeneratorRating*co2ScrubberRating,
-	)
-	return nil
+	), nil
 }

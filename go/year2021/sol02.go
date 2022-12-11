@@ -25,15 +25,15 @@ func parseCommands(lines []string) ([]*command, error) {
 	return cmds, nil
 }
 
-func Sol02(input string) error {
+func Sol02(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	cmds, err := parseCommands(lines)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// hpos (horizontal position) calculation remains the same.
@@ -51,10 +51,9 @@ func Sol02(input string) error {
 			aim -= cmd.units
 			depth1 -= cmd.units
 		default:
-			return fmt.Errorf("command: unknown direction: %s", cmd.direction)
+			return "", fmt.Errorf("command: unknown direction: %s", cmd.direction)
 		}
 	}
 
-	fmt.Printf("2.1: %d\n2.2: %d\n", hpos*depth1, hpos*depth2)
-	return nil
+	return fmt.Sprintf("2.1: %d\n2.2: %d\n", hpos*depth1, hpos*depth2), nil
 }

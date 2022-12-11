@@ -132,15 +132,15 @@ func parseLines(lines []string) ([]*lineSegment, error) {
 	return lineSegments, nil
 }
 
-func Sol05(input string) error {
+func Sol05(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	lineSegments, err := parseLines(lines)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// counter1 and counter2 represents the counter for the first and second
@@ -171,6 +171,5 @@ func Sol05(input string) error {
 		}
 	})
 
-	fmt.Printf("5.1: %d\n5.2: %d\n", count1, count2)
-	return nil
+	return fmt.Sprintf("5.1: %d\n5.2: %d\n", count1, count2), nil
 }

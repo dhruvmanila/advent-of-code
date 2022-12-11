@@ -243,10 +243,10 @@ MainLoop:
 	return roughness
 }
 
-func Sol20(input string) error {
+func Sol20(input string) (string, error) {
 	sections, err := util.ReadSections(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// tiles contains all the tiles with the four rotations and two flips.
@@ -283,6 +283,5 @@ func Sol20(input string) error {
 	// on a string will be much easier.
 	image := removeFrames(grid)
 
-	fmt.Printf("20.1: %d\n20.2: %d\n", product, computeRoughness(image))
-	return nil
+	return fmt.Sprintf("20.1: %d\n20.2: %d\n", product, computeRoughness(image)), nil
 }

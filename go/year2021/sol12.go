@@ -70,10 +70,10 @@ func isSmallCave(name string) bool {
 	return true
 }
 
-func Sol12(input string) error {
+func Sol12(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	m := make(caveMap)
@@ -84,6 +84,6 @@ func Sol12(input string) error {
 	}
 
 	count1, count2 := m.countPaths("start", "end")
-	fmt.Printf("12.1: %d\n12.2: %d\n", count1, count2)
-	return nil
+
+	return fmt.Sprintf("12.1: %d\n12.2: %d\n", count1, count2), nil
 }

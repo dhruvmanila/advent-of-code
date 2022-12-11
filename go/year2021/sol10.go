@@ -50,10 +50,10 @@ func calculateCompletionScore(s []byte) int {
 	return score
 }
 
-func Sol10(input string) error {
+func Sol10(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var syntaxErrorScore int
@@ -81,10 +81,10 @@ Line:
 	}
 
 	sort.Ints(completionScores)
-	fmt.Printf(
+
+	return fmt.Sprintf(
 		"10.1: %d\n10.2: %d\n",
 		syntaxErrorScore,
 		completionScores[len(completionScores)/2],
-	)
-	return nil
+	), nil
 }

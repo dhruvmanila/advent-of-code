@@ -12,8 +12,9 @@ import (
 // adapters that connect the charging outlet to the device.
 //
 // This function can be explained by a simple example:
-//     previous := 0        // effective rating
-//     ratings  := [1, 3]
+//
+//	previous := 0        // effective rating
+//	ratings  := [1, 3]
 //
 // Now, to find the possible arrangements for the three ratings, we will find
 // the arragements for two ratings first (previous = 1, ratings = [3]). There
@@ -24,8 +25,8 @@ import (
 // which is <= 3. So, we should include all the arrangements without the middle
 // number as well. (previous = 0, ratings = [3])
 //
-//     0 -> 3
-//     0 -> 1 -> 3
+//	0 -> 3
+//	0 -> 1 -> 3
 func arrangementCount(previous int, ratings []int, memo map[int]int) int {
 	if len(ratings) == 1 {
 		return 1
@@ -41,10 +42,10 @@ func arrangementCount(previous int, ratings []int, memo map[int]int) int {
 	return count
 }
 
-func Sol10(input string) error {
+func Sol10(input string) (string, error) {
 	ratings, err := util.ReadLinesAsInt(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	effectiveRating := 0
@@ -58,10 +59,9 @@ func Sol10(input string) error {
 	}
 	dc.Increment(3)
 
-	fmt.Printf(
+	return fmt.Sprintf(
 		"10.1: %d\n10.2: %d\n",
 		dc.Get(1)*dc.Get(3),
 		arrangementCount(effectiveRating, ratings, make(map[int]int)),
-	)
-	return nil
+	), nil
 }

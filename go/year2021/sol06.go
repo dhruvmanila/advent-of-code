@@ -34,10 +34,10 @@ func simulate(fishes []int, days int) int {
 	return util.Sum(fishCount[:])
 }
 
-func Sol06(input string) error {
+func Sol06(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// fishes is a slice of integer each representing the number of days
@@ -49,6 +49,6 @@ func Sol06(input string) error {
 
 	count1 := simulate(fishes, 80)
 	count2 := simulate(fishes, 256)
-	fmt.Printf("6.1: %d\n6.2: %d\n", count1, count2)
-	return nil
+
+	return fmt.Sprintf("6.1: %d\n6.2: %d\n", count1, count2), nil
 }

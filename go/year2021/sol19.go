@@ -150,15 +150,14 @@ func compute(scannersById map[int]*Scanner) (int, int) {
 	return beacons.Len(), maxDistance
 }
 
-func Sol19(input string) error {
+func Sol19(input string) (string, error) {
 	sections, err := util.ReadSections(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	scannersById := parseSections(sections)
 	beacons, maxDistance := compute(scannersById)
 
-	fmt.Printf("19.1: %d\n19.2: %d\n", beacons, maxDistance)
-	return nil
+	return fmt.Sprintf("19.1: %d\n19.2: %d\n", beacons, maxDistance), nil
 }

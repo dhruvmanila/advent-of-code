@@ -61,16 +61,16 @@ func (p *probe) launch(target *geom.BoundingBox2D) (maxHeight int, reached bool)
 	return maxHeight, reached
 }
 
-func Sol17(input string) error {
+func Sol17(input string) (string, error) {
 	content, err := os.ReadFile(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 	content = bytes.Trim(content, "\n")
 
 	matches := targetAreaRegex.FindStringSubmatch(string(content))
 	if len(matches) != 5 {
-		return fmt.Errorf("invalid match: %s", content)
+		return "", fmt.Errorf("invalid match: %s", content)
 	}
 
 	minx := util.MustAtoi(matches[1])
@@ -94,6 +94,5 @@ func Sol17(input string) error {
 		}
 	}
 
-	fmt.Printf("17.1: %d\n17.2: %d\n", maxHeight, count)
-	return nil
+	return fmt.Sprintf("17.1: %d\n17.2: %d\n", maxHeight, count), nil
 }

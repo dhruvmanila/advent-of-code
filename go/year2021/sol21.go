@@ -132,10 +132,10 @@ func realGame(p1, p2 player) int {
 	return util.Max(wins.Get(p1.id), wins.Get(p2.id))
 }
 
-func Sol21(input string) error {
+func Sol21(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	p1 := newPlayer(util.MustAtoi(lines[0][28:]))
@@ -145,6 +145,5 @@ func Sol21(input string) error {
 	practiceGameOutput := practiceGame(*p1, *p2)
 	winCount := realGame(*p1, *p2)
 
-	fmt.Printf("21.1: %d\n21.2: %d\n", practiceGameOutput, winCount)
-	return nil
+	return fmt.Sprintf("21.1: %d\n21.2: %d\n", practiceGameOutput, winCount), nil
 }

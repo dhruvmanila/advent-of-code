@@ -99,10 +99,10 @@ func (p passport) validateFields() bool {
 	return true
 }
 
-func Sol04(input string) error {
+func Sol04(input string) (string, error) {
 	content, err := os.ReadFile(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var allFieldsPresent, validValues int
@@ -119,6 +119,5 @@ func Sol04(input string) error {
 		validValues++
 	}
 
-	fmt.Printf("4.1: %d\n4.2: %d\n", allFieldsPresent, validValues)
-	return nil
+	return fmt.Sprintf("4.1: %d\n4.2: %d\n", allFieldsPresent, validValues), nil
 }

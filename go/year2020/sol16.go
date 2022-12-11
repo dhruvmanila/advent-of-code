@@ -123,10 +123,10 @@ func (i *ticketInfo) ruleOrder() []string {
 	return order
 }
 
-func Sol16(input string) error {
+func Sol16(input string) (string, error) {
 	sections, err := util.ReadSections(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	info := newTicketInfo(sections)
@@ -139,6 +139,5 @@ func Sol16(input string) error {
 		}
 	}
 
-	fmt.Printf("16.1: %d\n16.2: %d\n", info.errorRate(), departure)
-	return nil
+	return fmt.Sprintf("16.1: %d\n16.2: %d\n", info.errorRate(), departure), nil
 }

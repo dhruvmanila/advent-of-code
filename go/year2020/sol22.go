@@ -117,10 +117,10 @@ func parseCards(sections [][]string) ([]int, []int) {
 	return decks[0], decks[1]
 }
 
-func Sol22(input string) error {
+func Sol22(input string) (string, error) {
 	sections, err := util.ReadSections(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	cards1, cards2 := parseCards(sections)
@@ -137,6 +137,5 @@ func Sol22(input string) error {
 		),
 	)
 
-	fmt.Printf("22.1: %d\n22.2: %d\n", score1, score2)
-	return nil
+	return fmt.Sprintf("22.1: %d\n22.2: %d\n", score1, score2), nil
 }

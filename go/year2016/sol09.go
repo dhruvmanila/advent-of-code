@@ -60,15 +60,15 @@ func decompress(data []byte, version formatVersion) int {
 	return decompressedLen
 }
 
-func Sol09(input string) error {
+func Sol09(input string) (string, error) {
 	content, err := os.ReadFile(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 	content = bytes.Trim(content, "\n")
 
 	lengthV1 := decompress(content, v1)
 	lengthV2 := decompress(content, v2)
-	fmt.Printf("9.1: %d\n9.2: %d\n", lengthV1, lengthV2)
-	return nil
+
+	return fmt.Sprintf("9.1: %d\n9.2: %d\n", lengthV1, lengthV2), nil
 }

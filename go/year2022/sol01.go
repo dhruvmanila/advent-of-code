@@ -7,10 +7,10 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-func Sol01(input string) error {
+func Sol01(input string) (string, error) {
 	sections, err := util.ReadSections(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var elves []int
@@ -26,6 +26,5 @@ func Sol01(input string) error {
 		return elves[i] > elves[j]
 	})
 
-	fmt.Printf("1.1: %d\n1.2: %d\n", elves[0], elves[0]+elves[1]+elves[2])
-	return nil
+	return fmt.Sprintf("1.1: %d\n1.2: %d\n", elves[0], elves[0]+elves[1]+elves[2]), nil
 }

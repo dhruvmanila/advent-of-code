@@ -89,23 +89,22 @@ func getScore2(opponent int, outcome int) int {
 	return outcome + choice
 }
 
-func Sol02(input string) error {
+func Sol02(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	score1, score2 := 0, 0
 	for idx, line := range lines {
 		first, second, found := strings.Cut(line, " ")
 		if !found {
-			return fmt.Errorf("line %d: invalid input: %q", idx, line)
+			return "", fmt.Errorf("line %d: invalid input: %q", idx, line)
 		}
 		player, opponent := getShape(second), getShape(first)
 		score1 += getScore1(player, opponent)
 		score2 += getScore2(opponent, getOutcome(second))
 	}
 
-	fmt.Printf("2.1: %d\n2.2: %d\n", score1, score2)
-	return nil
+	return fmt.Sprintf("2.1: %d\n2.2: %d\n", score1, score2), nil
 }

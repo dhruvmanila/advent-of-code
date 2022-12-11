@@ -17,10 +17,10 @@ const (
 	west
 )
 
-func Sol01(input string) error {
+func Sol01(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// position is the x and y coordinates representing the current position.
@@ -68,6 +68,6 @@ func Sol01(input string) error {
 	}
 
 	blocks := util.Abs(position[0]) + util.Abs(position[1])
-	fmt.Printf("1.1: %d\n1.2: %d\n", blocks, visitedTwice)
-	return nil
+
+	return fmt.Sprintf("1.1: %d\n1.2: %d\n", blocks, visitedTwice), nil
 }

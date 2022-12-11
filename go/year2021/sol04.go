@@ -126,10 +126,10 @@ func parseBoards(lines []string) ([]*board, error) {
 	return boards, nil
 }
 
-func Sol04(input string) error {
+func Sol04(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var draws []int
@@ -141,11 +141,10 @@ func Sol04(input string) error {
 
 	boards, err := parseBoards(lines[2:])
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	first, last := playBingo(draws, boards)
-	fmt.Printf("4.1: %d\n4.2: %d\n", first, last)
 
-	return nil
+	return fmt.Sprintf("4.1: %d\n4.2: %d\n", first, last), nil
 }

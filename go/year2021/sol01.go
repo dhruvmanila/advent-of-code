@@ -6,10 +6,10 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-func Sol01(input string) error {
+func Sol01(input string) (string, error) {
 	depths, err := util.ReadLinesAsInt(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	count1 := 0
@@ -26,6 +26,5 @@ func Sol01(input string) error {
 		}
 	}
 
-	fmt.Printf("1.1: %d\n1.2: %d\n", count1, count2)
-	return nil
+	return fmt.Sprintf("1.1: %d\n1.2: %d\n", count1, count2), nil
 }

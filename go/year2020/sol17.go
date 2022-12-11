@@ -129,14 +129,14 @@ func parseInitialCubes4D(state []string) set.Set[[4]int] {
 	return activeCubes
 }
 
-func Sol17(input string) error {
+func Sol17(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	count1 := executeCycle3D(parseInitialCubes3D(lines), 6)
 	count2 := executeCycle4D(parseInitialCubes4D(lines), 6)
-	fmt.Printf("17.1: %d\n17.2: %d\n", count1, count2)
-	return nil
+
+	return fmt.Sprintf("17.1: %d\n17.2: %d\n", count1, count2), nil
 }

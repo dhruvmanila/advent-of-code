@@ -100,18 +100,17 @@ func parseInsertionRules(lines []string) map[string]string {
 	return rules
 }
 
-func Sol14(input string) error {
+func Sol14(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	p := newPolymer(lines[0], parseInsertionRules(lines[2:]))
 	p.process(10)
-	fmt.Printf("14.1: %d\n", p.diff())
+	s := fmt.Sprintf("14.1: %d\n", p.diff())
 
 	p.reset()
 	p.process(40)
-	fmt.Printf("14.2: %d\n", p.diff())
-	return nil
+	return fmt.Sprintf("%s14.2: %d\n", s, p.diff()), nil
 }

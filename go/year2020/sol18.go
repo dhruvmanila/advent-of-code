@@ -121,10 +121,10 @@ func evaluateAdvance(expr []byte) int {
 	return result
 }
 
-func Sol18(input string) error {
+func Sol18(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	result1, result2 := 0, 0
@@ -133,6 +133,5 @@ func Sol18(input string) error {
 		result2 += evaluateAdvance([]byte(line))
 	}
 
-	fmt.Printf("18.1: %d\n18.2: %d\n", result1, result2)
-	return nil
+	return fmt.Sprintf("18.1: %d\n18.2: %d\n", result1, result2), nil
 }

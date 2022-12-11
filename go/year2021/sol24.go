@@ -194,10 +194,12 @@ func formNumber(ds []*digitVar) int {
 }
 
 // equation contains information regarding a specific form of equation:
-//   left + constant == right OR left == right - constant
+//
+//	left + constant == right OR left == right - constant
 //
 // Example:
-//   x + 4 == y OR x == y - 4
+//
+//	x + 4 == y OR x == y - 4
 type equation struct {
 	left     *digitVar
 	constant int
@@ -256,10 +258,10 @@ func formEquations(instructions []string) []*equation {
 	return equations
 }
 
-func Sol24(input string) error {
+func Sol24(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	equations := formEquations(lines)
@@ -281,15 +283,14 @@ func Sol24(input string) error {
 	alu := newAlu(lines)
 	alu.run(largestModelNum)
 	if alu.vars["z"] != 0 {
-		return fmt.Errorf("z is not 0 for largest model number: %d", largestModelNum)
+		return "", fmt.Errorf("z is not 0 for largest model number: %d", largestModelNum)
 	}
 
 	alu.reset()
 	alu.run(smallestModelNum)
 	if alu.vars["z"] != 0 {
-		return fmt.Errorf("z is not 0 for smallest model number: %d", smallestModelNum)
+		return "", fmt.Errorf("z is not 0 for smallest model number: %d", smallestModelNum)
 	}
 
-	fmt.Printf("24.1: %d\n24.2: %d\n", largestModelNum, smallestModelNum)
-	return nil
+	return fmt.Sprintf("24.1: %d\n24.2: %d\n", largestModelNum, smallestModelNum), nil
 }

@@ -25,10 +25,10 @@ func play(numbers []int, rounds int) int {
 	return mostRecent
 }
 
-func Sol15(input string) error {
+func Sol15(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var numbers []int
@@ -36,6 +36,5 @@ func Sol15(input string) error {
 		numbers = append(numbers, util.MustAtoi(s))
 	}
 
-	fmt.Printf("15.1: %d\n15.2: %d\n", play(numbers, 2020), play(numbers, 30000000))
-	return nil
+	return fmt.Sprintf("15.1: %d\n15.2: %d\n", play(numbers, 2020), play(numbers, 30000000)), nil
 }

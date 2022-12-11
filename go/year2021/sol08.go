@@ -104,10 +104,10 @@ func deduceSignalPatterns(patterns []string) map[string]string {
 	return deducedMap
 }
 
-func Sol08(input string) error {
+func Sol08(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var count, totalOutput int
@@ -127,6 +127,5 @@ func Sol08(input string) error {
 		totalOutput += util.MustAtoi(s)
 	}
 
-	fmt.Printf("8.1: %d\n8.2: %d\n", count, totalOutput)
-	return nil
+	return fmt.Sprintf("8.1: %d\n8.2: %d\n", count, totalOutput), nil
 }

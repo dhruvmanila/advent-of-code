@@ -274,10 +274,10 @@ func parseTerminalOutput(lines []string) []*command {
 	return cmds
 }
 
-func Sol07(input string) error {
+func Sol07(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	fs := createFileSystem(parseTerminalOutput(lines))
@@ -297,6 +297,5 @@ func Sol07(input string) error {
 		}
 	}
 
-	fmt.Printf("7.1: %d\n7.2: %d\n", totalSize, toDeleteSpace)
-	return nil
+	return fmt.Sprintf("7.1: %d\n7.2: %d\n", totalSize, toDeleteSpace), nil
 }

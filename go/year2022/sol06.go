@@ -28,13 +28,12 @@ func detectMarker(stream string, packetLen int) int {
 	return processed
 }
 
-func Sol06(input string) error {
+func Sol06(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 	stream := lines[0]
 
-	fmt.Printf("6.1: %d\n6.2: %d\n", detectMarker(stream, 4), detectMarker(stream, 14))
-	return nil
+	return fmt.Sprintf("6.1: %d\n6.2: %d\n", detectMarker(stream, 4), detectMarker(stream, 14)), nil
 }

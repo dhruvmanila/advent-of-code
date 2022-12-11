@@ -100,10 +100,10 @@ func parseHeightMap(lines []string) heightMap {
 	return grid
 }
 
-func Sol09(input string) error {
+func Sol09(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	hm := parseHeightMap(lines)
@@ -133,6 +133,5 @@ func Sol09(input string) error {
 		return basinSize[i] > basinSize[j]
 	})
 
-	fmt.Printf("9.1: %d\n9.2: %d\n", riskLevel, basinSize[0]*basinSize[1]*basinSize[2])
-	return nil
+	return fmt.Sprintf("9.1: %d\n9.2: %d\n", riskLevel, basinSize[0]*basinSize[1]*basinSize[2]), nil
 }

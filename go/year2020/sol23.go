@@ -72,10 +72,10 @@ func parseLabels(labels []byte, extended bool) (*ring.Ring, map[int]*ring.Ring) 
 	return current, positions
 }
 
-func Sol23(input string) error {
+func Sol23(input string) (string, error) {
 	labels, err := os.ReadFile(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 	labels = bytes.Trim(labels, "\n")
 
@@ -85,6 +85,5 @@ func Sol23(input string) error {
 	current, positions = parseLabels(labels, true)
 	outcome2 := predict(current, positions, 10_000_000, true)
 
-	fmt.Printf("23.1: %d\n23.2: %d\n", outcome1, outcome2)
-	return nil
+	return fmt.Sprintf("23.1: %d\n23.2: %d\n", outcome1, outcome2), nil
 }

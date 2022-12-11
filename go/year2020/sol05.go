@@ -33,10 +33,10 @@ func bisectionSearch(chars boardingPass, lo, hi int, hiChar rune) int {
 	return lo // both lo and hi are the same number
 }
 
-func Sol05(input string) error {
+func Sol05(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	seatIds := make([]int, len(lines))
@@ -53,6 +53,5 @@ func Sol05(input string) error {
 		}
 	}
 
-	fmt.Printf("5.1: %d\n5.2: %d\n", seatIds[len(seatIds)-1], missingSeatId)
-	return nil
+	return fmt.Sprintf("5.1: %d\n5.2: %d\n", seatIds[len(seatIds)-1], missingSeatId), nil
 }

@@ -74,17 +74,17 @@ func (r *roomInfo) decrypt() string {
 	}, r.name)
 }
 
-func Sol04(input string) error {
+func Sol04(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	rooms := make([]*roomInfo, 0, len(lines))
 	for _, line := range lines {
 		room, err := newRoomInfoFromLine(line)
 		if err != nil {
-			return err
+			return "", err
 		}
 		rooms = append(rooms, room)
 	}
@@ -100,6 +100,5 @@ func Sol04(input string) error {
 		}
 	}
 
-	fmt.Printf("4.1: %d\n4.2: %d\n", sum, id)
-	return nil
+	return fmt.Sprintf("4.1: %d\n4.2: %d\n", sum, id), nil
 }

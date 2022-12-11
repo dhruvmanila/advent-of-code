@@ -45,72 +45,72 @@ func filterSteps(steps []*rebootStep) []*rebootStep {
 //
 // 1. A (on) + B (on) + C (on)
 //
-//              B(on)
-//             ┌───────────────────┐
-//             │+                  │
-//      A(on)  │                   │
-//     ┌───────┼────────┐          │
-//     │+      │D    + +│          │
-//     │       │     -  │          │
-//     │       │        │          │
-//     │  ┌────┼────────┼──────┐   │
-//     │  │E   │F  + + +│G  + +│   │
-//     │  │    │ + - - -│     -│   │
-//     │  │+ + └────────┼──────┼───┘
-//     │  │-            │      │
-//     └──┼─────────────┘      │
-//        │                    │
-//        │                    │
-//   C(on)│+                   │
-//        └────────────────────┘
+//	           B(on)
+//	          ┌───────────────────┐
+//	          │+                  │
+//	   A(on)  │                   │
+//	  ┌───────┼────────┐          │
+//	  │+      │D    + +│          │
+//	  │       │     -  │          │
+//	  │       │        │          │
+//	  │  ┌────┼────────┼──────┐   │
+//	  │  │E   │F  + + +│G  + +│   │
+//	  │  │    │ + - - -│     -│   │
+//	  │  │+ + └────────┼──────┼───┘
+//	  │  │-            │      │
+//	  └──┼─────────────┘      │
+//	     │                    │
+//	     │                    │
+//	C(on)│+                   │
+//	     └────────────────────┘
 //
 // Here, D, E, F and G are the cubes at an intersection and plus (+) and minus (-)
 // represent that the region is being added or removed.
 //
-// 1. Cube A is added as it is on and is represented by a plus (+) in all the
-//    cubes in A which are A, D, E, G.
-// 2. Cube B is added as it is on and is represented by a plus (+) in all the
-//    cubes in B which are B, E, F, G. Here, D and F have been added twice, so
-//    we need to remove them. This is done using the inclusion-exlusion principle
-//    by adding the intersection cube (D+F) of A and B with an opposite state
-//    w.r.t. the cube A.
-// 3. Cube C is added as it is on and is represented by a plus (+) in all the
-//    cubes in C which are C, E, F, G. Here, E, F and G have been added twice.
-//    We will loop over all the cubes available before this step which includes
-//    A, B and D+F (intersection cube between A and B) and use the same principle.
-//    1. E and F will be subtracted (opposite state of A) as E+F is the
-//       intersection cube between C and A.
-//    2. F and G will be subtracted (opposite state of B) as F+G is the
-//       intersection cube between C and B.
-//    3. Now, this is the special case where C intersects with the intersection
-//       cube D+F which, if you remember, has an opposite state w.r.t. cube B
-//       meaning that the intersection cube is to be subtracted. So, cube F,
-//       which is an intersection between C and D+F, will be added (opposite
-//       state of intersection cubee D+F).
+//  1. Cube A is added as it is on and is represented by a plus (+) in all the
+//     cubes in A which are A, D, E, G.
+//  2. Cube B is added as it is on and is represented by a plus (+) in all the
+//     cubes in B which are B, E, F, G. Here, D and F have been added twice, so
+//     we need to remove them. This is done using the inclusion-exlusion principle
+//     by adding the intersection cube (D+F) of A and B with an opposite state
+//     w.r.t. the cube A.
+//  3. Cube C is added as it is on and is represented by a plus (+) in all the
+//     cubes in C which are C, E, F, G. Here, E, F and G have been added twice.
+//     We will loop over all the cubes available before this step which includes
+//     A, B and D+F (intersection cube between A and B) and use the same principle.
+//  1. E and F will be subtracted (opposite state of A) as E+F is the
+//     intersection cube between C and A.
+//  2. F and G will be subtracted (opposite state of B) as F+G is the
+//     intersection cube between C and B.
+//  3. Now, this is the special case where C intersects with the intersection
+//     cube D+F which, if you remember, has an opposite state w.r.t. cube B
+//     meaning that the intersection cube is to be subtracted. So, cube F,
+//     which is an intersection between C and D+F, will be added (opposite
+//     state of intersection cubee D+F).
 //
 // Cancelling out all the plus (+) and minus (-), what we get is all the region
 // being added only once which is what we want.
 //
 // 2. A (on) + B (on) + C (off)
 //
-//              B(on)
-//             ┌───────────────────┐
-//             │+                  │
-//      A(on)  │                   │
-//     ┌───────┼────────┐          │
-//     │+      │D    + +│          │
-//     │       │       -│          │
-//     │       │        │          │
-//     │  ┌────┼────────┼──────┐   │
-//     │  │E   │F  - + +│G    +│   │
-//     │  │    │   + - -│     -│   │
-//     │  │+   └────────┼──────┼───┘
-//     │  │-            │      │
-//     └──┼─────────────┘      │
-//        │                    │
-//        │                    │
-//  C(off)│                    │
-//        └────────────────────┘
+//	            B(on)
+//	           ┌───────────────────┐
+//	           │+                  │
+//	    A(on)  │                   │
+//	   ┌───────┼────────┐          │
+//	   │+      │D    + +│          │
+//	   │       │       -│          │
+//	   │       │        │          │
+//	   │  ┌────┼────────┼──────┐   │
+//	   │  │E   │F  - + +│G    +│   │
+//	   │  │    │   + - -│     -│   │
+//	   │  │+   └────────┼──────┼───┘
+//	   │  │-            │      │
+//	   └──┼─────────────┘      │
+//	      │                    │
+//	      │                    │
+//	C(off)│                    │
+//	      └────────────────────┘
 //
 // First two steps where A and B are being added is the same as before.
 // Here, C should not be added as it is an off cube, but we still need to
@@ -177,17 +177,16 @@ func parseSteps(lines []string) ([]*rebootStep, error) {
 	return steps, nil
 }
 
-func Sol22(input string) error {
+func Sol22(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	steps, err := parseSteps(lines)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	fmt.Printf("22.1: %d\n22.2: %d\n", reboot(filterSteps(steps)), reboot(steps))
-	return nil
+	return fmt.Sprintf("22.1: %d\n22.2: %d\n", reboot(filterSteps(steps)), reboot(steps)), nil
 }

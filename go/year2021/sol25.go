@@ -94,10 +94,10 @@ func (sf *seafloor) String() string {
 	return s
 }
 
-func Sol25(input string) error {
+func Sol25(input string) (string, error) {
 	lines, err := util.ReadLines(input)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	sf := newSeafloor(lines)
@@ -105,6 +105,5 @@ func Sol25(input string) error {
 	for steps = 1; sf.move(); steps++ {
 	}
 
-	fmt.Printf("25.1: %d\n", steps)
-	return nil
+	return fmt.Sprintf("25.1: %d\n", steps), nil
 }
