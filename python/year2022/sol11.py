@@ -1,5 +1,6 @@
 import functools
 import math
+import operator
 import re
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
@@ -18,22 +19,12 @@ Monkey (?P<id>\d+):
 )
 
 
-def add(a: int, b: int) -> int:
-    """Return a + b"""
-    return a + b
-
-
-def mul(a: int, b: int) -> int:
-    """Return a * b"""
-    return a * b
-
-
 def square(a: int) -> int:
     """Return a * a"""
     return a * a
 
 
-@dataclass(order=True)
+@dataclass(frozen=False, order=True)
 class Monkey:
     id: int = field(compare=False)
     items: list[int] = field(compare=False)
@@ -50,13 +41,18 @@ class Monkey:
         if m is None:
             raise ValueError(f"failed to match: {notes!r}")
 
+        id_, mod, true_target, false_target = map(
+            int, m.group("id", "mod", "true_target", "false_target")
+        )
+        items = [int(item) for item in m["items"].split(",")]
+
         match [m["left_operand"], m["operator"], m["right_operand"]]:
             case ["old", "*", "old"]:
                 operation = functools.partial(square)
             case ["old", "+", value] | [value, "+" "old"]:
-                operation = functools.partial(add, int(value))
+                operation = functools.partial(operator.add, int(value))
             case ["old", "*", value] | [value, "*", "old"]:
-                operation = functools.partial(mul, int(value))
+                operation = functools.partial(operator.mul, int(value))
             case _:
                 raise ValueError(
                     f"invalid operation: "
@@ -64,12 +60,12 @@ class Monkey:
                 )
 
         return cls(
-            id=int(m["id"]),
-            items=[int(item) for item in m["items"].split(", ")],
+            id=id_,
+            items=items,
             operation=operation,
-            mod=int(m["mod"]),
-            true_target=int(m["true_target"]),
-            false_target=int(m["false_target"]),
+            mod=mod,
+            true_target=true_target,
+            false_target=false_target,
         )
 
 
