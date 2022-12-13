@@ -87,7 +87,7 @@ class Simulator:
                 worry = m.items.pop(0)
                 worry = m.operation(worry)
                 if reduce_worry:
-                    worry = math.floor(worry / 3)
+                    worry //= 3
                 else:
                     worry %= self.mod
                 target = m.true_target if worry % m.mod == 0 else m.false_target
