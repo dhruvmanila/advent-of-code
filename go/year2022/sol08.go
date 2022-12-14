@@ -7,10 +7,10 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
-// heightMap represents a map with the height of each tree.
-type heightMap struct {
-	// height is a matrix to store the tree height at (row, column).
-	height *matrix.Dense[byte]
+// forest represents a map with the height of each tree.
+type forest struct {
+	// trees is a matrix to store the tree height at (row, column).
+	trees *matrix.Dense[byte]
 
 	// scenicScore is a matrix to store the scenic score for the tree
 	// at (row, column).
@@ -21,8 +21,8 @@ type heightMap struct {
 	columns int
 }
 
-// newHeightMap creates a new height map from the given lines.
-func newHeightMap(lines []string) *heightMap {
+// newForest creates a new height map from the given lines.
+func newForest(lines []string) *forest {
 	rows, columns := len(lines), len(lines[0])
 
 	height := make([]byte, 0, rows*columns)
@@ -30,8 +30,8 @@ func newHeightMap(lines []string) *heightMap {
 		height = append(height, []byte(line)...)
 	}
 
-	return &heightMap{
-		height: matrix.NewDense(rows, columns, height),
+	return &forest{
+		trees: matrix.NewDense(rows, columns, height),
 		// Initialize a 0-slice for adding the scenic score. As it's initialized
 		// to 0, make sure to not use this value when computing the score otherwise
 		// the value will always be 0.
@@ -44,9 +44,9 @@ func newHeightMap(lines []string) *heightMap {
 // topVisibility returns whether the tree at (row, col) of height is
 // visible from the top side. It also returns the number of trees visible
 // from (row, col) to the top side.
-func (t *heightMap) topVisibility(row, col int, height byte) (bool, int) {
+func (f *forest) topVisibility(row, col int, height byte) (bool, int) {
 	for r := row - 1; r >= 0; r-- {
-		if t.height.At(r, col) >= height {
+		if f.trees.At(r, col) >= height {
 			return false, row - r
 		}
 	}
@@ -56,9 +56,9 @@ func (t *heightMap) topVisibility(row, col int, height byte) (bool, int) {
 // leftVisibility returns whether the tree at (row, col) of height is
 // visible from the left side. It also returns the number of trees visible
 // from (row, col) to the left side.
-func (t *heightMap) leftVisibility(row, col int, height byte) (bool, int) {
+func (f *forest) leftVisibility(row, col int, height byte) (bool, int) {
 	for c := col - 1; c >= 0; c-- {
-		if t.height.At(row, c) >= height {
+		if f.trees.At(row, c) >= height {
 			return false, col - c
 		}
 	}
@@ -68,44 +68,44 @@ func (t *heightMap) leftVisibility(row, col int, height byte) (bool, int) {
 // bottomVisibility returns whether the tree at (row, col) of height is
 // visible from the bottom side. It also returns the number of trees visible
 // from (row, col) to the bottom side.
-func (t *heightMap) bottomVisibility(row, col int, height byte) (bool, int) {
-	for r := row + 1; r < t.rows; r++ {
-		if t.height.At(r, col) >= height {
+func (f *forest) bottomVisibility(row, col int, height byte) (bool, int) {
+	for r := row + 1; r < f.rows; r++ {
+		if f.trees.At(r, col) >= height {
 			return false, r - row
 		}
 	}
-	return true, t.rows - row - 1
+	return true, f.rows - row - 1
 }
 
 // rightVisibility returns whether the tree at (row, col) of height is
 // visible from the right side. It also returns the number of trees visible
 // from (row, col) to the right side.
-func (t *heightMap) rightVisibility(row, col int, height byte) (bool, int) {
-	for c := col + 1; c < t.columns; c++ {
-		if t.height.At(row, c) >= height {
+func (f *forest) rightVisibility(row, col int, height byte) (bool, int) {
+	for c := col + 1; c < f.columns; c++ {
+		if f.trees.At(row, c) >= height {
 			return false, c - col
 		}
 	}
-	return true, t.columns - col - 1
+	return true, f.columns - col - 1
 }
 
 // VisibleCount returns the count of all the visible trees from either of
 // the four direction. It'll also compute the scenic score for all the
 // trees and store it.
-func (t *heightMap) VisibleCount() int {
+func (f *forest) VisibleCount() int {
 	// Initialize the count with all the trees visible on the edge.
-	count := (t.rows * 2) + (t.columns-2)*2
+	count := (f.rows * 2) + (f.columns-2)*2
 
-	for r := 1; r < t.rows-1; r++ {
-		for c := 1; c < t.columns-1; c++ {
-			height := t.height.At(r, c)
+	for r := 1; r < f.rows-1; r++ {
+		for c := 1; c < f.columns-1; c++ {
+			height := f.trees.At(r, c)
 
-			isVisibleFromTop, viewingDistanceTop := t.topVisibility(r, c, height)
-			isVisibleFromLeft, viewingDistanceLeft := t.leftVisibility(r, c, height)
-			isVisibleFromBottom, viewingDistanceBottom := t.bottomVisibility(r, c, height)
-			isVisibleFromRight, viewingDistanceRight := t.rightVisibility(r, c, height)
+			isVisibleFromTop, viewingDistanceTop := f.topVisibility(r, c, height)
+			isVisibleFromLeft, viewingDistanceLeft := f.leftVisibility(r, c, height)
+			isVisibleFromBottom, viewingDistanceBottom := f.bottomVisibility(r, c, height)
+			isVisibleFromRight, viewingDistanceRight := f.rightVisibility(r, c, height)
 
-			t.scenicScore.Set(r, c, viewingDistanceTop*viewingDistanceLeft*viewingDistanceBottom*viewingDistanceRight)
+			f.scenicScore.Set(r, c, viewingDistanceTop*viewingDistanceLeft*viewingDistanceBottom*viewingDistanceRight)
 			if isVisibleFromTop || isVisibleFromLeft || isVisibleFromBottom || isVisibleFromRight {
 				count++
 			}
@@ -118,17 +118,17 @@ func (t *heightMap) VisibleCount() int {
 // MaxScore returns the max scenic score for the grid. This assumes that
 // the individual scores has already been computed. Use the `VisibleCount`
 // method to compute the scores.
-func (t *heightMap) MaxScore() int {
+func (f *forest) MaxScore() int {
 	maxScore := 0
-	for _, score := range t.scenicScore.Data {
+	for _, score := range f.scenicScore.Data {
 		maxScore = util.Max(maxScore, score)
 	}
 	return maxScore
 }
 
-func (t *heightMap) String() string {
+func (f *forest) String() string {
 	s := ""
-	for _, row := range t.height.Data {
+	for _, row := range f.trees.Data {
 		s += string(row) + "\n"
 	}
 	return s
@@ -140,7 +140,7 @@ func Sol08(input string) (string, error) {
 		return "", err
 	}
 
-	t := newHeightMap(lines)
+	f := newForest(lines)
 
-	return fmt.Sprintf("8.1: %d\n8.2: %d\n", t.VisibleCount(), t.MaxScore()), nil
+	return fmt.Sprintf("8.1: %d\n8.2: %d\n", f.VisibleCount(), f.MaxScore()), nil
 }
