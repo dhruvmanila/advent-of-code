@@ -82,9 +82,7 @@ func Less(lhs string, rhs string) bool {
 
 	for t1, t2 := p1.next(), p2.next(); t1 != "" && t2 != ""; t1, t2 = p1.next(), p2.next() {
 		switch {
-		case t1 == "[" && t2 == "[":
-			continue
-		case t1 == "]" && t2 == "]":
+		case (t1 == "[" && t2 == "[") || (t1 == "]" && t2 == "]"):
 			continue
 		case t1 == "]" || t1 == "":
 			return true
