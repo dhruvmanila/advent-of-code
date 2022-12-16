@@ -6,14 +6,20 @@ import "fmt"
 // Stack represents the stack data structure.
 type Stack[T any] []T
 
-// New returns an initialized and empty stack.
-func New[T any]() *Stack[T] {
-	return new(Stack[T])
+// New returns an initialized stack, optionally with the given elements.
+// The elements are pushed in the same order as provided.
+func New[T any](es ...T) *Stack[T] {
+	s := new(Stack[T])
+	if es != nil {
+		s.Push(es...)
+	}
+	return s
 }
 
-// Push adds an element to the top of a stack.
-func (s *Stack[T]) Push(e T) {
-	*s = append(*s, e)
+// Push adds an element to the top of a stack. Multiple elements
+// are added in the same order as provided.
+func (s *Stack[T]) Push(e ...T) {
+	*s = append(*s, e...)
 }
 
 // Pop removes the top element on the stack and returns it, or nil if the stack
