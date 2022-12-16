@@ -7,6 +7,7 @@ import (
 	"github.com/dhruvmanila/advent-of-code/go/pkg/geom"
 	"github.com/dhruvmanila/advent-of-code/go/pkg/iterator"
 	"github.com/dhruvmanila/advent-of-code/go/pkg/set"
+	"github.com/dhruvmanila/advent-of-code/go/pkg/stack"
 	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
@@ -33,17 +34,28 @@ func (c *cave) simulateSand(withFloor bool) int {
 		maxy += 1
 	}
 
+	// sandPath is a stack to keep track of the current sand path from the
+	// source position. This will only contain the falling sand position and
+	// not the ones which has come to rest. This means that the next sand
+	// will start from the last known falling position and not to simulate
+	// the same path again and again. This works as each sand follows the
+	// exact same path as the last one minus the last step.
+	sandPath := stack.New(geom.Point2D[int]{X: 500, Y: 0})
+
 MainLoop:
 	for {
-		sand := geom.Point2D[int]{X: 500, Y: 0}
 		// If there's a floor at the bottom, then we need to stop when the
 		// source itself gets blocked and stops the flow of sand into the cave.
-		if withFloor && sands.Contains(sand) {
+		// The stack is empty, meaning the source position was poped.
+		if withFloor && sandPath.IsEmpty() {
 			break
 		}
 		for directions.Next() {
 			direction := directions.Value()
 			for {
+				// This will be the last position of the previous sand grain
+				// minus the last step.
+				sand, _ := sandPath.Peek()
 				nextSand := sand.Add(direction)
 				if nextSand.Y > maxy {
 					if withFloor {
@@ -58,13 +70,17 @@ MainLoop:
 					break
 				}
 				// Move the sand and reset the direction to start falling
-				// down again.
-				sand = nextSand
+				// down again. Add the next position of the sand in the path.
+				sandPath.Push(nextSand)
 				directions.Reset()
 				break
 			}
 		}
 		// The sand can't move in any of the possible directions now.
+		// The next sand position is blocked, so the position we get here
+		// is the one where the sand will come at rest. This means that the
+		// last value in the stack is the starting position for the next sand.
+		sand, _ := sandPath.Pop()
 		sands.Add(sand)
 		directions.Reset()
 	}
