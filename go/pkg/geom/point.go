@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"golang.org/x/exp/constraints"
+
+	"github.com/dhruvmanila/advent-of-code/go/util"
 )
 
 // Point2D represents a 2 dimensional point in the coordinate system.
@@ -28,6 +30,11 @@ func (p Point2D[T]) Sub(other Point2D[T]) Point2D[T] {
 // Equal returns true if p and other are the same point.
 func (p Point2D[T]) Equal(other Point2D[T]) bool {
 	return p.X == other.X && p.Y == other.Y
+}
+
+// ManhattanDistance returns the manhattan distance between p and other.
+func (p Point2D[T]) ManhattanDistance(other Point2D[T]) T {
+	return util.Abs(p.X-other.X) + util.Abs(p.Y-other.Y)
 }
 
 func (p Point2D[T]) String() string {
