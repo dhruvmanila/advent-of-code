@@ -19,6 +19,11 @@ func (it *Iterator[T]) Len() int {
 	return len(it.data[it.idx+1:])
 }
 
+// Index returns the index of the current element.
+func (it *Iterator[T]) Index() int {
+	return it.idx
+}
+
 // Next returns true if there are any elements remaining to iterate, false
 // otherwise.
 func (it *Iterator[T]) Next() bool {
