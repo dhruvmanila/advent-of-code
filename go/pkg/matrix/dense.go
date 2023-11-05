@@ -152,6 +152,18 @@ func (m *Dense[T]) IsEmpty() bool {
 	return m.Stride == 0
 }
 
+// Copy returns a copy of the receiver matrix.
+func (m *Dense[T]) Copy() *Dense[T] {
+	data := make([]T, 0, len(m.Data))
+	copy(data, m.Data)
+	return &Dense[T]{
+		Rows:   m.Rows,
+		Cols:   m.Cols,
+		Stride: m.Stride,
+		Data:   data,
+	}
+}
+
 // T performs an implicit transpose by returning the receiver inside a Transpose.
 func (m *Dense[T]) T() Matrix[T] {
 	return Transpose[T]{Matrix: m}
