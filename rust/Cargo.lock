@@ -424,5 +424,4 @@ name = "year2023"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "aoc_traits",
 ]

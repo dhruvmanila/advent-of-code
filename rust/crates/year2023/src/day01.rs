@@ -1,13 +1,15 @@
+use anyhow::Result;
+
 /// Returns an iterator over the calibration value for each line as computed
 /// by the rules in mentioned part 1.
-fn calibration_values1(input: &str) -> impl Iterator<Item = u32> + '_ {
-    input.lines().map(|line| {
+fn calibration_values1(input: &str) -> impl Iterator<Item = Result<u32>> + '_ {
+    input.lines().enumerate().map(|(index, line)| {
         let mut digits = line.chars().filter_map(|ch| ch.to_digit(10));
         let first = digits
             .next()
-            .expect("the line should have at least one digit");
+            .ok_or_else(|| anyhow::anyhow!("Line {} has no digits: {}", index, line))?;
         let last = digits.next_back().unwrap_or(first);
-        first * 10 + last
+        Ok(first * 10 + last)
     })
 }
 
@@ -59,20 +61,25 @@ impl Iterator for DigitIter<'_> {
 
 /// Returns an iterator over the calibration value for each line as computed
 /// by the rules in mentioned part 2.
-fn calibration_values2(input: &str) -> impl Iterator<Item = u32> + '_ {
-    input.lines().map(|line| {
+fn calibration_values2(input: &str) -> impl Iterator<Item = Result<u32>> + '_ {
+    input.lines().enumerate().map(|(index, line)| {
         let mut digits = DigitIter::new(line);
         let first = digits
             .next()
-            .expect("the line should have at least one digit");
+            .ok_or_else(|| anyhow::anyhow!("Line {} has no digits: {}", index, line))?;
         let last = digits.last().unwrap_or(first);
-        first * 10 + last
+        Ok(first * 10 + last)
     })
 }
 
-pub fn solve(input: &str) {
-    println!("Part 1: {:?}", calibration_values1(input).sum::<u32>());
-    println!("Part 2: {:?}", calibration_values2(input).sum::<u32>());
+pub fn solve(input: &str) -> Result<()> {
+    let calibration_values_sum1 = calibration_values1(input).sum::<Result<u32>>()?;
+    println!("Part 1: {:?}", calibration_values_sum1);
+
+    let calibration_values_sum2 = calibration_values2(input).sum::<Result<u32>>()?;
+    println!("Part 2: {:?}", calibration_values_sum2);
+
+    Ok(())
 }
 
 #[cfg(test)]
@@ -80,7 +87,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_sample_part_1() {
+    fn test_sample_part_1() -> Result<()> {
         let input = r#"
 1abc2
 pqr3stu8vwx
@@ -89,13 +96,15 @@ treb7uchet
 "#
         .trim();
 
-        let values = calibration_values1(input).collect::<Vec<_>>();
+        let values = calibration_values1(input).collect::<Result<Vec<_>>>()?;
         assert_eq!(values, vec![12, 38, 15, 77]);
         assert_eq!(values.iter().sum::<u32>(), 142);
+
+        Ok(())
     }
 
     #[test]
-    fn test_sample_part_2() {
+    fn test_sample_part_2() -> Result<()> {
         let input = r#"
 two1nine
 eightwothree
@@ -107,8 +116,10 @@ zoneight234
 "#
         .trim();
 
-        let values = calibration_values2(input).collect::<Vec<_>>();
+        let values = calibration_values2(input).collect::<Result<Vec<_>>>()?;
         assert_eq!(values, vec![29, 83, 13, 24, 42, 14, 76]);
         assert_eq!(values.iter().sum::<u32>(), 281);
+
+        Ok(())
     }
 }

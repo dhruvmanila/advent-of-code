@@ -1,7 +1,6 @@
-use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, bail, Context, Result};
 
 /// The maximum cube set i.e., the number of cubes of each color that is
 /// contained in the bag for the puzzle.
@@ -63,13 +62,13 @@ impl FromStr for CubeSet {
         for cube_info in s.split(", ") {
             let (count, color) = cube_info
                 .split_once(' ')
-                .ok_or_else(|| anyhow::anyhow!("Invalid cube: {}", cube_info))?;
+                .ok_or_else(|| anyhow!("Invalid cube info: {:?}", cube_info))?;
             let count = count.parse::<u32>()?;
             cube_set = match color {
                 "red" => cube_set.with_red(count),
                 "green" => cube_set.with_green(count),
                 "blue" => cube_set.with_blue(count),
-                _ => bail!("Invalid color: {}", color),
+                _ => bail!("Invalid color: {:?}", color),
             };
         }
         Ok(cube_set)
@@ -106,21 +105,21 @@ impl Game {
 impl FromStr for Game {
     type Err = anyhow::Error;
 
-    fn from_str(line: &str) -> Result<Self, Self::Err> {
-        let (game_section, cube_sets_section) = line
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let (game_section, cube_sets_section) = s
             .split_once(": ")
-            .ok_or_else(|| anyhow!("Invalid line: {}", line))?;
+            .ok_or_else(|| anyhow!("Expected a colon in the line"))?;
 
         let game_id = game_section
             .split_whitespace()
             .nth(1)
             .and_then(|id| id.trim_end_matches(':').parse::<u32>().ok())
-            .ok_or_else(|| anyhow!("Invalid game section of the line: {}", game_section))?;
+            .ok_or_else(|| anyhow!("Invalid game section of the line: {:?}", game_section))?;
 
-        let mut cube_sets = Vec::with_capacity(3);
-        for cube_set_section in cube_sets_section.split("; ") {
-            cube_sets.push(cube_set_section.parse::<CubeSet>()?);
-        }
+        let cube_sets = cube_sets_section
+            .split("; ")
+            .map(CubeSet::from_str)
+            .collect::<Result<Vec<_>>>()?;
 
         Ok(Self {
             id: game_id,
@@ -136,7 +135,8 @@ struct Games(Vec<Game>);
 impl Games {
     /// Returns an iterator over the IDs of the games that are possible.
     fn possible_game_ids(&self) -> impl Iterator<Item = u32> + '_ {
-        self.iter()
+        self.0
+            .iter()
             .filter(|game| game.is_possible())
             .map(|game| game.id)
     }
@@ -144,21 +144,7 @@ impl Games {
     /// Returns an iterator over the powers of the minimum cube set for each
     /// game.
     fn min_cube_set_powers(&self) -> impl Iterator<Item = u32> + '_ {
-        self.iter().map(|game| game.min_cube_set().power())
-    }
-}
-
-impl Deref for Games {
-    type Target = Vec<Game>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for Games {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
+        self.0.iter().map(|game| game.min_cube_set().power())
     }
 }
 
@@ -166,11 +152,15 @@ impl FromStr for Games {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut games = Self::default();
-        for line in s.lines() {
-            games.push(line.parse::<Game>()?);
-        }
-        Ok(games)
+        Ok(Self(
+            s.lines()
+                .enumerate()
+                .map(|(index, line)| {
+                    Game::from_str(line)
+                        .with_context(|| format!("Failed to parse line {}: {:?}", index + 1, line))
+                })
+                .collect::<Result<Vec<_>>>()?,
+        ))
     }
 }
 
@@ -196,8 +186,8 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 ";
 
     #[test]
-    fn test_sample() {
-        let games = Games::from_str(SAMPLE_INPUT).unwrap();
+    fn test_sample() -> Result<()> {
+        let games = Games::from_str(SAMPLE_INPUT)?;
 
         let possible_game_ids = games.possible_game_ids().collect::<Vec<_>>();
         assert_eq!(possible_game_ids, vec![1, 2, 5]);
@@ -206,5 +196,7 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
         let min_cube_set_powers = games.min_cube_set_powers().collect::<Vec<_>>();
         assert_eq!(min_cube_set_powers, vec![48, 12, 1560, 630, 36]);
         assert_eq!(min_cube_set_powers.iter().sum::<u32>(), 2286);
+
+        Ok(())
     }
 }

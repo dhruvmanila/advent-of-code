@@ -17,7 +17,7 @@ fn main() -> Result<()> {
 
     if let 2023 = year.as_inner() {
         match day.as_inner() {
-            1 => year2023::day01::solve(&input),
+            1 => year2023::day01::solve(&input)?,
             2 => year2023::day02::solve(&input)?,
             _ => bail!("No solution for year {} day {}", year, day),
         }

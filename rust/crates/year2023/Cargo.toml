@@ -7,5 +7,3 @@ edition = { workspace = true }
 
 [dependencies]
 anyhow = "1.0.75"
-
-aoc_traits = { path = "../aoc_traits" }
