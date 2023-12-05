@@ -1,0 +1,11 @@
+[package]
+name = "year2023"
+version = { workspace = true }
+edition = { workspace = true }
+
+[lib]
+
+[dependencies]
+anyhow = "1.0.75"
+
+aoc_traits = { path = "../aoc_traits" }
