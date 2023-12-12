@@ -1,0 +1,6 @@
+[package]
+name = "aoc_lib"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
