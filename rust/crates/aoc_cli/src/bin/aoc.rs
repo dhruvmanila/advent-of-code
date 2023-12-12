@@ -19,6 +19,7 @@ fn main() -> Result<()> {
         match day.as_inner() {
             1 => year2023::day01::solve(&input),
             2 => year2023::day02::solve(&input),
+            3 => year2023::day03::solve(&input),
             4 => year2023::day04::solve(&input),
             _ => bail!("No solution for year {} day {}", year, day),
         }

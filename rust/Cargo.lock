@@ -82,6 +82,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc_lib"
+version = "0.1.0"
+
+[[package]]
 name = "aoc_traits"
 version = "0.1.0"
 
@@ -424,4 +428,5 @@ name = "year2023"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "aoc_lib",
 ]
