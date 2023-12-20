@@ -35,6 +35,7 @@ impl Race {
 struct Races(Vec<Race>);
 
 impl Races {
+    /// Return the margin of error for all the races.
     fn margin_of_error(&self) -> u64 {
         self.0
             .iter()
@@ -42,7 +43,9 @@ impl Races {
             .product::<usize>() as u64
     }
 
-    fn combine(&self) -> Race {
+    /// Returns a [`Race`] which is the combined version of all numbers put
+    /// together i.e., ignore any spaces between the numbers.
+    fn combined(&self) -> Race {
         Race {
             time: self.0.iter().fold(0, |acc, race| {
                 acc * 10u64.pow(number_of_digits(race.time)) + race.time
@@ -105,7 +108,7 @@ pub fn solve(input: &str) -> Result<()> {
     let races = input.parse::<Races>()?;
     println!("Part 1: {}", races.margin_of_error());
 
-    let combined = races.combine();
+    let combined = races.combined();
     println!("Part 2: {}", combined.win_count());
 
     Ok(())
@@ -124,13 +127,7 @@ Distance:  9  40  200
     fn test_sample() -> Result<()> {
         let races = SAMPLE_INPUT.parse::<Races>()?;
         assert_eq!(races.margin_of_error(), 288);
-        Ok(())
-    }
-
-    #[test]
-    fn test_combined() -> Result<()> {
-        let race = SAMPLE_INPUT.parse::<Races>()?.combine();
-        assert_eq!(race.win_count(), 71503);
+        assert_eq!(races.combined().win_count(), 71503);
         Ok(())
     }
 }

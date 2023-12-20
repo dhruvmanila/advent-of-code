@@ -17,12 +17,9 @@ impl ScratchCard {
 
     /// Returns the number of points this scratch card is worth.
     fn points(&self) -> u32 {
-        let winning_count = self.winning_count();
-        if winning_count == 0 {
-            0
-        } else {
-            2u32.pow((winning_count - 1) as u32)
-        }
+        self.winning_count()
+            .checked_sub(1)
+            .map_or(0, |count| 2u32.pow(count as u32))
     }
 }
 
