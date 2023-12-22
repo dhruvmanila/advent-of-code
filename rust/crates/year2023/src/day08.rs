@@ -46,16 +46,16 @@ struct Node(u8, u8, u8);
 
 impl Node {
     /// The starting node (AAA).
-    const START: Self = Self(b'A', b'A', b'A');
+    const START: Node = Node(b'A', b'A', b'A');
     /// The ending node (ZZZ).
-    const END: Self = Self(b'Z', b'Z', b'Z');
+    const END: Node = Node(b'Z', b'Z', b'Z');
 
     /// Check if this node is a ghost start node i.e., a node that ends in A.
     const fn is_ghost_start(self) -> bool {
         self.2 == b'A'
     }
 
-    /// Check if this node is a ghost end node i.e., a node that starts in Z.
+    /// Check if this node is a ghost end node i.e., a node that ends in Z.
     const fn is_ghost_end(self) -> bool {
         self.2 == b'Z'
     }

@@ -12,8 +12,8 @@ fn main() -> Result<()> {
     let year = year.unwrap_or_default();
     let day = day.unwrap_or_default();
 
-    let input = fs::read_to_string(format!("./crates/year{}/input/{}.txt", year, day))
-        .with_context(|| format!("Failed to read input file for year {} day {}", year, day))?;
+    let input = fs::read_to_string(format!("./crates/year{year}/input/{day}.txt"))
+        .with_context(|| format!("Failed to read input file for year {year} day {day}"))?;
 
     if let 2023 = year.as_inner() {
         match day.as_inner() {
@@ -26,7 +26,7 @@ fn main() -> Result<()> {
             8 => year2023::day08::solve(&input),
             _ => bail!("No solution for year {} day {}", year, day),
         }
-        .with_context(|| format!("Failed to solve year {} day {}", year, day))?;
+        .with_context(|| format!("Failed to solve year {year} day {day}"))?;
     } else {
         bail!("No solution for year {}", year)
     }

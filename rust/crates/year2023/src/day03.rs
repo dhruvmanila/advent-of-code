@@ -15,24 +15,24 @@ enum CellType {
 
 impl CellType {
     /// Returns `true` if this cell is empty.
-    const fn is_symbol(&self) -> bool {
+    const fn is_symbol(self) -> bool {
         matches!(self, Self::Symbol(_))
     }
 
     /// Returns `true` if this cell is a gear.
-    const fn is_gear(&self) -> bool {
+    const fn is_gear(self) -> bool {
         matches!(self, Self::Symbol('*'))
     }
 
     /// Returns `true` if this cell is a digit.
-    const fn is_digit(&self) -> bool {
+    const fn is_digit(self) -> bool {
         matches!(self, Self::Digit(_))
     }
 
     /// Returns the digit value of this cell, if it is a digit.
-    const fn as_digit(&self) -> Option<u8> {
+    const fn as_digit(self) -> Option<u8> {
         match self {
-            Self::Digit(digit) => Some(*digit),
+            Self::Digit(digit) => Some(digit),
             _ => None,
         }
     }
@@ -85,14 +85,18 @@ impl EngineSchematic {
             .take_while(|&col| {
                 self.0
                     .get(position.row(), col)
-                    .map_or(false, CellType::is_digit)
+                    .map_or(false, |cell| cell.is_digit())
             })
             .last()
             .unwrap_or(position.col());
 
         (start..self.0.ncols())
-            .map_while(|col| self.0.get(position.row(), col).and_then(CellType::as_digit))
-            .fold(0, |number, digit| number * 10 + digit as u32)
+            .map_while(|col| {
+                self.0
+                    .get(position.row(), col)
+                    .and_then(|cell| cell.as_digit())
+            })
+            .fold(0, |number, digit| number * 10 + u32::from(digit))
     }
 
     fn surrounding_numbers(&self, position: Position) -> Vec<u32> {
@@ -200,8 +204,8 @@ mod tests {
         let mut part_numbers = schematic.gear_ratios().collect::<Vec<_>>();
         part_numbers.sort_unstable();
 
-        assert_eq!(part_numbers, &[16345, 451490]);
-        assert_eq!(part_numbers.iter().sum::<u32>(), 467835);
+        assert_eq!(part_numbers, &[16345, 451_490]);
+        assert_eq!(part_numbers.iter().sum::<u32>(), 467_835);
 
         Ok(())
     }

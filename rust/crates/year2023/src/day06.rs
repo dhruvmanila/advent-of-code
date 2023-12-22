@@ -37,10 +37,7 @@ struct Races(Vec<Race>);
 impl Races {
     /// Return the margin of error for all the races.
     fn margin_of_error(&self) -> u64 {
-        self.0
-            .iter()
-            .map(|race| race.win_count())
-            .product::<usize>() as u64
+        self.0.iter().map(Race::win_count).product::<usize>() as u64
     }
 
     /// Returns a [`Race`] which is the combined version of all numbers put

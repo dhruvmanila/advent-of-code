@@ -47,11 +47,11 @@ impl Iterator for DigitIter<'_> {
             if let Some(digit) = ch.to_digit(10) {
                 return Some(digit);
             }
-            for (digit, word) in DIGIT_WORDS.iter().enumerate() {
+            for (digit, word) in (1u32..).zip(DIGIT_WORDS.iter()) {
                 // SAFETY: `index` is always valid because it comes from the
                 // `next` call above.
                 if self.line[index..].starts_with(word) {
-                    return Some((digit + 1) as u32);
+                    return Some(digit + 1);
                 }
             }
         }
@@ -73,11 +73,14 @@ fn calibration_values2(input: &str) -> impl Iterator<Item = Result<u32>> + '_ {
 }
 
 pub fn solve(input: &str) -> Result<()> {
-    let calibration_values_sum1 = calibration_values1(input).sum::<Result<u32>>()?;
-    println!("Part 1: {:?}", calibration_values_sum1);
-
-    let calibration_values_sum2 = calibration_values2(input).sum::<Result<u32>>()?;
-    println!("Part 2: {:?}", calibration_values_sum2);
+    println!(
+        "Part 1: {:?}",
+        calibration_values1(input).sum::<Result<u32>>()?
+    );
+    println!(
+        "Part 2: {:?}",
+        calibration_values2(input).sum::<Result<u32>>()?
+    );
 
     Ok(())
 }
@@ -86,17 +89,27 @@ pub fn solve(input: &str) -> Result<()> {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_sample_part_1() -> Result<()> {
-        let input = r#"
+    const SAMPLE_INPUT1: &str = r"\
 1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
 treb7uchet
-"#
-        .trim();
+";
 
-        let values = calibration_values1(input).collect::<Result<Vec<_>>>()?;
+    const SAMPLE_INPUT2: &str = r"\
+two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen
+";
+
+    #[test]
+    fn test_sample_part_1() -> Result<()> {
+        let values = calibration_values1(SAMPLE_INPUT1).collect::<Result<Vec<_>>>()?;
+
         assert_eq!(values, vec![12, 38, 15, 77]);
         assert_eq!(values.iter().sum::<u32>(), 142);
 
@@ -105,18 +118,8 @@ treb7uchet
 
     #[test]
     fn test_sample_part_2() -> Result<()> {
-        let input = r#"
-two1nine
-eightwothree
-abcone2threexyz
-xtwone3four
-4nineeightseven2
-zoneight234
-7pqrstsixteen
-"#
-        .trim();
+        let values = calibration_values2(SAMPLE_INPUT2).collect::<Result<Vec<_>>>()?;
 
-        let values = calibration_values2(input).collect::<Result<Vec<_>>>()?;
         assert_eq!(values, vec![29, 83, 13, 24, 42, 14, 76]);
         assert_eq!(values.iter().sum::<u32>(), 281);
 

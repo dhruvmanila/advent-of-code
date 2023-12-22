@@ -280,7 +280,7 @@ impl<T> Matrix<T> {
             Some(Vector {
                 len: self.nrows,
                 inc: self.ncols,
-                data: &self.data[column..column + (self.nrows - 1) * self.ncols + 1],
+                data: &self.data[column..=(column + (self.nrows - 1) * self.ncols)],
             })
         } else {
             None
@@ -315,7 +315,7 @@ impl<T> Matrix<T> {
             Some(VectorMut {
                 len: self.nrows,
                 inc: self.ncols,
-                data: &mut self.data[column..column + (self.nrows - 1) * self.ncols + 1],
+                data: &mut self.data[column..=(column + (self.nrows - 1) * self.ncols)],
             })
         } else {
             None

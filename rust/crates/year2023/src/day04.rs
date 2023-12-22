@@ -1,4 +1,5 @@
-use std::{collections::HashSet, str::FromStr};
+use std::collections::HashSet;
+use std::str::FromStr;
 
 use anyhow::{anyhow, Result};
 
@@ -37,11 +38,11 @@ impl FromStr for ScratchCard {
         Ok(Self {
             winning_numbers: winners
                 .split_whitespace()
-                .map(|n| n.parse::<u32>())
+                .map(str::parse)
                 .collect::<Result<HashSet<_>, _>>()?,
             available: available
                 .split_whitespace()
-                .map(|n| n.parse::<u32>())
+                .map(str::parse)
                 .collect::<Result<HashSet<_>, _>>()?,
         })
     }
@@ -77,9 +78,7 @@ impl FromStr for ScratchCards {
 
     fn from_str(s: &str) -> Result<Self> {
         Ok(Self(
-            s.lines()
-                .map(|line| line.parse::<ScratchCard>())
-                .collect::<Result<Vec<_>, _>>()?,
+            s.lines().map(str::parse).collect::<Result<Vec<_>, _>>()?,
         ))
     }
 }

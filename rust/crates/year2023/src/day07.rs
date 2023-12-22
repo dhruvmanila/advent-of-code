@@ -104,7 +104,7 @@ impl CamelHand for NormalHand {
     /// Returns the kind of this hand.
     fn kind(&self) -> HandType {
         let mut card_count = HashMap::new();
-        for card in self.0.iter() {
+        for card in &self.0 {
             *card_count.entry(card).or_insert(0) += 1;
         }
         match card_count.len() {
@@ -168,7 +168,7 @@ impl CamelHand for JokerHand {
     /// Returns the kind of this hand.
     fn kind(&self) -> HandType {
         let mut card_count = HashMap::new();
-        for card in self.0.iter() {
+        for card in &self.0 {
             *card_count.entry(card).or_insert(0) += 1;
         }
         match card_count.len() {
@@ -348,11 +348,7 @@ impl<H: CamelHand> FromStr for Hands<H> {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(
-            s.lines()
-                .map(|line| line.parse::<WeightedHand<H>>())
-                .collect::<Result<Vec<_>>>()?,
-        ))
+        Ok(Self(s.lines().map(str::parse).collect::<Result<Vec<_>>>()?))
     }
 }
 

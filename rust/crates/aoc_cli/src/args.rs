@@ -41,9 +41,9 @@ impl FromStr for PuzzleYear {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let year = i32::from_str(s).map_err(|_| format!("Invalid year: {}", s))?;
+        let year = i32::from_str(s).map_err(|_| format!("Invalid year: {s}"))?;
         if year < 2015 {
-            return Err(format!("{} is not a valid Advent of Code year", year));
+            return Err(format!("{year} is not a valid Advent of Code year"));
         }
         Ok(Self(year))
     }
@@ -82,9 +82,9 @@ impl FromStr for PuzzleDay {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let day = u32::from_str(s).map_err(|_| format!("Invalid day: {}", s))?;
+        let day = u32::from_str(s).map_err(|_| format!("Invalid day: {s}"))?;
         if !(1..=25).contains(&day) {
-            return Err(format!("{} is not a valid Advent of Code day", day));
+            return Err(format!("{day} is not a valid Advent of Code day"));
         }
         Ok(Self(day))
     }
