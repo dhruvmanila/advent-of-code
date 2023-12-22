@@ -24,6 +24,7 @@ fn main() -> Result<()> {
             6 => year2023::day06::solve(&input),
             7 => year2023::day07::solve(&input),
             8 => year2023::day08::solve(&input),
+            9 => year2023::day09::solve(&input),
             _ => bail!("No solution for year {} day {}", year, day),
         }
         .with_context(|| format!("Failed to solve year {year} day {day}"))?;
