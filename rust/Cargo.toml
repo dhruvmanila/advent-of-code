@@ -5,3 +5,9 @@ resolver = "2"
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn" }
+# Allowed pedantic rules
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"

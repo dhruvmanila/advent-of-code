@@ -7,8 +7,12 @@ edition = { workspace = true }
 
 [dependencies]
 anyhow = "1.0.75"
+num-integer = "0.1.45"
 
 aoc_lib = { path = "../aoc_lib" }
 
 [dev-dependencies]
 test-case = "3.3.1"
+
+[lints]
+workspace = true
