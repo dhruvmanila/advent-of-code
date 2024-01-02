@@ -6,6 +6,10 @@ resolver = "2"
 version = "0.1.0"
 edition = "2021"
 
+[workspace.dependencies]
+anyhow = "1.0.75"
+itertools = "0.12.0"
+
 [workspace.lints.clippy]
 pedantic = { level = "warn" }
 # Allowed pedantic rules

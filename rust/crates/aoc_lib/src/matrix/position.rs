@@ -187,6 +187,22 @@ impl Position {
         Position::new(self.row(), self.col().saturating_sub(amount))
     }
 
+    /// Returns the manhattan distance between self and the other position.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use aoc_lib::matrix::Position;
+    /// let position1 = Position::new(0, 0);
+    /// let position2 = Position::new(3, 4);
+    ///
+    /// assert_eq!(position1.manhattan_distance(&position2), 7);
+    /// ```
+    #[inline]
+    pub const fn manhattan_distance(&self, other: &Position) -> usize {
+        self.row.abs_diff(other.row) + self.col.abs_diff(other.col)
+    }
+
     /// Returns an iterator over the neighboring positions of [`Self`] filtering
     /// out the ones that are out of bounds.
     ///

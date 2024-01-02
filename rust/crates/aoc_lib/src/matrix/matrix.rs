@@ -76,6 +76,36 @@ impl<T> Matrix<T> {
             },
         }
     }
+
+    /// Constructs a matrix in a similar way to [`Matrix::from_iter`] but expects
+    /// the iterator to return [`Result`]s instead of values.
+    ///
+    /// If the iterator returns an [`Err`] value, the matrix construction will
+    /// stop and the error will be returned, otherwise the matrix will be created
+    /// using all the [`Ok`] values returned by the iterator.
+    pub fn try_from_iter<E>(
+        rows: usize,
+        cols: usize,
+        data: impl IntoIterator<Item = Result<T, E>>,
+    ) -> Result<Matrix<T>, E> {
+        assert!(rows > 0 && cols > 0);
+
+        Ok(Matrix {
+            nrows: rows,
+            ncols: cols,
+            data: {
+                let data: Vec<_> = data
+                    .into_iter()
+                    .take(rows * cols)
+                    .collect::<Result<_, _>>()?;
+                // This is required to ensure that the iterator had enough values
+                // to fill the matrix as `take` will stop as soon as it reaches
+                // the end of the iterator.
+                assert_eq!(data.len(), rows * cols);
+                data
+            },
+        })
+    }
 }
 
 /// Methods
