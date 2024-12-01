@@ -16,7 +16,7 @@ pub struct Vector<'a, T> {
     pub(super) data: &'a [T],
 }
 
-impl<'a, T> Vector<'a, T> {
+impl<T> Vector<'_, T> {
     /// Returns the number of elements in the vector.
     ///
     /// # Example
@@ -118,7 +118,7 @@ pub struct VectorMut<'a, T> {
     pub(super) data: &'a mut [T],
 }
 
-impl<'a, T> VectorMut<'a, T> {
+impl<T> VectorMut<'_, T> {
     /// Returns the number of elements in the vector.
     ///
     /// # Example

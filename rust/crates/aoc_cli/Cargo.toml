@@ -7,11 +7,12 @@ edition = { workspace = true }
 name = "aoc"
 
 [dependencies]
-anyhow = "1.0.75"
-chrono = "0.4.31"
-clap = { version = "4.4.10", features = ["derive"] }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+clap = { workspace = true }
 
 year2023 = { path = "../year2023" }
+year2024 = { path = "../year2024" }
 
 [lints]
 workspace = true

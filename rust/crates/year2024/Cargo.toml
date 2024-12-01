@@ -1,14 +1,10 @@
 [package]
-name = "year2023"
-version = { workspace = true }
-edition = { workspace = true }
-
-[lib]
+name = "year2024"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
 anyhow = { workspace = true }
-num-integer = "0.1.45"
-itertools = { workspace = true }
 
 aoc_lib = { path = "../aoc_lib" }
 

@@ -39,8 +39,8 @@ impl<'a, T> Iterator for RowIter<'a, T> {
     }
 }
 
-impl<'a, T> ExactSizeIterator for RowIter<'a, T> {}
-impl<'a, T> FusedIterator for RowIter<'a, T> {}
+impl<T> ExactSizeIterator for RowIter<'_, T> {}
+impl<T> FusedIterator for RowIter<'_, T> {}
 
 /// An iterator over the columns of a [`Matrix`].
 ///
@@ -78,8 +78,8 @@ impl<'a, T> Iterator for ColumnIter<'a, T> {
     }
 }
 
-impl<'a, T> ExactSizeIterator for ColumnIter<'a, T> {}
-impl<'a, T> FusedIterator for ColumnIter<'a, T> {}
+impl<T> ExactSizeIterator for ColumnIter<'_, T> {}
+impl<T> FusedIterator for ColumnIter<'_, T> {}
 
 /// An iterator that yields the position and value of each cell in the [`Matrix`]
 /// during iteration.
@@ -128,5 +128,5 @@ impl<'a, T> Iterator for MatrixEnumerate<'a, T> {
     }
 }
 
-impl<'a, T> ExactSizeIterator for MatrixEnumerate<'a, T> {}
-impl<'a, T> FusedIterator for MatrixEnumerate<'a, T> {}
+impl<T> ExactSizeIterator for MatrixEnumerate<'_, T> {}
+impl<T> FusedIterator for MatrixEnumerate<'_, T> {}
