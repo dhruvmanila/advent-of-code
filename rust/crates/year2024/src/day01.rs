@@ -87,7 +87,7 @@ mod tests {
 3   3";
 
     #[test]
-    fn test_sample() {
+    fn sample() {
         let list = LocationList::from_str(SAMPLE_INPUT).unwrap();
         assert_eq!(list.total_distance(), 11);
         assert_eq!(list.similarity_score(), 31);
