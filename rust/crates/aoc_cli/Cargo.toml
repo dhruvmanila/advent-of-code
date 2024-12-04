@@ -10,6 +10,8 @@ name = "aoc"
 anyhow = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true }
+shellexpand = { workspace = true }
+ureq = { workspace = true }
 
 year2023 = { path = "../year2023" }
 year2024 = { path = "../year2024" }
