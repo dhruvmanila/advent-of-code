@@ -206,6 +206,8 @@ impl Position {
     /// Returns an iterator over the neighboring positions of [`Self`] filtering
     /// out the ones that are out of bounds.
     ///
+    /// Use [`neighbor`] if you want to get the neighboring position in a specific direction.
+    ///
     /// # Example
     ///
     /// ```
@@ -236,21 +238,185 @@ impl Position {
     /// assert_eq!(neighbors_iter.next(), Some(Position::new(1, 1)));
     /// assert_eq!(neighbors_iter.next(), None);
     /// ```
+    ///
+    /// [`neighbor`]: Position::neighbor
     pub fn neighbors(&self) -> impl Iterator<Item = Position> {
         neighbors_impl(self.row, self.col)
     }
-}
 
-/// Implementation of [`neighbors`] method on [`Position`] that takes the
-/// row and column values as arguments.
-///
-/// [`neighbors`]: Position#method.neighbors
-fn neighbors_impl(row: usize, col: usize) -> impl Iterator<Item = Position> {
-    (row.saturating_sub(1)..=row.saturating_add(1))
-        .flat_map(move |row| {
-            (col.saturating_sub(1)..=col.saturating_add(1)).map(move |col| Position::new(row, col))
-        })
-        .filter(move |position| position.row() != row || position.col() != col)
+    /// Returns the neighboring position in the given direction, [`None`] if the position is out of
+    /// bounds.
+    pub fn neighbor(&self, direction: Direction) -> Option<Position> {
+        match direction {
+            Direction::Up => self.up(),
+            Direction::Down => self.down(),
+            Direction::Left => self.left(),
+            Direction::Right => self.right(),
+            Direction::TopLeft => self.top_left(),
+            Direction::TopRight => self.top_right(),
+            Direction::BottomLeft => self.bottom_left(),
+            Direction::BottomRight => self.bottom_right(),
+        }
+    }
+
+    /// Returns the position that's above the current position, [`None`] if the row is 0.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use aoc_lib::matrix::Position;
+    /// let position = Position::new(1, 1);
+    /// assert_eq!(position.up(), Some(Position::new(0, 1)));
+    ///
+    /// let position = Position::new(0, 1);
+    /// assert_eq!(position.up(), None);
+    /// ```
+    pub fn up(&self) -> Option<Position> {
+        Some(Position::new(self.row.checked_sub(1)?, self.col))
+    }
+
+    /// Returns the position that's below the current position, [`None`] if the row is at the
+    /// [`usize::MAX`] value.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use aoc_lib::matrix::Position;
+    /// let position = Position::new(1, 1);
+    /// assert_eq!(position.down(), Some(Position::new(2, 1)));
+    ///
+    /// let position = Position::new(usize::MAX, 1);
+    /// assert_eq!(position.down(), None);
+    /// ```
+    pub fn down(&self) -> Option<Position> {
+        Some(Position::new(self.row.checked_add(1)?, self.col))
+    }
+
+    /// Returns the position that's to the left of the current position, [`None`] if the column is
+    /// 0.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use aoc_lib::matrix::Position;
+    /// let position = Position::new(1, 1);
+    /// assert_eq!(position.left(), Some(Position::new(1, 0)));
+    ///
+    /// let position = Position::new(1, 0);
+    /// assert_eq!(position.left(), None);
+    /// ```
+    pub fn left(&self) -> Option<Position> {
+        Some(Position::new(self.row, self.col.checked_sub(1)?))
+    }
+
+    /// Returns the position that's to the right of the current position, [`None`] if the column is
+    /// at the [`usize::MAX`] value.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use aoc_lib::matrix::Position;
+    /// let position = Position::new(1, 1);
+    /// assert_eq!(position.right(), Some(Position::new(1, 2)));
+    ///
+    /// let position = Position::new(1, usize::MAX);
+    /// assert_eq!(position.right(), None);
+    /// ```
+    pub fn right(&self) -> Option<Position> {
+        Some(Position::new(self.row, self.col.checked_add(1)?))
+    }
+
+    /// Returns the position that's to the top-left of the current position, [`None`] if the row
+    /// or column is 0.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use aoc_lib::matrix::Position;
+    /// let position = Position::new(1, 1);
+    /// assert_eq!(position.top_left(), Some(Position::new(0, 0)));
+    ///
+    /// let position = Position::new(0, 1);
+    /// assert_eq!(position.top_left(), None);
+    ///
+    /// let position = Position::new(1, 0);
+    /// assert_eq!(position.top_left(), None);
+    /// ```
+    pub fn top_left(&self) -> Option<Position> {
+        Some(Position::new(
+            self.row.checked_sub(1)?,
+            self.col.checked_sub(1)?,
+        ))
+    }
+
+    /// Returns the position that's to the top-right of the current position, [`None`] if the row
+    /// is 0 or the column is at the [`usize::MAX`] value.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use aoc_lib::matrix::Position;
+    /// let position = Position::new(1, 1);
+    /// assert_eq!(position.top_right(), Some(Position::new(0, 2)));
+    ///
+    /// let position = Position::new(0, 1);
+    /// assert_eq!(position.top_right(), None);
+    ///
+    /// let position = Position::new(1, usize::MAX);
+    /// assert_eq!(position.top_right(), None);
+    /// ```
+    pub fn top_right(&self) -> Option<Position> {
+        Some(Position::new(
+            self.row.checked_sub(1)?,
+            self.col.checked_add(1)?,
+        ))
+    }
+
+    /// Returns the position that's to the bottom-left of the current position, [`None`] if the row
+    /// is at the [`usize::MAX`] value or the column is 0.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use aoc_lib::matrix::Position;
+    /// let position = Position::new(1, 1);
+    /// assert_eq!(position.bottom_left(), Some(Position::new(2, 0)));
+    ///
+    /// let position = Position::new(usize::MAX, 1);
+    /// assert_eq!(position.bottom_left(), None);
+    ///
+    /// let position = Position::new(1, 0);
+    /// assert_eq!(position.bottom_left(), None);
+    /// ```
+    pub fn bottom_left(&self) -> Option<Position> {
+        Some(Position::new(
+            self.row.checked_add(1)?,
+            self.col.checked_sub(1)?,
+        ))
+    }
+
+    /// Returns the position that's to the bottom-right of the current position, [`None`] if the
+    /// row or column is at the [`usize::MAX`] value.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use aoc_lib::matrix::Position;
+    /// let position = Position::new(1, 1);
+    /// assert_eq!(position.bottom_right(), Some(Position::new(2, 2)));
+    ///
+    /// let position = Position::new(usize::MAX, 1);
+    /// assert_eq!(position.bottom_right(), None);
+    ///
+    /// let position = Position::new(1, usize::MAX);
+    /// assert_eq!(position.bottom_right(), None);
+    /// ```
+    pub fn bottom_right(&self) -> Option<Position> {
+        Some(Position::new(
+            self.row.checked_add(1)?,
+            self.col.checked_add(1)?,
+        ))
+    }
 }
 
 impl Add for Position {
@@ -287,92 +453,41 @@ impl SubAssign for Position {
     }
 }
 
-/// A span in a fixed row of the [`Matrix`](crate::Matrix).
+/// Implementation of [`neighbors`] method on [`Position`] that takes the
+/// row and column values as arguments.
 ///
-/// This represents a contiguous range of columns in a row. The start is
-/// inclusive and the end is exclusive.
-#[derive(Debug, Default, Clone, Copy, Hash, PartialEq, Eq)]
-pub struct RowSpan {
-    row: usize,
-    // Invariant: start < end
-    start: usize,
-    end: usize,
+/// [`neighbors`]: Position#method.neighbors
+fn neighbors_impl(row: usize, col: usize) -> impl Iterator<Item = Position> {
+    (row.saturating_sub(1)..=row.saturating_add(1))
+        .flat_map(move |row| {
+            (col.saturating_sub(1)..=col.saturating_add(1)).map(move |col| Position::new(row, col))
+        })
+        .filter(move |position| position.row() != row || position.col() != col)
 }
 
-impl RowSpan {
-    /// Create a new row span from the given `row`, `start`, and `end`.
-    ///
-    /// # Panics
-    ///
-    /// Panics if `end <= start`.
-    #[inline]
-    pub const fn new(row: usize, start: usize, end: usize) -> Self {
-        assert!(start < end);
-        Self { row, start, end }
-    }
+/// The direction in which a position can move.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight,
+}
 
-    /// Return the row value of this span.
-    #[inline]
-    pub const fn row(&self) -> usize {
-        self.row
-    }
-
-    /// Return the start column value of this span.
-    #[inline]
-    pub const fn start(&self) -> usize {
-        self.start
-    }
-
-    /// Return the end column value of this span.
-    #[inline]
-    pub const fn end(&self) -> usize {
-        self.end
-    }
-
-    /// Return the start [`Position`] of this span.
-    #[inline]
-    pub const fn start_position(&self) -> Position {
-        Position::new(self.row, self.start)
-    }
-
-    /// Return the end [`Position`] of this span.
-    #[inline]
-    pub const fn end_position(&self) -> Position {
-        Position::new(self.row, self.end)
-    }
-
-    /// Checks if the given [`Position`] is within this span.
-    pub fn contains(&self, position: Position) -> bool {
-        self.row() == position.row()
-            && self.start() <= position.col()
-            && position.col() < self.end()
-    }
-
-    /// Returns an iterator over the positions within this span.
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::{Position, RowSpan};
-    /// let span = RowSpan::new(0, 1, 4);
-    /// let mut positions_iter = span.positions();
-    ///
-    /// assert_eq!(positions_iter.next(), Some(Position::new(0, 1)));
-    /// assert_eq!(positions_iter.next(), Some(Position::new(0, 2)));
-    /// assert_eq!(positions_iter.next(), Some(Position::new(0, 3)));
-    /// assert_eq!(positions_iter.next(), None);
-    /// ```
-    pub fn positions(&self) -> impl Iterator<Item = Position> + '_ {
-        (self.start()..self.end()).map(|col| Position::new(self.row(), col))
-    }
-
-    /// Returns an iterator over the neighboring positions of [`Self`] filtering
-    /// out the ones that are out of bounds.
-    ///
-    /// The order of the positions is not guaranteed.
-    pub fn neighbors(&self) -> impl Iterator<Item = Position> + '_ {
-        self.positions()
-            .flat_map(|position| position.neighbors())
-            .filter(|position| !self.contains(*position))
-    }
+impl Direction {
+    /// All possible directions in a clockwise order starting from top-left.
+    pub const ALL: [Direction; 8] = [
+        Direction::TopLeft,
+        Direction::Up,
+        Direction::TopRight,
+        Direction::Right,
+        Direction::BottomRight,
+        Direction::Down,
+        Direction::BottomLeft,
+        Direction::Left,
+    ];
 }
