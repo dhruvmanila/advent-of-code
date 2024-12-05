@@ -196,10 +196,7 @@ func hexToBinary(h string) (string, error) {
 }
 
 func Sol16(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	h, err := hexToBinary(lines[0])
 	if err != nil {

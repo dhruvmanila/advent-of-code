@@ -40,10 +40,7 @@ Loop:
 }
 
 func Sol09(input string) (string, error) {
-	numbers, err := util.ReadLinesAsInt(input)
-	if err != nil {
-		return "", err
-	}
+	numbers := util.ReadLinesAsInt(input)
 
 	var invalidNum int
 	for i := 0; i < len(numbers)-25; i++ {

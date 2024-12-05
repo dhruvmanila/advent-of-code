@@ -34,10 +34,7 @@ func bisectionSearch(chars boardingPass, lo, hi int, hiChar rune) int {
 }
 
 func Sol05(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	seatIds := make([]int, len(lines))
 	for i, line := range lines {

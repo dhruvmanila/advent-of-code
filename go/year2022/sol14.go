@@ -138,10 +138,7 @@ func parseInput(lines []string) (*cave, error) {
 }
 
 func Sol14(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	cave, err := parseInput(lines)
 	if err != nil {

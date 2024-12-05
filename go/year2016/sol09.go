@@ -3,7 +3,6 @@ package year2016
 import (
 	"bytes"
 	"fmt"
-	"os"
 
 	"github.com/dhruvmanila/advent-of-code/go/pkg/iterator"
 )
@@ -61,14 +60,8 @@ func decompress(data []byte, version formatVersion) int {
 }
 
 func Sol09(input string) (string, error) {
-	content, err := os.ReadFile(input)
-	if err != nil {
-		return "", err
-	}
-	content = bytes.Trim(content, "\n")
-
-	lengthV1 := decompress(content, v1)
-	lengthV2 := decompress(content, v2)
+	lengthV1 := decompress([]byte(input), v1)
+	lengthV2 := decompress([]byte(input), v2)
 
 	return fmt.Sprintf("9.1: %d\n9.2: %d\n", lengthV1, lengthV2), nil
 }

@@ -8,10 +8,7 @@ import (
 )
 
 func Sol06(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	// size is the length of the message.
 	size := len(lines[0])

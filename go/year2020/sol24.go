@@ -134,10 +134,7 @@ func runArtExhibit(blackTiles set.Set[hex], days int) int {
 }
 
 func Sol24(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	blackTiles := getBlackTiles(lines)
 	count1 := blackTiles.Len()

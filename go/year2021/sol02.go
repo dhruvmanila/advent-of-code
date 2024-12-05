@@ -26,10 +26,7 @@ func parseCommands(lines []string) ([]*command, error) {
 }
 
 func Sol02(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	cmds, err := parseCommands(lines)
 	if err != nil {

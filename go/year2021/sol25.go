@@ -95,10 +95,7 @@ func (sf *seafloor) String() string {
 }
 
 func Sol25(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	sf := newSeafloor(lines)
 	var steps int

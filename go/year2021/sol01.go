@@ -7,10 +7,7 @@ import (
 )
 
 func Sol01(input string) (string, error) {
-	depths, err := util.ReadLinesAsInt(input)
-	if err != nil {
-		return "", err
-	}
+	depths := util.ReadLinesAsInt(input)
 
 	count1 := 0
 	for i := 0; i < len(depths)-1; i++ {

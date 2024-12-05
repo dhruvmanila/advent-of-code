@@ -133,10 +133,7 @@ func realGame(p1, p2 player) int {
 }
 
 func Sol21(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	p1 := newPlayer(util.MustAtoi(lines[0][28:]))
 	p2 := newPlayer(util.MustAtoi(lines[1][28:]))

@@ -69,10 +69,7 @@ func simulateMotions(motions []*motion, n int) int {
 }
 
 func Sol09(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	motions := parseMotions(lines)
 

@@ -105,10 +105,7 @@ func Less(lhs string, rhs string) bool {
 }
 
 func Sol13(input string) (string, error) {
-	pairs, err := util.ReadSections(input)
-	if err != nil {
-		return "", err
-	}
+	pairs := util.ReadSections(input)
 
 	// Collect all the packets to sort it later. The capacity includes the
 	// divider packets to be added for the second part.

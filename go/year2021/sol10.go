@@ -51,10 +51,7 @@ func calculateCompletionScore(s []byte) int {
 }
 
 func Sol10(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	var syntaxErrorScore int
 	var completionScores []int

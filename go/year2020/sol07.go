@@ -64,10 +64,7 @@ func (m bagMap) childCount(origin string) int {
 }
 
 func Sol07(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	bm, err := newBagMapFromRules(lines)
 	if err != nil {

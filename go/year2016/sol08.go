@@ -99,10 +99,7 @@ func (d *display) String() string {
 }
 
 func Sol08(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	d := newDisplay(6, 50)
 	for _, line := range lines {

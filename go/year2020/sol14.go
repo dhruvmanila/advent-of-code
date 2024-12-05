@@ -96,10 +96,7 @@ func runV2(program []string) int {
 }
 
 func Sol14(input string) (string, error) {
-	program, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	program := util.ReadLines(input)
 
 	return fmt.Sprintf("14.1: %d\n14.2: %d\n", runV1(program), runV2(program)), nil
 }

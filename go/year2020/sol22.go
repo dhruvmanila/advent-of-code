@@ -118,10 +118,7 @@ func parseCards(sections [][]string) ([]int, []int) {
 }
 
 func Sol22(input string) (string, error) {
-	sections, err := util.ReadSections(input)
-	if err != nil {
-		return "", err
-	}
+	sections := util.ReadSections(input)
 
 	cards1, cards2 := parseCards(sections)
 	score1 := calculateScore(

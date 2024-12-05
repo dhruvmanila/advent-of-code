@@ -26,10 +26,7 @@ func play(numbers []int, rounds int) int {
 }
 
 func Sol15(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	var numbers []int
 	for _, s := range strings.Split(lines[0], ",") {

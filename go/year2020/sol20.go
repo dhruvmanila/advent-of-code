@@ -244,10 +244,7 @@ MainLoop:
 }
 
 func Sol20(input string) (string, error) {
-	sections, err := util.ReadSections(input)
-	if err != nil {
-		return "", err
-	}
+	sections := util.ReadSections(input)
 
 	// tiles contains all the tiles with the four rotations and two flips.
 	tiles := make([]*imageTile, 0, len(sections)*8) // N * 8

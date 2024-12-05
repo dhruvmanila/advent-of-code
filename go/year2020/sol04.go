@@ -2,7 +2,6 @@ package year2020
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 
@@ -100,14 +99,9 @@ func (p passport) validateFields() bool {
 }
 
 func Sol04(input string) (string, error) {
-	content, err := os.ReadFile(input)
-	if err != nil {
-		return "", err
-	}
-
 	var allFieldsPresent, validValues int
 	// Every passport is separated by a blank line.
-	for _, passportLines := range strings.Split(string(content), "\n\n") {
+	for _, passportLines := range strings.Split(input, "\n\n") {
 		p := newPassportFromString(passportLines)
 		if !p.containRequiredFields() {
 			continue

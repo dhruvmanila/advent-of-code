@@ -71,10 +71,7 @@ func isSmallCave(name string) bool {
 }
 
 func Sol12(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	m := make(caveMap)
 	for _, line := range lines {

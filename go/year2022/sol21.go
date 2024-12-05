@@ -172,10 +172,7 @@ func parseExpressions(lines []string) (map[string]*monkeyExpression, error) {
 }
 
 func Sol21(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	monkeys, err := parseExpressions(lines)
 	if err != nil {

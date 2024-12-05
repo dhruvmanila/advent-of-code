@@ -127,10 +127,7 @@ func parseBoards(lines []string) ([]*board, error) {
 }
 
 func Sol04(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	var draws []int
 	// Collect all the numbers which are to be drawn. This is the first line

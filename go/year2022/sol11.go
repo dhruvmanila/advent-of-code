@@ -2,7 +2,6 @@ package year2022
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -188,11 +187,7 @@ func watchStuffSlingingSimianShenanigans(monkeys []*monkey, rounds int) int {
 }
 
 func Sol11(input string) (string, error) {
-	content, err := os.ReadFile(input)
-	if err != nil {
-		return "", err
-	}
-	notes := strings.Split(string(content), "\n\n")
+	notes := strings.Split(input, "\n\n")
 
 	monkeys, err := parseNotes(notes)
 	if err != nil {

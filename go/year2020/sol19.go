@@ -52,10 +52,7 @@ func validMessages(rules map[string]string, messages []string) (count1, count2 i
 }
 
 func Sol19(input string) (string, error) {
-	sections, err := util.ReadSections(input)
-	if err != nil {
-		return "", err
-	}
+	sections := util.ReadSections(input)
 
 	rules := make(map[string]string, len(sections[0]))
 	for _, line := range sections[0] {

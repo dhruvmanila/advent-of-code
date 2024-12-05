@@ -151,10 +151,7 @@ func compute(scannersById map[int]*Scanner) (int, int) {
 }
 
 func Sol19(input string) (string, error) {
-	sections, err := util.ReadSections(input)
-	if err != nil {
-		return "", err
-	}
+	sections := util.ReadSections(input)
 
 	scannersById := parseSections(sections)
 	beacons, maxDistance := compute(scannersById)

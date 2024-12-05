@@ -101,10 +101,7 @@ func parseInsertionRules(lines []string) map[string]string {
 }
 
 func Sol14(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	p := newPolymer(lines[0], parseInsertionRules(lines[2:]))
 	p.process(10)

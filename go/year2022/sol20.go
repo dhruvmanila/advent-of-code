@@ -76,10 +76,7 @@ func mix(numbers []int, n int) (coordinateSum int) {
 }
 
 func Sol20(input string) (string, error) {
-	numbers, err := util.ReadLinesAsInt(input)
-	if err != nil {
-		return "", err
-	}
+	numbers := util.ReadLinesAsInt(input)
 
 	coordinateSum1 := mix(numbers, 1)
 

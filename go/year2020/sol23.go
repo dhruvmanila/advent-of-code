@@ -1,11 +1,9 @@
 package year2020
 
 import (
-	"bytes"
 	"container/ring"
 	"fmt"
 	"math"
-	"os"
 
 	"github.com/dhruvmanila/advent-of-code/go/pkg/set"
 	"github.com/dhruvmanila/advent-of-code/go/util"
@@ -73,16 +71,10 @@ func parseLabels(labels []byte, extended bool) (*ring.Ring, map[int]*ring.Ring) 
 }
 
 func Sol23(input string) (string, error) {
-	labels, err := os.ReadFile(input)
-	if err != nil {
-		return "", err
-	}
-	labels = bytes.Trim(labels, "\n")
-
-	current, positions := parseLabels(labels, false)
+	current, positions := parseLabels([]byte(input), false)
 	outcome1 := predict(current, positions, 100, false)
 
-	current, positions = parseLabels(labels, true)
+	current, positions = parseLabels([]byte(input), true)
 	outcome2 := predict(current, positions, 10_000_000, true)
 
 	return fmt.Sprintf("23.1: %d\n23.2: %d\n", outcome1, outcome2), nil

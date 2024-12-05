@@ -116,10 +116,7 @@ func (b *strangelyShapedBoard) Password() int {
 }
 
 func Sol22(input string) (string, error) {
-	sections, err := util.ReadSections(input)
-	if err != nil {
-		return "", err
-	}
+	sections := util.ReadSections(input)
 
 	board := NewStrangelyShapedBoard(sections[0])
 	steps := pathRegex.FindAllString(sections[1][0], -1)

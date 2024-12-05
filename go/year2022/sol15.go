@@ -121,10 +121,7 @@ func parseSensors(lines []string) ([]*sensor, error) {
 }
 
 func Sol15(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	var y, max int
 	if strings.Contains(input, "test") {

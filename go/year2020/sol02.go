@@ -71,10 +71,7 @@ func parsePassword(lines []string) ([]*password, error) {
 }
 
 func Sol02(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	passwords, err := parsePassword(lines)
 	if err != nil {

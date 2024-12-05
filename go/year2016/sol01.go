@@ -18,10 +18,7 @@ const (
 )
 
 func Sol01(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	// position is the x and y coordinates representing the current position.
 	position := [2]int{0, 0}

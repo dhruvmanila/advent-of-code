@@ -50,10 +50,7 @@ func recursiveFilter(binaryNums []string, rt ratingType, pos int) string {
 }
 
 func Sol03(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	// size is the length of a single binary number.
 	size := len(lines[0])

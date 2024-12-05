@@ -1,9 +1,7 @@
 package year2021
 
 import (
-	"bytes"
 	"fmt"
-	"os"
 	"regexp"
 
 	"github.com/dhruvmanila/advent-of-code/go/pkg/geom"
@@ -62,15 +60,9 @@ func (p *probe) launch(target *geom.BoundingBox2D) (maxHeight int, reached bool)
 }
 
 func Sol17(input string) (string, error) {
-	content, err := os.ReadFile(input)
-	if err != nil {
-		return "", err
-	}
-	content = bytes.Trim(content, "\n")
-
-	matches := targetAreaRegex.FindStringSubmatch(string(content))
+	matches := targetAreaRegex.FindStringSubmatch(input)
 	if len(matches) != 5 {
-		return "", fmt.Errorf("invalid match: %s", content)
+		return "", fmt.Errorf("invalid match: %s", input)
 	}
 
 	minx := util.MustAtoi(matches[1])

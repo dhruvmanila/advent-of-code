@@ -122,10 +122,7 @@ func evaluateAdvance(expr []byte) int {
 }
 
 func Sol18(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	result1, result2 := 0, 0
 	for _, line := range lines {

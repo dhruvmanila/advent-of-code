@@ -3,7 +3,6 @@ package year2022
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/dhruvmanila/advent-of-code/go/pkg/iterator"
@@ -184,11 +183,7 @@ type cacheEntry struct {
 }
 
 func Sol17(input string) (string, error) {
-	jets, err := os.ReadFile(input)
-	if err != nil {
-		return "", err
-	}
-	jets = bytes.TrimRight(jets, "\n")
+	jets := bytes.TrimRight([]byte(input), "\n")
 
 	var height1, height2 int
 	cache := make(map[[2]int]cacheEntry)

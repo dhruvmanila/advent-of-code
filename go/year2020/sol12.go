@@ -66,10 +66,7 @@ func handleInstructionsV2(instructions []navInstruction) int {
 }
 
 func Sol12(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	instructions := make([]navInstruction, len(lines))
 	for i, line := range lines {

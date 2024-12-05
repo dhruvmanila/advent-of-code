@@ -1,25 +1,16 @@
 package year2020
 
 import (
-	"bytes"
 	"fmt"
 	"math"
 	"math/bits"
-	"os"
 	"strings"
 )
 
 func Sol06(input string) (string, error) {
-	content, err := os.ReadFile(input)
-	if err != nil {
-		return "", err
-	}
-	// Remove the trailing newlines.
-	content = bytes.Trim(content, "\n")
-
 	var count1, count2 int
 	// lines is a single group.
-	for _, lines := range strings.Split(string(content), "\n\n") {
+	for _, lines := range strings.Split(input, "\n\n") {
 		var set1 uint
 		var set2 uint = math.MaxUint
 		// line is a single line in a group.

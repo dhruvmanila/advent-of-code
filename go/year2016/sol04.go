@@ -75,10 +75,7 @@ func (r *roomInfo) decrypt() string {
 }
 
 func Sol04(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	rooms := make([]*roomInfo, 0, len(lines))
 	for _, line := range lines {

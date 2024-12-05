@@ -178,10 +178,7 @@ func parseSteps(lines []string) ([]*rebootStep, error) {
 }
 
 func Sol22(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	steps, err := parseSteps(lines)
 	if err != nil {

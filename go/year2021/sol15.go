@@ -134,10 +134,7 @@ func constructGraphV2(lines []string) *graph {
 }
 
 func Sol15(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	from := position{0, 0}
 	to1 := position{len(lines[0]) - 1, len(lines) - 1}

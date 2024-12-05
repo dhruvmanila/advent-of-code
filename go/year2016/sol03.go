@@ -12,10 +12,7 @@ func isValidTriangle(x int, y int, z int) bool {
 }
 
 func Sol03(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	triangles := make([][3]int, len(lines))
 	for i, line := range lines {

@@ -90,10 +90,7 @@ func getScore2(opponent int, outcome int) int {
 }
 
 func Sol02(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	score1, score2 := 0, 0
 	for idx, line := range lines {

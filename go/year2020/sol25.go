@@ -28,10 +28,7 @@ func getLoopSize(publicKey int) int {
 }
 
 func Sol25(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	cardPublicKey := util.MustAtoi(lines[0])
 	doorPublicKey := util.MustAtoi(lines[1])

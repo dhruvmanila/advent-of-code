@@ -35,10 +35,7 @@ func earliestTimestamp(buses [][2]int) int {
 }
 
 func Sol13(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	earliest := util.MustAtoi(lines[0])
 	var buses [][2]int

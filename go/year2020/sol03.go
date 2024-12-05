@@ -21,10 +21,7 @@ func treesForSlope(lines []string, right, down int) int {
 }
 
 func Sol03(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	trees11 := treesForSlope(lines, 1, 1)
 	trees31 := treesForSlope(lines, 3, 1)

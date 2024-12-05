@@ -1,9 +1,7 @@
 package year2021
 
 import (
-	"bytes"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/dhruvmanila/advent-of-code/go/pkg/ocr"
@@ -118,13 +116,7 @@ func parseFoldInstructions(lines []string) []foldInstruction {
 }
 
 func Sol13(input string) (string, error) {
-	content, err := os.ReadFile(input)
-	if err != nil {
-		return "", err
-	}
-	content = bytes.Trim(content, "\n")
-
-	data := strings.Split(string(content), "\n\n")
+	data := strings.Split(input, "\n\n")
 	p := newPaper(strings.Split(data[0], "\n"))
 	instructions := parseFoldInstructions(strings.Split(data[1], "\n"))
 

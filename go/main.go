@@ -4,9 +4,12 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"io/fs"
 	"log"
+	"net/http"
 	"os"
+	"path/filepath"
 	"runtime/pprof"
 	"strings"
 	"text/template"
@@ -117,7 +120,6 @@ var solutions = map[int]map[int]solutionFunc{
 
 // Command line options.
 var (
-	useTestInput bool
 	aocYear      int
 	aocDay       int
 	cpuprofile   bool
@@ -136,7 +138,6 @@ func init() {
 		day = 25
 	}
 
-	flag.BoolVar(&useTestInput, "t", false, "run the test input instead")
 	flag.IntVar(&aocYear, "y", year, "run solution for given year")
 	flag.IntVar(&aocDay, "d", day, "run solution for given day")
 	flag.BoolVar(&cpuprofile, "cpuprofile", false, "write a CPU profile")
@@ -167,13 +168,12 @@ func realMain() int {
 	flag.Usage = usage
 	flag.Parse()
 
-	var input string
-
-	if useTestInput {
-		input = fmt.Sprintf("./year%d/input/test/%02d.txt", aocYear, aocDay)
-	} else {
-		input = fmt.Sprintf("./year%d/input/%02d.txt", aocYear, aocDay)
+	input, err := getPuzzleInput()
+	if err != nil {
+		log.Print(err)
+		return 1
 	}
+	input = strings.Trim(input, "\n")
 
 	if cpuprofile {
 		f, err := os.Create("cpu.prof")
@@ -232,16 +232,14 @@ func realMain() int {
 		var response string
 
 		fmt.Printf("./year%d/sol%02d.go does not exist. Generate? [y/n]: ", aocYear, aocDay)
-		_, err := fmt.Scan(&response)
-		if err != nil {
+		if _, err := fmt.Scan(&response); err != nil {
 			log.Print(err)
 			return 1
 		}
 
 		switch strings.ToLower(strings.TrimSpace(response)) {
 		case "y", "yes":
-			err := createSolution(aocYear, aocDay)
-			if err != nil {
+			if err := createSolution(); err != nil {
 				log.Print(err)
 				return 1
 			}
@@ -274,22 +272,10 @@ func realMain() int {
 	return 0
 }
 
-func createSolution(year, day int) error {
-	yearDir := fmt.Sprintf("./year%d", year)
+func createSolution() error {
+	yearDir := fmt.Sprintf("./year%d", aocYear)
 	if _, err := os.Stat(yearDir); errors.Is(err, fs.ErrNotExist) {
-		os.MkdirAll(fmt.Sprintf("./year%d/input/test", year), 0o755)
-	}
-
-	// Create the input files.
-	for _, filepath := range []string{
-		fmt.Sprintf("./year%d/input/test/%02d.txt", year, day),
-		fmt.Sprintf("./year%d/input/%02d.txt", year, day),
-	} {
-		f, err := os.Create(filepath)
-		if err != nil {
-			return err
-		}
-		f.Close()
+		os.MkdirAll(fmt.Sprintf("./year%d", aocYear), 0o755)
 	}
 
 	t, err := template.ParseFiles("templates/solution")
@@ -297,15 +283,120 @@ func createSolution(year, day int) error {
 		return err
 	}
 
-	f, err := os.OpenFile(fmt.Sprintf("./year%d/sol%02d.go", year, day), os.O_CREATE|os.O_WRONLY, 0o644)
+	f, err := os.OpenFile(fmt.Sprintf("./year%d/sol%02d.go", aocYear, aocDay), os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	if err := t.Execute(f, map[string]int{"Year": year, "Day": day}); err != nil {
+	if err := t.Execute(f, map[string]int{"Year": aocYear, "Day": aocDay}); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// getPuzzleInput fetches the puzzle input for the given year and day from the Advent of Code website.
+//
+// This will cache the input in ~/.cache/aoc to avoid fetching it multiple times.
+//
+// This function will return an error in the following cases:
+// * If the session token cannot be read from ~/.config/aoc/token
+// * If the request to the Advent of Code website fails
+// * If the input cannot be written to the cache
+func getPuzzleInput() (string, error) {
+	// Try to get cached input first
+	if cachedInput, err := getCachedInput(); err == nil {
+		return cachedInput, nil
+	}
+
+	// Read session token
+	token, err := readSessionToken()
+	if err != nil {
+		return "", fmt.Errorf("failed to read the session token: %w", err)
+	}
+
+	// Prepare the request
+	url := fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", aocYear, aocDay)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %w", err)
+	}
+	req.Header.Set("Cookie", fmt.Sprintf("session=%s", token))
+
+	// Send the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to fetch input: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	input := string(body)
+
+	// Cache the input
+	if err := cacheInput(input); err != nil {
+		return "", fmt.Errorf("failed to cache input: %w", err)
+	}
+
+	return input, nil
+}
+
+// readSessionToken reads the session token from the default location ~/.config/aoc/token
+func readSessionToken() (string, error) {
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	content, err := os.ReadFile(fmt.Sprintf("%s/.config/aoc/token", homedir))
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(string(content)), nil
+}
+
+// cacheInput writes the input to the cache file
+func cacheInput(input string) error {
+	cachePath, err := getCachePath()
+	if err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(filepath.Dir(cachePath), 0755); err != nil {
+		return err
+	}
+
+	return os.WriteFile(cachePath, []byte(input), 0644)
+}
+
+// getCachedInput retrieves the cached input if it exists
+func getCachedInput() (string, error) {
+	cachePath, err := getCachePath()
+	if err != nil {
+		return "", err
+	}
+
+	content, err := os.ReadFile(cachePath)
+	if err != nil {
+		return "", err
+	}
+
+	return string(content), nil
+}
+
+// getCachePath returns the full path to the cache file for a given year and day
+func getCachePath() (string, error) {
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s/.cache/aoc/%d/%d.txt", homedir, aocYear, aocDay), nil
 }

@@ -18,10 +18,7 @@ const (
 )
 
 func Sol10(input string) (string, error) {
-	instructions, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	instructions := util.ReadLines(input)
 
 	registerX := 1
 	currentCycle := 0

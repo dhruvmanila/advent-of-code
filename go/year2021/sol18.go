@@ -184,10 +184,7 @@ func parseNumber(line string) *number {
 }
 
 func Sol18(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	// As we're using pointers and also mutating the values in place, we need
 	// to parse the input separately for part one and two. Maybe find a way

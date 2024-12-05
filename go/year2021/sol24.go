@@ -259,10 +259,7 @@ func formEquations(instructions []string) []*equation {
 }
 
 func Sol24(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	equations := formEquations(lines)
 	maximizedDigits := make([]*digitVar, 0, 14)

@@ -160,10 +160,7 @@ func parseHeightMap(lines []string) *heightMap {
 }
 
 func Sol12(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	m := parseHeightMap(lines)
 

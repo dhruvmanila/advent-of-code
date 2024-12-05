@@ -8,10 +8,7 @@ import (
 )
 
 func Sol01(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	// entries is a slice of all the expense entry.
 	entries := make([]int, len(lines))

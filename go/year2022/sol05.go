@@ -45,10 +45,7 @@ func topCrates(stacks []*stack.Stack[byte]) string {
 }
 
 func Sol05(input string) (string, error) {
-	sections, err := util.ReadSections(input)
-	if err != nil {
-		return "", err
-	}
+	sections := util.ReadSections(input)
 
 	// There are two sections separated by a blank line where the first
 	// section contains the stack data and the second one contains the

@@ -7,10 +7,7 @@ import (
 )
 
 func Sol04(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	fullyContained, overlapping := 0, 0
 	for idx, line := range lines {

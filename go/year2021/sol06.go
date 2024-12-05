@@ -35,10 +35,7 @@ func simulate(fishes []int, days int) int {
 }
 
 func Sol06(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	// fishes is a slice of integer each representing the number of days
 	// remaining until it creates a new fish.

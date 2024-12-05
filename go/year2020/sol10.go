@@ -43,10 +43,7 @@ func arrangementCount(previous int, ratings []int, memo map[int]int) int {
 }
 
 func Sol10(input string) (string, error) {
-	ratings, err := util.ReadLinesAsInt(input)
-	if err != nil {
-		return "", err
-	}
+	ratings := util.ReadLinesAsInt(input)
 
 	effectiveRating := 0
 	sort.Ints(ratings)

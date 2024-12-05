@@ -8,10 +8,7 @@ import (
 )
 
 func Sol01(input string) (string, error) {
-	sections, err := util.ReadSections(input)
-	if err != nil {
-		return "", err
-	}
+	sections := util.ReadSections(input)
 
 	var elves []int
 	for _, lines := range sections {

@@ -9,10 +9,7 @@ import (
 )
 
 func Sol07(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	var currentPos []int
 	for _, s := range strings.Split(lines[0], ",") {

@@ -53,10 +53,7 @@ func maxPressure(valves map[string]*valve) int {
 }
 
 func Sol16(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	valves, err := parseValves(lines)
 	if err != nil {

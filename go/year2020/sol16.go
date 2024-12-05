@@ -124,10 +124,7 @@ func (i *ticketInfo) ruleOrder() []string {
 }
 
 func Sol16(input string) (string, error) {
-	sections, err := util.ReadSections(input)
-	if err != nil {
-		return "", err
-	}
+	sections := util.ReadSections(input)
 
 	info := newTicketInfo(sections)
 

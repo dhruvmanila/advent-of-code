@@ -63,10 +63,7 @@ func extractBathroomCode(keypad map[[2]int]string, position [2]int, instructions
 }
 
 func Sol02(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	return fmt.Sprintf(
 		"2.1: %s\n2.2: %s\n",

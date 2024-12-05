@@ -133,10 +133,7 @@ func parseLines(lines []string) ([]*lineSegment, error) {
 }
 
 func Sol05(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	lineSegments, err := parseLines(lines)
 	if err != nil {

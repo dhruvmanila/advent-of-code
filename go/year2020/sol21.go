@@ -67,10 +67,7 @@ func parseFoods(lines []string) []*food {
 }
 
 func Sol21(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	allergens, count := identifyAllergens(parseFoods(lines))
 

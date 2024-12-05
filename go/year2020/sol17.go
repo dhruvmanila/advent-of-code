@@ -130,10 +130,7 @@ func parseInitialCubes4D(state []string) set.Set[[4]int] {
 }
 
 func Sol17(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	count1 := executeCycle3D(parseInitialCubes3D(lines), 6)
 	count2 := executeCycle4D(parseInitialCubes4D(lines), 6)

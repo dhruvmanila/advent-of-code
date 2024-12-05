@@ -112,10 +112,7 @@ func executeInstructions(instructions []string) error {
 }
 
 func Sol10(input string) (string, error) {
-	lines, err := util.ReadLines(input)
-	if err != nil {
-		return "", err
-	}
+	lines := util.ReadLines(input)
 
 	if err := executeInstructions(lines); err != nil {
 		return "", err
