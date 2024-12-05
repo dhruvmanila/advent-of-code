@@ -10,13 +10,13 @@ use crate::matrix::{Matrix, Vector};
 ///
 /// [`rows`]: Matrix#method.rows
 pub struct RowIter<'a, T> {
-    mat: &'a Matrix<T>,
-    curr: usize,
+    matrix: &'a Matrix<T>,
+    current: usize,
 }
 
 impl<'a, T> RowIter<'a, T> {
-    pub(crate) fn new(mat: &'a Matrix<T>) -> Self {
-        Self { mat, curr: 0 }
+    pub(super) fn new(matrix: &'a Matrix<T>) -> Self {
+        Self { matrix, current: 0 }
     }
 }
 
@@ -24,8 +24,8 @@ impl<'a, T> Iterator for RowIter<'a, T> {
     type Item = Vector<'a, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(row) = self.mat.row(self.curr) {
-            self.curr += 1;
+        if let Some(row) = self.matrix.row(self.current) {
+            self.current += 1;
             Some(row)
         } else {
             None
@@ -34,7 +34,7 @@ impl<'a, T> Iterator for RowIter<'a, T> {
 
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let len = self.mat.nrows() - self.curr;
+        let len = self.matrix.nrows() - self.current;
         (len, Some(len))
     }
 }
@@ -49,13 +49,13 @@ impl<T> FusedIterator for RowIter<'_, T> {}
 ///
 /// [`columns`]: Matrix#method.columns
 pub struct ColumnIter<'a, T> {
-    mat: &'a Matrix<T>,
-    curr: usize,
+    matrix: &'a Matrix<T>,
+    current: usize,
 }
 
 impl<'a, T> ColumnIter<'a, T> {
-    pub(crate) fn new(mat: &'a Matrix<T>) -> Self {
-        Self { mat, curr: 0 }
+    pub(super) fn new(matrix: &'a Matrix<T>) -> Self {
+        Self { matrix, current: 0 }
     }
 }
 
@@ -63,8 +63,8 @@ impl<'a, T> Iterator for ColumnIter<'a, T> {
     type Item = Vector<'a, T>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(column) = self.mat.column(self.curr) {
-            self.curr += 1;
+        if let Some(column) = self.matrix.column(self.current) {
+            self.current += 1;
             Some(column)
         } else {
             None
@@ -73,7 +73,7 @@ impl<'a, T> Iterator for ColumnIter<'a, T> {
 
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let len = self.mat.ncols() - self.curr;
+        let len = self.matrix.ncols() - self.current;
         (len, Some(len))
     }
 }
@@ -89,15 +89,15 @@ impl<T> FusedIterator for ColumnIter<'_, T> {}
 ///
 /// [`enumerate`]: Matrix#method.enumerate
 pub struct MatrixEnumerate<'a, T> {
-    mat: &'a Matrix<T>,
-    curr: Position,
+    matrix: &'a Matrix<T>,
+    current: Position,
 }
 
 impl<'a, T> MatrixEnumerate<'a, T> {
-    pub(crate) fn new(matrix: &'a Matrix<T>) -> Self {
+    pub(super) fn new(matrix: &'a Matrix<T>) -> Self {
         Self {
-            mat: matrix,
-            curr: Position::new(0, 0),
+            matrix,
+            current: Position::new(0, 0),
         }
     }
 }
@@ -106,15 +106,15 @@ impl<'a, T> Iterator for MatrixEnumerate<'a, T> {
     type Item = (Position, &'a T);
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.curr.row() >= self.mat.nrows() {
+        if self.current.row() >= self.matrix.nrows() {
             return None;
         }
 
-        let item = (self.curr, &self.mat[self.curr]);
+        let item = (self.current, &self.matrix[self.current]);
 
-        self.curr = self.curr.add_col(1);
-        if self.curr.col() == self.mat.ncols() {
-            self.curr = Position::new(self.curr.row() + 1, 0);
+        self.current = self.current.add_col(1);
+        if self.current.col() == self.matrix.ncols() {
+            self.current = Position::new(self.current.row() + 1, 0);
         }
 
         Some(item)
@@ -122,8 +122,8 @@ impl<'a, T> Iterator for MatrixEnumerate<'a, T> {
 
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let len = (self.mat.nrows() - self.curr.row() - 1) * self.mat.ncols()
-            + (self.mat.ncols() - self.curr.col());
+        let len = (self.matrix.nrows() - self.current.row() - 1) * self.matrix.ncols()
+            + (self.matrix.ncols() - self.current.col());
         (len, Some(len))
     }
 }
@@ -145,12 +145,17 @@ pub struct PositionsInDirectionIter {
 }
 
 impl PositionsInDirectionIter {
-    pub(crate) fn new(dimension: (usize, usize), start: Position, direction: Direction) -> Self {
+    pub(super) fn new(dimension: (usize, usize), start: Position, direction: Direction) -> Self {
         Self {
             dimension,
             current: start,
             direction,
         }
+    }
+
+    /// Returns `true` if the current position is out of bounds of the matrix.
+    fn is_out_of_bounds(&self) -> bool {
+        self.current.row() >= self.dimension.0 || self.current.col() >= self.dimension.1
     }
 }
 
@@ -158,23 +163,22 @@ impl Iterator for PositionsInDirectionIter {
     type Item = Position;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let next = match self.direction {
-            Direction::Up => self.current.up(),
-            Direction::Down => self.current.down(),
-            Direction::Left => self.current.left(),
-            Direction::Right => self.current.right(),
-            Direction::TopLeft => self.current.top_left(),
-            Direction::TopRight => self.current.top_right(),
-            Direction::BottomLeft => self.current.bottom_left(),
-            Direction::BottomRight => self.current.bottom_right(),
-        }?;
-
-        if next.row() < self.dimension.0 && next.col() < self.dimension.1 {
-            self.current = next;
-            Some(next)
-        } else {
-            None
+        if self.is_out_of_bounds() {
+            return None;
         }
+
+        self.current = match self.direction {
+            Direction::Up => self.current.up()?,
+            Direction::Down => self.current.down()?,
+            Direction::Left => self.current.left()?,
+            Direction::Right => self.current.right()?,
+            Direction::TopLeft => self.current.top_left()?,
+            Direction::TopRight => self.current.top_right()?,
+            Direction::BottomLeft => self.current.bottom_left()?,
+            Direction::BottomRight => self.current.bottom_right()?,
+        };
+
+        Some(self.current)
     }
 }
 

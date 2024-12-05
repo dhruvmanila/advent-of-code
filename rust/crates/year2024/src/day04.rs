@@ -1,6 +1,8 @@
-use std::{fmt, str::FromStr};
+use std::fmt;
+use std::str::FromStr;
 
 use anyhow::{anyhow, Result};
+
 use aoc_lib::matrix::{Direction, Matrix, Position};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -92,19 +94,20 @@ impl Board {
 
         let mut count = 0;
 
+        // Return the letter of the given position's neighbor in the given direction.
+        let neighbor_letter = |position: Position, direction: Direction| {
+            position
+                .neighbor(direction)
+                .and_then(|position| self.0.get(position.row(), position.col()))
+        };
+
         'outer: for a_position in self.a_positions() {
             for (direction1, direction2) in DIRECTION_PAIR {
-                let Some(letter1) = a_position
-                    .neighbor(direction1)
-                    .and_then(|position| self.0.get(position.row(), position.col()))
-                else {
+                let Some(letter1) = neighbor_letter(a_position, direction1) else {
                     continue 'outer;
                 };
 
-                let Some(letter2) = a_position
-                    .neighbor(direction2)
-                    .and_then(|position| self.0.get(position.row(), position.col()))
-                else {
+                let Some(letter2) = neighbor_letter(a_position, direction2) else {
                     continue 'outer;
                 };
 

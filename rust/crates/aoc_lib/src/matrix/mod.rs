@@ -470,8 +470,8 @@ impl<T> Matrix<T> {
 
     /// Returns an iterator over the [`Position`]s in the given [`Direction`].
     ///
-    /// The iterator starts from the next position in the given `direction` from the
-    /// given `start` position and continues until the end of the matrix.
+    /// The iterator starts from the next position after the given `start` position along the
+    /// given `direction` and continues until the end of the matrix.
     pub fn positions_in_direction(
         &self,
         start: Position,
