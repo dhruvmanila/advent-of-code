@@ -43,13 +43,17 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--test", action="store_true", help="use the test input")
+    parser.add_argument(
+        "-s", "--sample", action="store_true", help="use the sample input"
+    )
     args = parser.parse_args()
 
-    instructions = utils.read(day=10, year=2022, test=args.test).splitlines()
+    instructions = utils.get_puzzle_input(
+        day=10, year=2022, sample=args.sample
+    ).splitlines()
     signal = run_program(instructions)
 
     print(f"10.1: {signal}")
-    print(f"10.2: ")
+    print("10.2: ")
     for i in range(6):
         print("".join(PIXELS[i * 40 : (i + 1) * 40]))

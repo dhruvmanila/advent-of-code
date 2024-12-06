@@ -59,7 +59,7 @@ def minimum_orbital_transfers(
 
 
 if __name__ == "__main__":
-    data = utils.read(day=6, year=2019, test=False)
+    data = utils.get_puzzle_input(day=6, year=2019)
     graph, orbiting = parse_orbit_map(data.splitlines())
 
     print(f"Part 1: {count_orbits(graph)}")

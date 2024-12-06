@@ -65,11 +65,15 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--test", action="store_true", help="use the test input")
+    parser.add_argument(
+        "-s", "--sample", action="store_true", help="use the sample input"
+    )
     args = parser.parse_args()
 
     packets: list[Packet] = []
-    for pairs in utils.read(day=13, year=2022, test=args.test).split("\n\n"):
+    for pairs in utils.get_puzzle_input(day=13, year=2022, sample=args.sample).split(
+        "\n\n"
+    ):
         left, _, right = pairs.partition("\n")
         packets.append(Packet(ast.literal_eval(left)))
         packets.append(Packet(ast.literal_eval(right)))

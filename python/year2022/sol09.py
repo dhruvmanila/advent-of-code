@@ -53,10 +53,12 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--test", action="store_true", help="use the test input")
+    parser.add_argument(
+        "-s", "--sample", action="store_true", help="use the sample input"
+    )
     args = parser.parse_args()
 
-    motions = utils.read(day=9, year=2022, test=args.test).splitlines()
+    motions = utils.get_puzzle_input(day=9, year=2022, sample=args.sample).splitlines()
     visited1, visited2 = simulate_motions(motions)
 
     print(f"9.1: {visited1}")

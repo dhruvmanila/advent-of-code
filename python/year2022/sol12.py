@@ -9,8 +9,7 @@ import utils
 Position = tuple[int, int]
 
 
-class NoPathFound(Exception):
-    ...
+class NoPathFound(Exception): ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -77,10 +76,12 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--test", action="store_true", help="use the test input")
+    parser.add_argument(
+        "-s", "--sample", action="store_true", help="use the sample input"
+    )
     args = parser.parse_args()
 
-    lines = utils.read(day=12, year=2022, test=args.test).splitlines()
+    lines = utils.get_puzzle_input(day=12, year=2022, sample=args.sample).splitlines()
 
     source: Node | None = None
     target: Node | None = None

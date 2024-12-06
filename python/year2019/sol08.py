@@ -29,7 +29,7 @@ def stack_layers(image: list[int]) -> list[int]:
 
 
 if __name__ == "__main__":
-    data = utils.read(day=8, year=2019)
+    data = utils.get_puzzle_input(day=8, year=2019)
     image = list(map(int, data))
 
     layer0 = least_zero_layer_counts(image)

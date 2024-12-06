@@ -8,8 +8,7 @@ from dataclasses import dataclass, field
 import utils
 
 NOTES_RE = re.compile(
-    """\
-Monkey (?P<id>\d+):
+    r"""Monkey (?P<id>\d+):
   Starting items: (?P<items>.+)
   Operation: new = (?P<left_operand>(?:old|\d+)) (?P<operator>[*+]) (?P<right_operand>(?:old|\d+))
   Test: divisible by (?P<mod>\d+)
@@ -55,7 +54,7 @@ class Monkey:
                 operation = functools.partial(operator.mul, int(value))
             case _:
                 raise ValueError(
-                    f"invalid operation: "
+                    "invalid operation: "
                     + f"'{m['left_operand']} {m['operator']} {m['right_operand']}'"
                 )
 
@@ -106,10 +105,12 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--test", action="store_true", help="use the test input")
+    parser.add_argument(
+        "-s", "--sample", action="store_true", help="use the sample input"
+    )
     args = parser.parse_args()
 
-    notes = utils.read(day=11, year=2022, test=args.test).split("\n\n")
+    notes = utils.get_puzzle_input(day=11, year=2022, sample=args.sample).split("\n\n")
 
     simulator = Simulator.from_notes(notes)
     simulator.do(20)

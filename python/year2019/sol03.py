@@ -115,7 +115,7 @@ def minimum_step_count(
 
 
 if __name__ == "__main__":
-    data = utils.read(day=3, year=2019)
+    data = utils.get_puzzle_input(day=3, year=2019)
     segments_a, segments_b = (
         segments_from_path(line.split(",")) for line in data.splitlines()
     )
