@@ -1,15 +1,17 @@
 #include <errno.h>
 #include <stdbool.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "./year2015/solutions.h"
 
 int main(int argc, char** argv) {
   int ch, day, year;
-  bool tflag = false;
 
   time_t t = time(NULL);
   struct tm* timeinfo = localtime(&t);
@@ -22,7 +24,7 @@ int main(int argc, char** argv) {
     day = 25;
   }
 
-  while ((ch = getopt(argc, argv, ":y:d:th")) != -1) {
+  while ((ch = getopt(argc, argv, ":y:d:h")) != -1) {
     switch (ch) {
       case 'y': {
         char* endptr;
@@ -44,9 +46,6 @@ int main(int argc, char** argv) {
         }
         break;
       }
-      case 't':
-        tflag = true;
-        break;
       case ':':
         fprintf(stderr, "aoc: option '-%c' requires an argument\n", optopt);
         return EXIT_FAILURE;
@@ -67,9 +66,26 @@ int main(int argc, char** argv) {
     }
   }
 
-  char fname[32];
-  snprintf(fname, sizeof(fname), "./year%d/input%s/%02d.txt", year,
-           (tflag == 1) ? "/test" : "", day);
+  const char* home = getenv("HOME");
+  if (!home) {
+      fprintf(stderr, "aoc: HOME environment variable not set\n");
+      return EXIT_FAILURE;
+  }
+
+  char fname[128];
+  snprintf(fname, sizeof(fname), "%s/.cache/aoc/%d/%d.txt", home, year, day);
+
+  struct stat file_stat;
+  if (stat(fname, &file_stat) != 0) {
+      if (errno == ENOENT) {
+          fprintf(stderr, "aoc: input file not found at: %s\n", fname);
+          fprintf(stderr, "aoc: download the input file from https://adventofcode.com/%d/day/%d/input\n", year, day);
+          return EXIT_FAILURE;
+      } else {
+          fprintf(stderr, "aoc: %s: %s\n", fname, strerror(errno));
+          return EXIT_FAILURE;
+      }
+  }
 
   switch (year) {
     case 2015:
