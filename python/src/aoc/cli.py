@@ -15,7 +15,9 @@ CHRISTMAS_DAY: Final[int] = 25
 def cli() -> int:
     """Command-line interface for the Advent of Code solutions in Python."""
     parser = argparse.ArgumentParser(
-        prog="aoc", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        prog="aoc",
+        add_help=False,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     add_default_args(parser)
     (args, additional_args) = parser.parse_known_args()
@@ -73,47 +75,51 @@ def add_additional_args(
     """
     from aoc.year2019.day13 import DEFAULT_FRAME_RATE
 
+    group = parser.add_argument_group("additional options")
+
     match (known_args.year, known_args.day):
         case (2018, 7):
-            parser.add_argument(
-                "--render", action="store_true", help="render the graph"
-            )
+            group.add_argument("--render", action="store_true", help="render the graph")
         case (2018, 8):
-            parser.add_argument(
+            group.add_argument(
                 "-p", "--print", action="store_true", help="pretty print the root node"
             )
         case (2018, 15):
-            parser.add_argument(
+            group.add_argument(
                 "--render",
                 action="store_true",
                 help="render the combat in the terminal",
             )
-            parser.add_argument(
+            group.add_argument(
                 "--frame-rate",
                 type=int,
                 default=30,
                 help="frame rate of the rendered combat (default: %(default)s)",
             )
         case (2018, 17):
-            parser.add_argument(
+            group.add_argument(
                 "-i",
                 "--image",
                 action="store_true",
                 help="generate an image (reservoir.png)",
             )
-            parser.add_argument("--scale", type=int, default=1, help="image scale")
+            group.add_argument("--scale", type=int, default=1, help="image scale")
         case (2018, 19):
-            parser.add_argument(
+            group.add_argument(
                 "--fast", action="store_true", help="skip executing the instructions"
             )
         case (2019, 13):
-            parser.add_argument("--render", action="store_true", help="render the game")
-            parser.add_argument(
+            group.add_argument("--render", action="store_true", help="render the game")
+            group.add_argument(
                 "--frame-rate",
                 type=int,
                 default=DEFAULT_FRAME_RATE,
                 help="frame rate of the rendered game (default: %(default)s)",
             )
+
+    parser.add_argument(
+        "-h", "--help", action="help", help="show this help message and exit"
+    )
 
 
 def get_default_date() -> date:
