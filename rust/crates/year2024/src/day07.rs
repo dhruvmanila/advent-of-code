@@ -1,3 +1,4 @@
+use std::fmt;
 use std::str::FromStr;
 
 use anyhow::{anyhow, Result};
@@ -33,6 +34,40 @@ impl Operator {
     }
 }
 
+impl fmt::Display for Operator {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Operator::Add => f.write_str("+"),
+            Operator::Multiply => f.write_str("*"),
+            Operator::Concatenate => f.write_str("||"),
+        }
+    }
+}
+
+#[derive(Debug)]
+struct SolvedEquation<'a> {
+    /// The equation that was solved.
+    equation: &'a CalibrationEquation,
+    /// The solution to the equation which is a list of operators to apply to the numbers in the
+    /// equation. The operators are applied in order from left to right between two consecutive
+    /// numbers.
+    solution: Vec<Operator>,
+}
+
+impl fmt::Display for SolvedEquation<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}:", self.equation.test_value)?;
+        let mut numbers = self.equation.numbers.iter();
+        if let Some(number) = numbers.next() {
+            write!(f, " {number}")?;
+        }
+        for (number, operator) in numbers.zip(self.solution.iter()) {
+            write!(f, " {operator} {number}")?;
+        }
+        Ok(())
+    }
+}
+
 #[derive(Debug)]
 struct CalibrationEquation {
     test_value: u64,
@@ -42,15 +77,34 @@ struct CalibrationEquation {
 impl CalibrationEquation {
     /// Check if the equation is solvable using the given operators.
     fn is_solvable(&self, operators: &[Operator]) -> bool {
+        self.solve(operators).is_some()
+    }
+
+    /// Returns [`Some`] with the solved equation if it's solvable, otherwise [`None`].
+    ///
+    /// The return type implements [`fmt::Display`] to print the equation with the solution.
+    fn to_solved_equation(&self, operators: &[Operator]) -> Option<SolvedEquation> {
+        Some(SolvedEquation {
+            equation: self,
+            solution: self.solve(operators)?,
+        })
+    }
+
+    /// Solve the equation using the given operators.
+    fn solve(&self, operators: &[Operator]) -> Option<Vec<Operator>> {
         fn inner(
             equation: &CalibrationEquation,
             operators: &[Operator],
             value: u64,
             index: usize,
-        ) -> bool {
+        ) -> Option<Vec<Operator>> {
             let Some(number) = equation.numbers.get(index).copied() else {
                 // We have reached the end of the numbers.
-                return value == equation.test_value;
+                return if value == equation.test_value {
+                    Some(Vec::with_capacity(equation.numbers.len().saturating_sub(1)))
+                } else {
+                    None
+                };
             };
             for operator in operators {
                 let next_value = operator.apply(value, number.into());
@@ -58,19 +112,23 @@ impl CalibrationEquation {
                     // Short-circuit the search as the value is already larger than the test value.
                     continue;
                 }
-                if inner(equation, operators, next_value, index + 1) {
-                    return true;
+                if let Some(mut solution) = inner(equation, operators, next_value, index + 1) {
+                    solution.push(*operator);
+                    return Some(solution);
                 }
             }
-            false
+            None
         }
 
         let Some(value) = self.numbers.first().copied() else {
             // There are no numbers to work with.
-            return false;
+            return None;
         };
 
-        inner(self, operators, value.into(), 1)
+        inner(self, operators, value.into(), 1).map(|mut solution| {
+            solution.reverse();
+            solution
+        })
     }
 }
 
@@ -106,6 +164,16 @@ impl CalibrationEquations {
                     .then_some(equation.test_value)
             })
             .sum()
+    }
+
+    /// Display the solutions to the equations that are solvable using the given operators.
+    #[allow(dead_code)]
+    fn display_solutions(&self, operators: &[Operator]) {
+        for equation in &self.0 {
+            if let Some(solved_equation) = equation.to_solved_equation(operators) {
+                println!("{solved_equation}");
+            }
+        }
     }
 }
 
