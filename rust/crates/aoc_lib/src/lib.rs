@@ -1,3 +1,4 @@
+pub mod geom;
 pub mod matrix;
 mod skip_nth;
 

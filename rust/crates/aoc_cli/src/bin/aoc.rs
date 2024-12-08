@@ -33,6 +33,7 @@ fn main() -> Result<()> {
             5 => year2024::day05::solve(&input),
             6 => year2024::day06::solve(&input),
             7 => year2024::day07::solve(&input),
+            8 => year2024::day08::solve(&input),
             _ => Err(anyhow!("No solution available")),
         },
         _ => Err(anyhow!("No solution available")),
