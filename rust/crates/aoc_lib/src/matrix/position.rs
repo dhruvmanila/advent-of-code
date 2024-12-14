@@ -218,11 +218,11 @@ impl Position {
     /// assert_eq!(neighbors_iter.next(), Some(Position::new(0, 0)));
     /// assert_eq!(neighbors_iter.next(), Some(Position::new(0, 1)));
     /// assert_eq!(neighbors_iter.next(), Some(Position::new(0, 2)));
-    /// assert_eq!(neighbors_iter.next(), Some(Position::new(1, 0)));
     /// assert_eq!(neighbors_iter.next(), Some(Position::new(1, 2)));
-    /// assert_eq!(neighbors_iter.next(), Some(Position::new(2, 0)));
-    /// assert_eq!(neighbors_iter.next(), Some(Position::new(2, 1)));
     /// assert_eq!(neighbors_iter.next(), Some(Position::new(2, 2)));
+    /// assert_eq!(neighbors_iter.next(), Some(Position::new(2, 1)));
+    /// assert_eq!(neighbors_iter.next(), Some(Position::new(2, 0)));
+    /// assert_eq!(neighbors_iter.next(), Some(Position::new(1, 0)));
     /// assert_eq!(neighbors_iter.next(), None);
     /// ```
     ///
@@ -234,14 +234,52 @@ impl Position {
     /// let mut neighbors_iter = position.neighbors();
     ///
     /// assert_eq!(neighbors_iter.next(), Some(Position::new(0, 1)));
-    /// assert_eq!(neighbors_iter.next(), Some(Position::new(1, 0)));
     /// assert_eq!(neighbors_iter.next(), Some(Position::new(1, 1)));
+    /// assert_eq!(neighbors_iter.next(), Some(Position::new(1, 0)));
     /// assert_eq!(neighbors_iter.next(), None);
     /// ```
     ///
     /// [`neighbor`]: Position::neighbor
-    pub fn neighbors(&self) -> impl Iterator<Item = Position> {
-        neighbors_impl(self.row, self.col)
+    pub fn neighbors(&self) -> impl Iterator<Item = Position> + '_ {
+        Direction::ALL
+            .iter()
+            .filter_map(|direction| self.neighbor(*direction))
+    }
+
+    /// Returns an iterator over the cardinal neighboring positions of [`Self`] filtering
+    /// out the ones that are out of bounds.
+    ///
+    /// Use [`neighbor`] if you want to get the neighboring position in a specific direction.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use aoc_lib::matrix::Position;
+    /// let position = Position::new(1, 1);
+    /// let mut neighbors_iter = position.cardinal_neighbors();
+    /// assert_eq!(neighbors_iter.next(), Some(Position::new(0, 1)));
+    /// assert_eq!(neighbors_iter.next(), Some(Position::new(1, 2)));
+    /// assert_eq!(neighbors_iter.next(), Some(Position::new(2, 1)));
+    /// assert_eq!(neighbors_iter.next(), Some(Position::new(1, 0)));
+    /// ```
+    ///
+    /// Neighboring positions that are out of bounds are filtered out:
+    ///
+    /// ```
+    /// # use aoc_lib::matrix::Position;
+    /// let position = Position::new(0, 0);
+    /// let mut neighbors_iter = position.cardinal_neighbors();
+    ///
+    /// assert_eq!(neighbors_iter.next(), Some(Position::new(0, 1)));
+    /// assert_eq!(neighbors_iter.next(), Some(Position::new(1, 0)));
+    /// assert_eq!(neighbors_iter.next(), None);
+    /// ```
+    ///
+    /// [`neighbor`]: Position::neighbor
+    pub fn cardinal_neighbors(&self) -> impl Iterator<Item = Position> + '_ {
+        Direction::CARDINAL
+            .iter()
+            .filter_map(|direction| self.neighbor(*direction))
     }
 
     /// Returns the neighboring position in the given direction, [`None`] if the position is out of
@@ -453,18 +491,6 @@ impl SubAssign for Position {
     }
 }
 
-/// Implementation of [`neighbors`] method on [`Position`] that takes the
-/// row and column values as arguments.
-///
-/// [`neighbors`]: Position#method.neighbors
-fn neighbors_impl(row: usize, col: usize) -> impl Iterator<Item = Position> {
-    (row.saturating_sub(1)..=row.saturating_add(1))
-        .flat_map(move |row| {
-            (col.saturating_sub(1)..=col.saturating_add(1)).map(move |col| Position::new(row, col))
-        })
-        .filter(move |position| position.row() != row || position.col() != col)
-}
-
 /// The direction in which a position can move.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
@@ -488,6 +514,14 @@ impl Direction {
         Direction::BottomRight,
         Direction::Down,
         Direction::BottomLeft,
+        Direction::Left,
+    ];
+
+    /// The four cardinal directions: up, down, left, right.
+    pub const CARDINAL: [Direction; 4] = [
+        Direction::Up,
+        Direction::Right,
+        Direction::Down,
         Direction::Left,
     ];
 }

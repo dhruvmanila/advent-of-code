@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use anyhow::{anyhow, Context, Result};
 use clap::Parser;
 
@@ -12,6 +14,7 @@ fn main() -> Result<()> {
     let day = day.unwrap_or_default();
     let input = get_puzzle_input(year, day)?;
 
+    let now = Instant::now();
     match year.as_inner() {
         2023 => match day.as_inner() {
             1 => year2023::day01::solve(&input),
@@ -34,11 +37,17 @@ fn main() -> Result<()> {
             6 => year2024::day06::solve(&input),
             7 => year2024::day07::solve(&input),
             8 => year2024::day08::solve(&input),
+            9 => year2024::day09::solve(&input),
+            10 => year2024::day10::solve(&input),
+            11 => year2024::day11::solve(&input),
+            12 => year2024::day12::solve(&input),
+            13 => year2024::day13::solve(&input),
             _ => Err(anyhow!("No solution available")),
         },
         _ => Err(anyhow!("No solution available")),
     }
     .with_context(|| format!("Failed to solve year {year} day {day}"))?;
+    println!("Solved in: {:?}", now.elapsed());
 
     Ok(())
 }
