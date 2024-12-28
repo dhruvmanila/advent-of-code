@@ -1,10 +1,9 @@
 use std::time::Instant;
 
 use anyhow::{anyhow, Context, Result};
-use clap::Parser;
-
 use aoc_cli::args::{Args, PuzzleDate};
 use aoc_cli::session::get_puzzle_input;
+use clap::Parser;
 
 fn main() -> Result<()> {
     let args = Args::parse();
@@ -42,6 +41,14 @@ fn main() -> Result<()> {
             11 => year2024::day11::solve(&input),
             12 => year2024::day12::solve(&input),
             13 => year2024::day13::solve(&input),
+            14 => year2024::day14::solve(&input),
+            15 => year2024::day15::solve(&input),
+            16 => year2024::day16::solve(&input),
+            17 => year2024::day17::solve(&input),
+            18 => year2024::day18::solve(&input),
+            19 => year2024::day19::solve(&input),
+            20 => year2024::day20::solve(&input),
+            21 => year2024::day21::solve(&input),
             _ => Err(anyhow!("No solution available")),
         },
         _ => Err(anyhow!("No solution available")),

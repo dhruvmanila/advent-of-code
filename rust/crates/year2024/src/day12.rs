@@ -3,7 +3,6 @@ use std::fmt;
 use std::str::FromStr;
 
 use anyhow::{anyhow, Result};
-
 use aoc_lib::matrix::{Direction, Matrix, Position};
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
@@ -41,9 +40,7 @@ impl Garden {
             let mut queue = vec![position];
             while let Some(position) = queue.pop() {
                 for neighbor in position.cardinal_neighbors() {
-                    if plots.get(neighbor.row(), neighbor.col()) == Some(label)
-                        && region.insert(neighbor)
-                    {
+                    if plots.get(neighbor) == Some(label) && region.insert(neighbor) {
                         queue.push(neighbor);
                     }
                 }

@@ -2,7 +2,6 @@ use std::collections::HashSet;
 use std::str::FromStr;
 
 use anyhow::{anyhow, Result};
-
 use aoc_lib::matrix::{Matrix, Position};
 
 /// A topographic map of the surrounding area.
@@ -75,7 +74,7 @@ impl Trailhead<'_> {
 
         while let Some((position, elevation)) = queue.pop() {
             for neighbor in position.cardinal_neighbors() {
-                if self.map.0.get(neighbor.row(), neighbor.col()).copied() == Some(elevation) {
+                if self.map.0.get(neighbor).copied() == Some(elevation) {
                     if elevation == 9 {
                         visited_nines.insert(neighbor);
                         rating += 1;

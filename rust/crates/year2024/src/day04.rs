@@ -2,7 +2,6 @@ use std::fmt;
 use std::str::FromStr;
 
 use anyhow::{anyhow, Result};
-
 use aoc_lib::matrix::{Direction, Matrix, Position};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -63,9 +62,9 @@ impl Board {
                 let mut positions_in_direction =
                     self.0.positions_in_direction(x_position, direction);
                 if [Letter::M, Letter::A, Letter::S].iter().all(|letter| {
-                    positions_in_direction.next().map_or(false, |position| {
-                        self.0.get(position.row(), position.col()) == Some(letter)
-                    })
+                    positions_in_direction
+                        .next()
+                        .map_or(false, |position| self.0.get(position) == Some(letter))
                 }) {
                     count += 1;
                 }
@@ -98,7 +97,7 @@ impl Board {
         let neighbor_letter = |position: Position, direction: Direction| {
             position
                 .neighbor(direction)
-                .and_then(|position| self.0.get(position.row(), position.col()))
+                .and_then(|position| self.0.get(position))
         };
 
         'outer: for a_position in self.a_positions() {

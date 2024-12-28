@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 
 use anyhow::{anyhow, Result};
-
 use aoc_lib::matrix::Position;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

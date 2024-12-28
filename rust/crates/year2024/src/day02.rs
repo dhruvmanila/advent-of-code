@@ -1,9 +1,8 @@
 use std::cmp::Ordering;
 use std::str::FromStr;
 
-use aoc_lib::SkipNthExt;
-
 use anyhow::{Error, Result};
+use aoc_lib::IteratorExt;
 
 #[derive(Debug, Default)]
 struct UnusualData(Vec<Report>);

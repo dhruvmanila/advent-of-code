@@ -4,9 +4,8 @@ use std::fmt::{self, Write};
 use std::str::FromStr;
 
 use anyhow::Result;
-use itertools::Itertools;
-
 use aoc_lib::geom::{point2, Point2D, Vector2D};
+use itertools::Itertools;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 struct Frequency(u8);
@@ -193,9 +192,9 @@ pub fn solve(input: &str) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     use test_case::test_case;
+
+    use super::*;
 
     const SAMPLE_INPUT1: &str = "\
 ..........

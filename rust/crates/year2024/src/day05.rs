@@ -223,9 +223,10 @@ mod tests {
 /// algorithm.
 #[allow(unused)]
 mod over_engineered {
+    use std::collections::HashMap;
+    use std::fmt;
     use std::iter::FusedIterator;
     use std::str::FromStr;
-    use std::{collections::HashMap, fmt};
 
     use anyhow::{anyhow, Result};
 

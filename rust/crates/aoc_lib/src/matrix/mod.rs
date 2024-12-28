@@ -1,11 +1,15 @@
+mod direction;
+mod index;
 mod iter;
 mod position;
 mod vector;
 
+use std::fmt;
 use std::ops::{Index, IndexMut};
 
+pub use direction::{CardinalDirection, Direction};
 pub use iter::{ColumnIter, MatrixEnumerate, PositionsInDirectionIter, RowIter};
-pub use position::{Direction, Position};
+pub use position::Position;
 pub use vector::{Vector, VectorMut};
 
 /// A generic implementation of a dynamically sized matrix.
@@ -27,22 +31,41 @@ impl<T> Matrix<T> {
     /// Constructs a new, empty matrix.
     ///
     /// Use [`Matrix::from_iter`] if you want to set the matrix from an iterator.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let mut matrix: Matrix<u32> = Matrix::new();
-    ///
-    /// assert_eq!(matrix.nrows(), 0);
-    /// assert_eq!(matrix.ncols(), 0);
-    /// ```
     #[inline]
     pub fn new() -> Matrix<T>
     where
         T: Default,
     {
         Matrix::default()
+    }
+
+    /// Constructs a new matrix of given size (`rows * cols`) filled with the given `value`.
+    #[inline]
+    pub fn new_with(rows: usize, cols: usize, value: T) -> Matrix<T>
+    where
+        T: Clone,
+    {
+        Matrix {
+            nrows: rows,
+            ncols: cols,
+            data: vec![value; rows * cols],
+        }
+    }
+
+    /// Constructs a new matrix of given size (`rows * cols`) filled with the `data`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the number of elements in `data` is not equal to `rows * cols`.
+    #[inline]
+    pub fn from_vec(rows: usize, cols: usize, data: Vec<T>) -> Matrix<T> {
+        assert_eq!(rows * cols, data.len());
+
+        Matrix {
+            nrows: rows,
+            ncols: cols,
+            data,
+        }
     }
 
     /// Constructs a new, non-empty matrix of given size filled with the values
@@ -55,17 +78,7 @@ impl<T> Matrix<T> {
     ///
     /// Panics if either `rows` or `cols` are equal to `0` or if the iterator
     /// does not have `rows * cols` values.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(3, 6, 0..);
-    ///
-    /// assert_eq!(matrix.get(0, 0), Some(&0));
-    /// assert_eq!(matrix.get(0, 1), Some(&1));
-    /// assert_eq!(matrix.get(1, 0), Some(&6));
-    /// ```
+    #[inline]
     pub fn from_iter(rows: usize, cols: usize, data: impl IntoIterator<Item = T>) -> Matrix<T> {
         assert!(rows > 0 && cols > 0);
 
@@ -89,6 +102,7 @@ impl<T> Matrix<T> {
     /// If the iterator returns an [`Err`] value, the matrix construction will
     /// stop and the error will be returned, otherwise the matrix will be created
     /// using all the [`Ok`] values returned by the iterator.
+    #[inline]
     pub fn try_from_iter<E>(
         rows: usize,
         cols: usize,
@@ -117,138 +131,24 @@ impl<T> Matrix<T> {
 /// Methods
 impl<T> Matrix<T> {
     /// Returns the number of rows in the matrix.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(3, 6, 0..);
-    ///
-    /// assert_eq!(matrix.nrows(), 3);
-    /// ```
     #[inline]
     pub const fn nrows(&self) -> usize {
         self.nrows
     }
 
     /// Returns the number of columns in the matrix.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(3, 6, 0..);
-    ///
-    /// assert_eq!(matrix.ncols(), 6);
-    /// ```
     #[inline]
     pub const fn ncols(&self) -> usize {
         self.ncols
     }
 
-    /// Returns the dimensions of the matrix as a tuple of `(rows, cols)`.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(3, 6, 0..);
-    /// assert_eq!(matrix.dim(), (3, 6));
-    /// ```
+    /// Returns the shape of the matrix as a tuple of `(rows, cols)`.
     #[inline]
-    pub const fn dim(&self) -> (usize, usize) {
+    pub const fn shape(&self) -> (usize, usize) {
         (self.nrows, self.ncols)
     }
 
-    /// Returns a reference to the value at given row & column.
-    ///
-    /// This is the non-panicking alternative to indexing the matrix. Returns
-    /// [`None`] whenever equivalent indexing operation would panic.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(3, 6, 0..);
-    ///
-    /// assert_eq!(matrix.get(0, 0), Some(&0));
-    /// assert_eq!(matrix.get(2, 5), Some(&17));
-    ///
-    /// // Out of bounds
-    /// assert!(matrix.get(10, 2).is_none());
-    /// ```
-    pub fn get(&self, row: usize, col: usize) -> Option<&T> {
-        if row < self.nrows && col < self.ncols {
-            Some(&self.data[col + row * self.ncols])
-        } else {
-            None
-        }
-    }
-
-    /// Returns a mutable reference to the value at given row & column.
-    ///
-    /// This is the non-panicking alternative to indexing the matrix. Returns
-    /// [`None`] whenever equivalent indexing operation would panic.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let mut matrix: Matrix<u32> = Matrix::from_iter(3, 6, 0..);
-    /// assert_eq!(matrix.get(0, 0), Some(&0));
-    ///
-    /// let cell = matrix.get_mut(0, 0).unwrap();
-    /// *cell = 5;
-    ///
-    /// assert_eq!(matrix.get(0, 0), Some(&5));
-    /// ```
-    pub fn get_mut(&mut self, row: usize, col: usize) -> Option<&mut T> {
-        if row < self.nrows && col < self.ncols {
-            Some(&mut self.data[col + row * self.ncols])
-        } else {
-            None
-        }
-    }
-
-    /// Set the content of a cell at the given `row` and `col` to `value`.
-    ///
-    /// # Panics
-    ///
-    /// Panics if either `row` or `col` are out of bounds.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let mut matrix: Matrix<u32> = Matrix::from_iter(3, 6, 0..);
-    /// assert_eq!(matrix.get(0, 0), Some(&0));
-    ///
-    /// matrix.set(0, 0, 5);
-    /// assert_eq!(matrix.get(0, 0), Some(&5));
-    /// ```
-    pub fn set(&mut self, row: usize, col: usize, value: T) {
-        if let Some(cell) = self.get_mut(row, col) {
-            *cell = value;
-        } else {
-            panic!("`row` or `col` out of bounds");
-        }
-    }
-
-    /// Returns a view into a `row` of the matrix.
-    ///
-    /// Returns [`None`] if `row` is out of bounds.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(3, 6, 0..);
-    /// let row = matrix.row(1).unwrap();
-    ///
-    /// assert_eq!(row.len(), 6);
-    /// assert_eq!(row.get(0), Some(&6));
-    /// assert_eq!(row.get(5), Some(&11));
-    /// ```
+    /// Returns a view into a `row` of the matrix, [`None`] if out of bounds.
     pub fn row(&self, row: usize) -> Option<Vector<T>> {
         if row < self.nrows {
             Some(Vector {
@@ -261,29 +161,7 @@ impl<T> Matrix<T> {
         }
     }
 
-    /// Returns a mutable view into a `row` of the matrix.
-    ///
-    /// Returns [`None`] if `row` is out of bounds.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let mut matrix: Matrix<u32> = Matrix::from_iter(3, 6, 0..);
-    /// assert_eq!(matrix.get(1, 1), Some(&7));
-    ///
-    /// let mut row = matrix.row_mut(1).unwrap();
-    /// assert_eq!(row.get(1), Some(&7));
-    ///
-    /// // Change the value
-    /// let cell = row.get_mut(1).unwrap();
-    /// *cell = 5;
-    ///
-    /// assert_eq!(row.get(1), Some(&5));
-    ///
-    /// // The change is reflected in the matrix
-    /// assert_eq!(matrix.get(1, 1), Some(&5));
-    /// ```
+    /// Returns a mutable view into a `row` of the matrix, [`None`] if out of bounds.
     pub fn row_mut(&mut self, row: usize) -> Option<VectorMut<T>> {
         if row < self.nrows {
             Some(VectorMut {
@@ -296,21 +174,7 @@ impl<T> Matrix<T> {
         }
     }
 
-    /// Returns a view into a `column` of the matrix.
-    ///
-    /// Returns [`None`] if `column` is out of bounds.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(3, 6, 0..);
-    /// let column = matrix.column(1).unwrap();
-    ///
-    /// assert_eq!(column.len(), 3);
-    /// assert_eq!(column.get(0), Some(&1));
-    /// assert_eq!(column.get(2), Some(&13));
-    /// ```
+    /// Returns a view into a `column` of the matrix, [`None`] if out of bounds.
     pub fn column(&self, column: usize) -> Option<Vector<T>> {
         if column < self.ncols {
             Some(Vector {
@@ -323,29 +187,7 @@ impl<T> Matrix<T> {
         }
     }
 
-    /// Returns a mutable view into a `column` of the matrix.
-    ///
-    /// Returns [`None`] if `column` is out of bounds.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let mut matrix: Matrix<u32> = Matrix::from_iter(3, 6, 0..);
-    /// assert_eq!(matrix.get(1, 2), Some(&8));
-    ///
-    /// let mut column = matrix.column_mut(2).unwrap();
-    /// assert_eq!(column.get(1), Some(&8));
-    ///
-    /// // Change the value
-    /// let cell = column.get_mut(1).unwrap();
-    /// *cell = 5;
-    ///
-    /// assert_eq!(column.get(1), Some(&5));
-    ///
-    /// // The change is reflected in the matrix
-    /// assert_eq!(matrix.get(1, 2), Some(&5));
-    /// ```
+    /// Returns a mutable view into a `column` of the matrix, [`None`] if out of bounds.
     pub fn column_mut(&mut self, column: usize) -> Option<VectorMut<T>> {
         if column < self.ncols {
             Some(VectorMut {
@@ -361,30 +203,6 @@ impl<T> Matrix<T> {
     /// Returns an iterator over the rows of the matrix.
     ///
     /// Each row is represented as a [`Vector`].
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// // Create a 2x2 matrix with values 0..4
-    /// let matrix: Matrix<u32> = Matrix::from_iter(2, 2, 0..);
-    /// let mut row_iter = matrix.rows();
-    ///
-    /// let first_row = row_iter.next().unwrap();
-    /// assert_eq!(first_row.len(), 2);
-    /// assert_eq!(first_row.get(0), Some(&0));
-    /// assert_eq!(first_row.get(1), Some(&1));
-    /// assert!(first_row.get(2).is_none());
-    ///
-    /// let second_row = row_iter.next().unwrap();
-    /// assert_eq!(second_row.len(), 2);
-    /// assert_eq!(second_row.get(0), Some(&2));
-    /// assert_eq!(second_row.get(1), Some(&3));
-    /// assert!(second_row.get(2).is_none());
-    ///
-    /// // There are no more rows
-    /// assert!(row_iter.next().is_none());
-    /// ```
     pub fn rows(&self) -> RowIter<'_, T> {
         RowIter::new(self)
     }
@@ -392,78 +210,29 @@ impl<T> Matrix<T> {
     /// Returns an iterator over the columns of the matrix.
     ///
     /// Each column is represented as a [`Vector`].
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// // Create a 2x2 matrix with values 0..4
-    /// let matrix: Matrix<u32> = Matrix::from_iter(2, 2, 0..);
-    /// let mut column_iter = matrix.columns();
-    ///
-    /// let first_column = column_iter.next().unwrap();
-    /// assert_eq!(first_column.len(), 2);
-    /// assert_eq!(first_column.get(0), Some(&0));
-    /// assert_eq!(first_column.get(1), Some(&2));
-    /// assert!(first_column.get(2).is_none());
-    ///
-    /// let second_column = column_iter.next().unwrap();
-    /// assert_eq!(second_column.len(), 2);
-    /// assert_eq!(second_column.get(0), Some(&1));
-    /// assert_eq!(second_column.get(1), Some(&3));
-    /// assert!(second_column.get(2).is_none());
-    ///
-    /// // There are no more columns
-    /// assert!(column_iter.next().is_none());
-    /// ```
     pub fn columns(&self) -> ColumnIter<'_, T> {
         ColumnIter::new(self)
     }
 
-    /// Returns an iterator over the position and value of each cell in the
-    /// matrix in row-major order.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::{Matrix, Position};
-    /// // Create a 2x2 matrix with values 0..4
-    /// let matrix: Matrix<u32> = Matrix::from_iter(2, 2, 0..);
-    /// let mut iter = matrix.enumerate();
-    ///
-    /// assert_eq!(iter.next(), Some((Position::new(0, 0), &0)));
-    /// assert_eq!(iter.next(), Some((Position::new(0, 1), &1)));
-    /// assert_eq!(iter.next(), Some((Position::new(1, 0), &2)));
-    /// assert_eq!(iter.next(), Some((Position::new(1, 1), &3)));
-    /// assert_eq!(iter.next(), None);
-    /// ```
+    /// Returns an iterator over the [`Position`] and value of each cell in the matrix in row-major
+    /// order.
     pub fn enumerate(&self) -> MatrixEnumerate<'_, T> {
         MatrixEnumerate::new(self)
     }
 
+    /// Finds the [`Position`] of the first occurrence of the given `expected` value in the matrix,
+    /// [`None`] if not found.
+    pub fn find_position(&self, expected: &T) -> Option<Position>
+    where
+        T: PartialEq,
+    {
+        //let index = self.data.iter().position(|item| item == expected)?;
+        //Some(Position::new(index / self.nrows, index % self.nrows))
+        self.enumerate()
+            .find_map(|(position, item)| (item == expected).then_some(position))
+    }
+
     /// Returns a slice containing all the elements in the matrix in row-major order.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(2, 2, 0..);
-    /// assert_eq!(matrix.as_slice(), &[0, 1, 2, 3]);
-    /// ```
-    ///
-    /// The slice can be used to iterate over the elements of the matrix:
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(2, 2, 0..);
-    /// let mut iter = matrix.as_slice().iter();
-    ///
-    /// assert_eq!(iter.next(), Some(&0));
-    /// assert_eq!(iter.next(), Some(&1));
-    /// assert_eq!(iter.next(), Some(&2));
-    /// assert_eq!(iter.next(), Some(&3));
-    /// assert_eq!(iter.next(), None);
-    /// ```
     pub fn as_slice(&self) -> &[T] {
         &self.data
     }
@@ -477,116 +246,64 @@ impl<T> Matrix<T> {
         start: Position,
         direction: Direction,
     ) -> PositionsInDirectionIter {
-        PositionsInDirectionIter::new(self.dim(), start, direction)
-    }
-}
-
-impl<T> Index<[usize; 2]> for Matrix<T> {
-    type Output = T;
-
-    /// Returns a reference to the value at the index, given as an array of
-    /// `[row, col]`.
-    ///
-    /// # Panics
-    ///
-    /// If either `row` or `col` are out of bounds.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(2, 2, 0..);
-    /// assert_eq!(matrix[[0, 0]], 0);
-    /// assert_eq!(matrix[[0, 1]], 1);
-    /// ```
-    ///
-    /// The following panics because `row` is out of bounds:
-    ///
-    /// ```should_panic
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(2, 2, 0..);
-    /// matrix[[2, 0]];
-    /// ```
-    fn index(&self, [row, col]: [usize; 2]) -> &Self::Output {
-        &self.data[col + row * self.ncols]
-    }
-}
-
-impl<T> IndexMut<[usize; 2]> for Matrix<T> {
-    fn index_mut(&mut self, [row, col]: [usize; 2]) -> &mut Self::Output {
-        &mut self.data[col + row * self.ncols]
+        PositionsInDirectionIter::new(self.shape(), start, direction)
     }
 }
 
 impl<T> Index<(usize, usize)> for Matrix<T> {
     type Output = T;
 
-    /// Returns a reference to the value at the index, given as a tuple of
-    /// `(row, col)`.
-    ///
-    /// # Panics
-    ///
-    /// If either `row` or `col` are out of bounds.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(2, 2, 0..);
-    /// assert_eq!(matrix[(0, 0)], 0);
-    /// assert_eq!(matrix[(0, 1)], 1);
-    /// ```
-    ///
-    /// The following panics because `row` is out of bounds:
-    ///
-    /// ```should_panic
-    /// # use aoc_lib::matrix::Matrix;
-    /// let matrix: Matrix<u32> = Matrix::from_iter(2, 2, 0..);
-    /// matrix[(2, 0)];
-    /// ```
-    fn index(&self, (row, col): (usize, usize)) -> &Self::Output {
-        &self.data[col + row * self.ncols]
+    fn index(&self, (row, col): (usize, usize)) -> &T {
+        self.get((row, col)).expect("row or column out of bounds")
     }
 }
 
 impl<T> IndexMut<(usize, usize)> for Matrix<T> {
-    fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut Self::Output {
-        &mut self.data[col + row * self.ncols]
+    fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
+        self.get_mut((row, col))
+            .expect("row or column out of bounds")
     }
 }
 
 impl<T> Index<Position> for Matrix<T> {
     type Output = T;
 
-    /// Returns a reference to the value at the given [`Position`].
-    ///
-    /// # Panics
-    ///
-    /// If either `row` or `col` of the position are out of bounds.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use aoc_lib::matrix::{Matrix, Position};
-    /// let matrix: Matrix<u32> = Matrix::from_iter(2, 2, 0..);
-    /// assert_eq!(matrix[Position::new(0, 0)], 0);
-    /// assert_eq!(matrix[Position::new(0, 1)], 1);
-    /// ```
-    ///
-    /// The following panics because `row` is out of bounds:
-    ///
-    /// ```should_panic
-    /// # use aoc_lib::matrix::{Matrix, Position};
-    /// let matrix: Matrix<u32> = Matrix::from_iter(2, 2, 0..);
-    /// matrix[Position::new(2, 0)];
-    /// ```
-    fn index(&self, pos: Position) -> &Self::Output {
+    fn index(&self, pos: Position) -> &T {
         &self[pos.as_tuple()]
     }
 }
 
 impl<T> IndexMut<Position> for Matrix<T> {
-    fn index_mut(&mut self, pos: Position) -> &mut Self::Output {
+    fn index_mut(&mut self, pos: Position) -> &mut T {
         &mut self[pos.as_tuple()]
+    }
+}
+
+impl<T> Index<&Position> for Matrix<T> {
+    type Output = T;
+
+    fn index(&self, index: &Position) -> &T {
+        &self[index.as_tuple()]
+    }
+}
+
+impl<T> IndexMut<&Position> for Matrix<T> {
+    fn index_mut(&mut self, index: &Position) -> &mut T {
+        &mut self[index.as_tuple()]
+    }
+}
+
+impl<T> fmt::Display for Matrix<T>
+where
+    T: fmt::Display,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for row in self.rows() {
+            for cell in row.iter() {
+                write!(f, "{cell}")?;
+            }
+            writeln!(f)?;
+        }
+        Ok(())
     }
 }

@@ -1,14 +1,13 @@
 use std::iter::FusedIterator;
 
-use crate::matrix::position::{Direction, Position};
-use crate::matrix::{Matrix, Vector};
+use super::{Direction, Matrix, Position, Vector};
 
 /// An iterator over the rows of a [`Matrix`].
 ///
 /// This struct is created by the [`rows`] method on [`Matrix`]. See its
 /// documentation for more.
 ///
-/// [`rows`]: Matrix#method.rows
+/// [`rows`]: Matrix::rows
 pub struct RowIter<'a, T> {
     matrix: &'a Matrix<T>,
     current: usize,
@@ -47,7 +46,7 @@ impl<T> FusedIterator for RowIter<'_, T> {}
 /// This struct is created by the [`columns`] method on [`Matrix`]. See its
 /// documentation for more.
 ///
-/// [`columns`]: Matrix#method.columns
+/// [`columns`]: Matrix::columns
 pub struct ColumnIter<'a, T> {
     matrix: &'a Matrix<T>,
     current: usize,
@@ -87,7 +86,7 @@ impl<T> FusedIterator for ColumnIter<'_, T> {}
 /// This struct is created by the [`enumerate`] method on [`Matrix`]. See its
 /// documentation for more.
 ///
-/// [`enumerate`]: Matrix#method.enumerate
+/// [`enumerate`]: Matrix::enumerate
 pub struct MatrixEnumerate<'a, T> {
     matrix: &'a Matrix<T>,
     current: Position,
@@ -106,15 +105,15 @@ impl<'a, T> Iterator for MatrixEnumerate<'a, T> {
     type Item = (Position, &'a T);
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current.row() >= self.matrix.nrows() {
+        if self.current.row >= self.matrix.nrows() {
             return None;
         }
 
         let item = (self.current, &self.matrix[self.current]);
 
         self.current = self.current.add_col(1);
-        if self.current.col() == self.matrix.ncols() {
-            self.current = Position::new(self.current.row() + 1, 0);
+        if self.current.col == self.matrix.ncols() {
+            self.current = Position::new(self.current.row + 1, 0);
         }
 
         Some(item)
@@ -122,8 +121,8 @@ impl<'a, T> Iterator for MatrixEnumerate<'a, T> {
 
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let len = (self.matrix.nrows() - self.current.row() - 1) * self.matrix.ncols()
-            + (self.matrix.ncols() - self.current.col());
+        let len = (self.matrix.nrows() - self.current.row - 1) * self.matrix.ncols()
+            + (self.matrix.ncols() - self.current.col);
         (len, Some(len))
     }
 }
@@ -137,7 +136,7 @@ impl<T> FusedIterator for MatrixEnumerate<'_, T> {}
 /// This struct is created by the [`positions_in_direction`] method on [`Matrix`]. See its
 /// documentation for more.
 ///
-/// [`positions_in_direction`]: Matrix#method.positions_in_direction
+/// [`positions_in_direction`]: Matrix::positions_in_direction
 pub struct PositionsInDirectionIter {
     dimension: (usize, usize),
     current: Position,
@@ -155,7 +154,7 @@ impl PositionsInDirectionIter {
 
     /// Returns `true` if the current position is out of bounds of the matrix.
     fn is_out_of_bounds(&self) -> bool {
-        self.current.row() >= self.dimension.0 || self.current.col() >= self.dimension.1
+        self.current.row >= self.dimension.0 || self.current.col >= self.dimension.1
     }
 }
 
@@ -166,18 +165,7 @@ impl Iterator for PositionsInDirectionIter {
         if self.is_out_of_bounds() {
             return None;
         }
-
-        self.current = match self.direction {
-            Direction::Up => self.current.up()?,
-            Direction::Down => self.current.down()?,
-            Direction::Left => self.current.left()?,
-            Direction::Right => self.current.right()?,
-            Direction::TopLeft => self.current.top_left()?,
-            Direction::TopRight => self.current.top_right()?,
-            Direction::BottomLeft => self.current.bottom_left()?,
-            Direction::BottomRight => self.current.bottom_right()?,
-        };
-
+        self.current = self.current.neighbor(self.direction)?;
         Some(self.current)
     }
 }
