@@ -226,10 +226,8 @@ impl<T> Matrix<T> {
     where
         T: PartialEq,
     {
-        //let index = self.data.iter().position(|item| item == expected)?;
-        //Some(Position::new(index / self.nrows, index % self.nrows))
-        self.enumerate()
-            .find_map(|(position, item)| (item == expected).then_some(position))
+        let index = self.data.iter().position(|item| item == expected)?;
+        Some(Position::new(index / self.ncols, index % self.nrows))
     }
 
     /// Returns a slice containing all the elements in the matrix in row-major order.

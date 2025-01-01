@@ -140,6 +140,9 @@ struct NumericKeypad {
 }
 
 impl NumericKeypad {
+    /// Creates a new numeric keypad.
+    ///
+    /// Use [`NUMERIC_KEYPAD`] instead of constructing the keypad manually.
     fn new() -> NumericKeypad {
         NumericKeypad {
             positions: [
@@ -163,7 +166,8 @@ impl NumericKeypad {
 
     /// Returns an iterator of [`DirectionalInstruction`] for each numeric `tiles` on the keypad.
     ///
-    /// The first instruction starts from the activation tile.
+    /// The first instruction starts from the activation tile to the first numeric tile, the second
+    /// instruction starts from the first numeric tile to the second numeric tile, and so on.
     fn instructions<'a, 'b>(
         &'a self,
         tiles: &'b [NumericTile],
@@ -177,6 +181,11 @@ impl NumericKeypad {
 }
 
 /// An iterator of directional instructions for each numeric tile on the keypad.
+///
+/// This struct is created by the [`instructions`] method on [`NumericKeypad`]. See its
+/// documentation for more.
+///
+/// [`instructions`]: NumericKeypad::instructions
 struct NumericKeypadInstructions<'a, 'b> {
     keypad: &'a NumericKeypad,
     tiles: std::slice::Iter<'b, NumericTile>,
@@ -187,6 +196,7 @@ impl<'a> Iterator for NumericKeypadInstructions<'a, '_> {
     type Item = DirectionalInstruction<'a>;
 
     fn next(&mut self) -> Option<DirectionalInstruction<'a>> {
+        // SAFETY: The positions table is initialized with all possible numeric tiles.
         let current = self.keypad.positions.get(self.tiles.next()?).unwrap();
         let path = shortest_path(self.previous, *current, self.keypad.gap);
         self.previous = *current;
@@ -196,12 +206,16 @@ impl<'a> Iterator for NumericKeypadInstructions<'a, '_> {
 
 impl FusedIterator for NumericKeypadInstructions<'_, '_> {}
 
+#[derive(Debug)]
 struct DirectionalKeypad {
     /// A lookup table of the shortest path between each pair of direction tiles.
     lookup: HashMap<(DirectionTile, DirectionTile), Vec<DirectionTile>>,
 }
 
 impl DirectionalKeypad {
+    /// Creates a new directional keypad.
+    ///
+    /// Use [`DIRECTIONAL_KEYPAD`] instead of constructing the keypad manually.
     fn new() -> DirectionalKeypad {
         DirectionalKeypad {
             lookup: DirectionTile::ALL
@@ -237,12 +251,14 @@ impl DirectionalKeypad {
 
     /// Returns an iterator of [`DirectionalInstruction`] for each direction `tiles` on the keypad.
     ///
-    /// The first instruction starts from the activation tile.
+    /// The first instruction starts from the activation tile to the first direction tile, the
+    /// second instruction starts from the first direction tile to the second direction tile, and
+    /// so on.
     fn instructions<'a, 'b>(
         &'a self,
         tiles: &'b [DirectionTile],
-    ) -> DirectionKeypadInstructions<'a, 'b> {
-        DirectionKeypadInstructions {
+    ) -> DirectionalKeypadInstructions<'a, 'b> {
+        DirectionalKeypadInstructions {
             keypad: self,
             tiles: tiles.iter(),
             previous: DirectionTile::Activate,
@@ -251,13 +267,18 @@ impl DirectionalKeypad {
 }
 
 /// An iterator of directional instructions for each direction tile on the keypad.
-struct DirectionKeypadInstructions<'a, 'b> {
+///
+/// This struct is created by the [`instructions`] method on [`DirectionalKeypad`]. See its
+/// documentation for more.
+///
+/// [`instructions`]: DirectionalKeypad::instructions
+struct DirectionalKeypadInstructions<'a, 'b> {
     keypad: &'a DirectionalKeypad,
     tiles: std::slice::Iter<'b, DirectionTile>,
     previous: DirectionTile,
 }
 
-impl<'a> Iterator for DirectionKeypadInstructions<'a, '_> {
+impl<'a> Iterator for DirectionalKeypadInstructions<'a, '_> {
     type Item = DirectionalInstruction<'a>;
 
     fn next(&mut self) -> Option<DirectionalInstruction<'a>> {
@@ -268,7 +289,7 @@ impl<'a> Iterator for DirectionKeypadInstructions<'a, '_> {
     }
 }
 
-impl FusedIterator for DirectionKeypadInstructions<'_, '_> {}
+impl FusedIterator for DirectionalKeypadInstructions<'_, '_> {}
 
 /// A directional instruction that represents a sequence of direction tiles.
 #[derive(PartialEq, Eq, Hash)]
@@ -304,6 +325,8 @@ impl fmt::Debug for DirectionalInstruction<'_> {
 ///     | 0 | A |
 ///     +---+---+
 /// ```
+///
+/// This is constructed lazily on first access.
 static NUMERIC_KEYPAD: LazyLock<NumericKeypad> = LazyLock::new(NumericKeypad::new);
 
 /// A directional keypad of the following layout:
@@ -315,7 +338,9 @@ static NUMERIC_KEYPAD: LazyLock<NumericKeypad> = LazyLock::new(NumericKeypad::ne
 /// | < | v | > |
 /// +---+---+---+
 /// ```
-static DIRECTION_KEYPAD: LazyLock<DirectionalKeypad> = LazyLock::new(DirectionalKeypad::new);
+///
+/// This is constructed lazily on first access.
+static DIRECTIONAL_KEYPAD: LazyLock<DirectionalKeypad> = LazyLock::new(DirectionalKeypad::new);
 
 /// A door code that's made up of 4 numeric tiles.
 struct DoorCode([NumericTile; 4]);
@@ -342,7 +367,7 @@ impl DoorCode {
         for _ in 0..n {
             let mut new_frequencies: HashMap<DirectionalInstruction<'_>, usize> = HashMap::new();
             for (instruction, count) in &frequencies {
-                for next_instruction in DIRECTION_KEYPAD.instructions(instruction) {
+                for next_instruction in DIRECTIONAL_KEYPAD.instructions(instruction) {
                     *new_frequencies.entry(next_instruction).or_default() += count;
                 }
             }

@@ -3,9 +3,8 @@ use std::num::NonZeroUsize;
 use std::str::FromStr;
 
 use anyhow::{anyhow, bail, Result};
-use itertools::Itertools;
-
 use aoc_lib::matrix::{Matrix, Position};
+use itertools::Itertools;
 
 /// Cell types for each position in the universe matrix.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -193,9 +192,9 @@ pub fn solve(input: &str) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     use test_case::test_case;
+
+    use super::*;
 
     const SAMPLE_INPUT: &str = "\
 ...#......

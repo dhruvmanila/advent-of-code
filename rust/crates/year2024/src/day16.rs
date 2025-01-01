@@ -139,13 +139,13 @@ impl ReindeerMaze {
         let lowest_score = *total_cost.get(&target_node).unwrap();
 
         let mut positions = HashSet::new();
-        let mut stack = vec![target_node];
+        let mut stack = vec![&target_node];
         while let Some(node) = stack.pop() {
             // We can't skip if the position already exists in the set because a turn only differs
             // in the direction while the position remains the same.
             positions.insert(node.position);
-            if let Some(prev) = previous.get(&node) {
-                stack.extend(prev.iter().cloned());
+            if let Some(prev) = previous.get(node) {
+                stack.extend(prev.iter());
             }
         }
 

@@ -364,9 +364,9 @@ pub fn solve(input: &str) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     use test_case::test_case;
+
+    use super::*;
 
     const SAMPLE_INPUT: &str = "\
 32T3K 765

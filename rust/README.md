@@ -18,6 +18,8 @@ impl FromStr for ParsedInput {
 }
 
 pub fn solve(input: &str) -> Result<()> {
+    let _ = ParsedInput::from_str(input)?;
+
     Err(anyhow!("Not yet implemented"))
 }
 

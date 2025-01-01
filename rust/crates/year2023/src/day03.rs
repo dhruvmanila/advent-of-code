@@ -3,7 +3,6 @@ use std::fmt;
 use std::str::FromStr;
 
 use anyhow::Result;
-
 use aoc_lib::matrix::{Matrix, Position};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -84,7 +83,7 @@ impl EngineSchematic {
             .rev()
             .take_while(|&col| {
                 self.0
-                    .get(position.row(), col)
+                    .get((position.row(), col))
                     .map_or(false, |cell| cell.is_digit())
             })
             .last()
@@ -93,7 +92,7 @@ impl EngineSchematic {
         (start..self.0.ncols())
             .map_while(|col| {
                 self.0
-                    .get(position.row(), col)
+                    .get((position.row(), col))
                     .and_then(|cell| cell.as_digit())
             })
             .fold(0, |number, digit| number * 10 + u32::from(digit))
@@ -107,7 +106,7 @@ impl EngineSchematic {
         let mut checked_rows: HashSet<usize> = HashSet::with_capacity(2);
 
         for neighbor in position.neighbors() {
-            let Some(cell) = self.0.get(neighbor.row(), neighbor.col()) else {
+            let Some(cell) = self.0.get(neighbor) else {
                 continue;
             };
             if cell.is_digit() {

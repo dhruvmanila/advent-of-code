@@ -48,6 +48,10 @@ struct Racetrack(Vec<Position>);
 impl Racetrack {
     /// Count the number of cheats that when applied for `duration` picoseconds would save at least
     /// 100 picoseconds.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `duration` is less than or equal to 1.
     fn cheat_count(&self, duration: usize) -> usize {
         assert!(duration > 1);
 
