@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fmt::{self, Debug, Display};
 use std::str::FromStr;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, bail, Error, Result};
 use num_integer::Integer;
 
 /// Direction to take from the current node.
@@ -24,9 +24,9 @@ impl Instructions {
 }
 
 impl FromStr for Instructions {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Instructions> {
         let directions = s
             .chars()
             .map(|c| match c {
@@ -36,7 +36,7 @@ impl FromStr for Instructions {
             })
             .collect::<Result<Vec<_>>>()?;
 
-        Ok(Self(directions))
+        Ok(Instructions(directions))
     }
 }
 
@@ -63,25 +63,24 @@ impl Node {
 
 impl Debug for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        Display::fmt(self, f)
+        write!(f, "{}{}{}", self.0 as char, self.1 as char, self.2 as char)
     }
 }
 
 impl Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}{}{}", self.0 as char, self.1 as char, self.2 as char)
+        Debug::fmt(self, f)
     }
 }
 
 impl FromStr for Node {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Node> {
         let [first, second, third] = s.as_bytes() else {
             bail!("Expected 3 character long string: {:?}", s);
         };
-
-        Ok(Self(*first, *second, *third))
+        Ok(Node(*first, *second, *third))
     }
 }
 
@@ -148,9 +147,9 @@ impl DesertMap {
 }
 
 impl FromStr for DesertMap {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<DesertMap> {
         let mut lines = s.lines();
 
         let instructions = lines
@@ -172,12 +171,12 @@ impl FromStr for DesertMap {
             );
         }
 
-        Ok(Self { instructions, map })
+        Ok(DesertMap { instructions, map })
     }
 }
 
 pub fn solve(input: &str) -> Result<()> {
-    let map = input.parse::<DesertMap>()?;
+    let map = DesertMap::from_str(input)?;
 
     println!("Part 1: {}", map.steps()?);
     println!("Part 2: {}", map.ghost_steps()?);
@@ -226,14 +225,14 @@ XXX = (XXX, XXX)
 
     #[test_case(SAMPLE_INPUT1, 2)]
     #[test_case(SAMPLE_INPUT2, 6)]
-    fn test_sample(input: &str, expected: u64) -> Result<()> {
-        assert_eq!(input.parse::<DesertMap>()?.steps()?, expected);
-        Ok(())
+    fn steps(input: &str, expected: u64) {
+        let map = DesertMap::from_str(input).unwrap();
+        assert_eq!(map.steps().unwrap(), expected);
     }
 
     #[test]
-    fn test_ghost_steps() -> Result<()> {
-        assert_eq!(SAMPLE_INPUT3.parse::<DesertMap>()?.ghost_steps()?, 6);
-        Ok(())
+    fn ghost_steps() {
+        let map = DesertMap::from_str(SAMPLE_INPUT3).unwrap();
+        assert_eq!(map.ghost_steps().unwrap(), 6);
     }
 }

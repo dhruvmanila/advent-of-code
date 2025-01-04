@@ -1,8 +1,8 @@
 use std::fmt;
 use std::str::FromStr;
 
-use anyhow::{anyhow, Result};
-use aoc_lib::matrix::{Direction, Matrix, Position};
+use anyhow::{anyhow, Error, Result};
+use aoc_lib::matrix::{Direction, Position, SquareMatrix};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Letter {
@@ -13,14 +13,14 @@ enum Letter {
 }
 
 impl TryFrom<u8> for Letter {
-    type Error = anyhow::Error;
+    type Error = Error;
 
-    fn try_from(byte: u8) -> Result<Self> {
+    fn try_from(byte: u8) -> Result<Letter> {
         match byte {
-            b'X' => Ok(Self::X),
-            b'M' => Ok(Self::M),
-            b'A' => Ok(Self::A),
-            b'S' => Ok(Self::S),
+            b'X' => Ok(Letter::X),
+            b'M' => Ok(Letter::M),
+            b'A' => Ok(Letter::A),
+            b'S' => Ok(Letter::S),
             _ => Err(anyhow!("Unexpected character: {}", byte as char)),
         }
     }
@@ -33,7 +33,7 @@ impl fmt::Display for Letter {
 }
 
 #[derive(Debug)]
-struct Board(Matrix<Letter>);
+struct Board(SquareMatrix<Letter>);
 
 impl Board {
     /// Return an iterator over the positions of the letter "X" on the board.
@@ -64,7 +64,7 @@ impl Board {
                 if [Letter::M, Letter::A, Letter::S].iter().all(|letter| {
                     positions_in_direction
                         .next()
-                        .map_or(false, |position| self.0.get(position) == Some(letter))
+                        .is_some_and(|position| self.0.get(position) == Some(letter))
                 }) {
                     count += 1;
                 }
@@ -127,15 +127,11 @@ impl Board {
 }
 
 impl FromStr for Board {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
-        Ok(Self(Matrix::try_from_iter(
+    fn from_str(s: &str) -> Result<Board> {
+        Ok(Board(SquareMatrix::try_from_iter(
             s.lines().count(),
-            s.lines()
-                .next()
-                .ok_or_else(|| anyhow!("Expected at least one line in the input"))?
-                .len(),
             s.lines()
                 .flat_map(|line| line.bytes().map(Letter::try_from)),
         )?))
@@ -144,13 +140,7 @@ impl FromStr for Board {
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for row in self.0.rows() {
-            for cell in row.iter() {
-                write!(f, "{cell}")?;
-            }
-            writeln!(f)?;
-        }
-        Ok(())
+        fmt::Display::fmt(&*self.0, f)
     }
 }
 
@@ -177,7 +167,8 @@ XXAMMXXAMA
 SMSMSASXSS
 SAXAMASAAA
 MAMMMXMMMM
-MXMXAXMASX";
+MXMXAXMASX
+";
 
     #[test]
     fn sample() {

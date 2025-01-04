@@ -4,8 +4,8 @@ use std::fmt::Write;
 use std::ops::Deref;
 use std::str::FromStr;
 
-use anyhow::{anyhow, Result};
-use aoc_lib::matrix::{Matrix, Position};
+use anyhow::{anyhow, Error, Result};
+use aoc_lib::matrix::{Position, SquareMatrix};
 
 #[derive(Debug)]
 struct CorruptedBytes(Vec<Position>);
@@ -13,15 +13,15 @@ struct CorruptedBytes(Vec<Position>);
 impl Deref for CorruptedBytes {
     type Target = [Position];
 
-    fn deref(&self) -> &Self::Target {
+    fn deref(&self) -> &[Position] {
         &self.0
     }
 }
 
 impl FromStr for CorruptedBytes {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<CorruptedBytes> {
         let mut positions = Vec::new();
         for line in s.lines() {
             let (x, y) = line
@@ -49,12 +49,12 @@ impl fmt::Display for Byte {
 }
 
 #[derive(Debug)]
-struct MemorySpace(Matrix<Byte>);
+struct MemorySpace(SquareMatrix<Byte>);
 
 impl MemorySpace {
     /// Create a memory space of the given `size` with all the safe bytes.
-    fn new(size: usize) -> Self {
-        MemorySpace(Matrix::new_with(size, size, Byte::Safe))
+    fn new(size: usize) -> MemorySpace {
+        MemorySpace(SquareMatrix::new_with(size, Byte::Safe))
     }
 
     /// Creates a new memory space with the corrupted bytes set at the given `positions` in the
@@ -102,7 +102,7 @@ impl MemorySpace {
 
 impl fmt::Display for MemorySpace {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
+        fmt::Display::fmt(&*self.0, f)
     }
 }
 

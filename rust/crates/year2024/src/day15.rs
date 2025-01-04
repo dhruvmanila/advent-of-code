@@ -1,44 +1,30 @@
 use std::collections::VecDeque;
 use std::fmt::{self, Write};
-use std::slice::Iter;
 use std::str::FromStr;
 
-use anyhow::{anyhow, Result};
-use aoc_lib::matrix::{CardinalDirection, Matrix, Position};
+use anyhow::{anyhow, bail, Error, Result};
+use aoc_lib::matrix::{CardinalDirection, Matrix, Position, SquareMatrix};
 
 #[derive(Debug)]
 struct Moves(Vec<CardinalDirection>);
 
-impl Moves {
-    fn iter(&self) -> Iter<'_, CardinalDirection> {
-        self.0.iter()
-    }
-}
+impl FromStr for Moves {
+    type Err = Error;
 
-impl<'a> IntoIterator for &'a Moves {
-    type Item = &'a CardinalDirection;
-    type IntoIter = Iter<'a, CardinalDirection>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.iter()
-    }
-}
-
-impl From<&str> for Moves {
-    fn from(s: &str) -> Self {
-        Self(
+    fn from_str(s: &str) -> Result<Moves> {
+        Ok(Moves(
             s.lines()
                 .flat_map(|line| {
                     line.bytes().map(|byte| match byte {
-                        b'^' => CardinalDirection::Up,
-                        b'v' => CardinalDirection::Down,
-                        b'<' => CardinalDirection::Left,
-                        b'>' => CardinalDirection::Right,
-                        _ => panic!("Invalid move: {}", byte as char),
+                        b'^' => Ok(CardinalDirection::Up),
+                        b'v' => Ok(CardinalDirection::Down),
+                        b'<' => Ok(CardinalDirection::Left),
+                        b'>' => Ok(CardinalDirection::Right),
+                        _ => Err(anyhow!("Invalid move: {}", byte as char)),
                     })
                 })
-                .collect(),
-        )
+                .collect::<Result<Vec<_>, _>>()?,
+        ))
     }
 }
 
@@ -50,14 +36,16 @@ enum Tile {
     Box,
 }
 
-impl From<u8> for Tile {
-    fn from(byte: u8) -> Self {
+impl TryFrom<u8> for Tile {
+    type Error = Error;
+
+    fn try_from(byte: u8) -> Result<Tile> {
         match byte {
-            b'#' => Tile::Wall,
+            b'#' => Ok(Tile::Wall),
             // Mark the robot position as an open tile, we store the position separately.
-            b'.' | b'@' => Tile::Open,
-            b'O' => Tile::Box,
-            _ => panic!("Invalid tile: {}", byte as char),
+            b'.' | b'@' => Ok(Tile::Open),
+            b'O' => Ok(Tile::Box),
+            _ => bail!("Invalid tile: {}", byte as char),
         }
     }
 }
@@ -76,7 +64,7 @@ impl fmt::Display for Tile {
 #[derive(Debug)]
 struct Warehouse {
     /// The map of the warehouse.
-    map: Matrix<Tile>,
+    map: SquareMatrix<Tile>,
     /// The position of the robot.
     robot: Position,
 }
@@ -84,7 +72,7 @@ struct Warehouse {
 impl Warehouse {
     /// Apply the given moves to the robot which may move boxes.
     fn apply_moves(&mut self, moves: &Moves) {
-        for &direction in moves {
+        for &direction in &moves.0 {
             let mut has_open_pos = false;
             let mut boxes_to_move = Vec::new();
 
@@ -149,7 +137,7 @@ impl Warehouse {
 
 impl fmt::Display for Warehouse {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut s = format!("{}", self.map);
+        let mut s = format!("{}", &*self.map);
         let idx = self.robot.col() + self.robot.row() * self.map.ncols();
         s.replace_range(idx..=idx, "@");
         write!(f, "{s}")
@@ -157,21 +145,17 @@ impl fmt::Display for Warehouse {
 }
 
 impl FromStr for Warehouse {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Warehouse> {
         for (row, line) in s.lines().enumerate() {
             for (col, byte) in line.bytes().enumerate() {
                 if byte == b'@' {
-                    return Ok(Self {
-                        map: Matrix::from_iter(
+                    return Ok(Warehouse {
+                        map: SquareMatrix::try_from_iter(
                             s.lines().count(),
-                            s.lines()
-                                .next()
-                                .ok_or_else(|| anyhow!("Empty input"))?
-                                .len(),
-                            s.lines().flat_map(|line| line.bytes().map(Tile::from)),
-                        ),
+                            s.lines().flat_map(|line| line.bytes().map(Tile::try_from)),
+                        )?,
                         robot: Position::new(row, col),
                     });
                 }
@@ -220,7 +204,7 @@ struct WideWarehouse {
 impl WideWarehouse {
     /// Apply the given moves to the robot which may move the boxes.
     fn apply_moves(&mut self, moves: &Moves) {
-        for &direction in moves {
+        for &direction in &moves.0 {
             if direction.is_horizontal() {
                 self.apply_horizontal_move(direction);
             } else {
@@ -328,7 +312,7 @@ fn parse_input(input: &str) -> Result<(Warehouse, Moves)> {
 
     Ok((
         Warehouse::from_str(map_section)?,
-        Moves::from(moves_section),
+        Moves::from_str(moves_section)?,
     ))
 }
 

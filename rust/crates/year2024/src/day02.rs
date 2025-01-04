@@ -23,7 +23,7 @@ impl UnusualData {
 impl FromStr for UnusualData {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<UnusualData> {
         Ok(UnusualData(
             s.lines()
                 .map(Report::from_str)
@@ -76,7 +76,7 @@ impl Report {
 impl FromStr for Report {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Report> {
         Ok(Report(
             s.split_ascii_whitespace()
                 .map(|word| word.parse::<u32>().map_err(Error::from))

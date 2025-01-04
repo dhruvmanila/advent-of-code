@@ -1,7 +1,7 @@
 use std::fmt;
 use std::str::FromStr;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Error, Result};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Operator {
@@ -48,6 +48,7 @@ impl fmt::Display for Operator {
 struct SolvedEquation<'a> {
     /// The equation that was solved.
     equation: &'a CalibrationEquation,
+
     /// The solution to the equation which is a list of operators to apply to the numbers in the
     /// equation. The operators are applied in order from left to right between two consecutive
     /// numbers.
@@ -133,13 +134,13 @@ impl CalibrationEquation {
 }
 
 impl FromStr for CalibrationEquation {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<CalibrationEquation> {
         let (left, right) = s
             .split_once(": ")
             .ok_or_else(|| anyhow!("Expected a colon in the input"))?;
-        Ok(Self {
+        Ok(CalibrationEquation {
             test_value: left.parse::<u64>()?,
             numbers: right
                 .split_ascii_whitespace()
@@ -178,10 +179,10 @@ impl CalibrationEquations {
 }
 
 impl FromStr for CalibrationEquations {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(
+    fn from_str(s: &str) -> Result<CalibrationEquations> {
+        Ok(CalibrationEquations(
             s.lines().map(str::parse).collect::<Result<Vec<_>, _>>()?,
         ))
     }

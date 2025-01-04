@@ -3,7 +3,7 @@ use std::fmt;
 use std::slice::Iter;
 use std::str::FromStr;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, bail, Error, Result};
 
 #[derive(Debug, Clone)]
 struct Register {
@@ -39,9 +39,9 @@ enum Instruction {
 }
 
 impl FromStr for Instruction {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Instruction> {
         Ok(match s {
             "0" => Instruction::Adv,
             "1" => Instruction::Bxl,
@@ -68,7 +68,7 @@ impl fmt::Display for Instruction {
             Instruction::Bdv => "bdv",
             Instruction::Cdv => "cdv",
         };
-        write!(f, "{s}")
+        f.write_str(s)
     }
 }
 
@@ -107,13 +107,13 @@ struct ProgramValuesIter<'a> {
 impl Iterator for ProgramValuesIter<'_> {
     type Item = u8;
 
-    fn next(&mut self) -> Option<Self::Item> {
+    fn next(&mut self) -> Option<u8> {
         Some(*self.iter.next()? as u8)
     }
 }
 
 impl DoubleEndedIterator for ProgramValuesIter<'_> {
-    fn next_back(&mut self) -> Option<Self::Item> {
+    fn next_back(&mut self) -> Option<u8> {
         Some(*self.iter.next_back()? as u8)
     }
 }
@@ -125,8 +125,8 @@ struct ProgramRunner<'a> {
 }
 
 impl<'a> ProgramRunner<'a> {
-    fn new(program: &'a Program, register: Register) -> Self {
-        Self { register, program }
+    fn new(program: &'a Program, register: Register) -> ProgramRunner<'a> {
+        ProgramRunner { register, program }
     }
 
     /// Consumes the runner, runs the program and returns the output.
@@ -289,9 +289,9 @@ impl Computer {
 }
 
 impl FromStr for Computer {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Computer> {
         let mut numbers = s
             .split(|c: char| !c.is_ascii_digit())
             .filter(|word| !word.is_empty());
@@ -311,7 +311,7 @@ impl FromStr for Computer {
                 .parse()?,
         };
 
-        Ok(Self {
+        Ok(Computer {
             register,
             program: Program(numbers.map(str::parse).collect::<Result<Vec<_>, _>>()?),
         })

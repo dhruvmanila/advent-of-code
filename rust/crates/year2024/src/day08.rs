@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use std::fmt::{self, Write};
 use std::str::FromStr;
 
-use anyhow::Result;
+use anyhow::{Error, Result};
 use aoc_lib::geom::{point2, Point2D, Vector2D};
 use itertools::Itertools;
 
@@ -106,8 +106,8 @@ struct DisplayCityMap<'a> {
 }
 
 impl<'a> DisplayCityMap<'a> {
-    fn new(map: &'a CityMap) -> Self {
-        Self {
+    fn new(map: &'a CityMap) -> DisplayCityMap<'a> {
+        DisplayCityMap {
             map,
             antinodes: None,
         }
@@ -115,7 +115,7 @@ impl<'a> DisplayCityMap<'a> {
 
     /// Sets the antinodes to display on this city map.
     #[allow(dead_code)]
-    fn with_antinodes(mut self, antinodes: &'a HashSet<Point2D<i32>>) -> Self {
+    fn with_antinodes(mut self, antinodes: &'a HashSet<Point2D<i32>>) -> DisplayCityMap<'a> {
         self.antinodes = Some(antinodes);
         self
     }
@@ -155,9 +155,9 @@ impl fmt::Display for DisplayCityMap<'_> {
 }
 
 impl FromStr for CityMap {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<CityMap> {
         let mut size = 0;
         let mut frequencies = HashMap::new();
 
@@ -174,7 +174,7 @@ impl FromStr for CityMap {
             }
         }
 
-        Ok(Self { frequencies, size })
+        Ok(CityMap { frequencies, size })
     }
 }
 

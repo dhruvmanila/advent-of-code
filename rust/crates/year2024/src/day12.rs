@@ -1,9 +1,8 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt;
-use std::str::FromStr;
 
-use anyhow::{anyhow, Result};
-use aoc_lib::matrix::{Direction, Matrix, Position};
+use anyhow::Result;
+use aoc_lib::matrix::{Direction, Position, SquareMatrix};
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 struct PlantLabel(u8);
@@ -19,7 +18,7 @@ impl fmt::Debug for PlantLabel {
 struct Garden(HashMap<PlantLabel, Vec<Region>>);
 
 impl Garden {
-    fn from_plots(plots: &Matrix<PlantLabel>) -> Self {
+    fn from_plots(plots: &SquareMatrix<PlantLabel>) -> Garden {
         let mut plant_regions: HashMap<PlantLabel, Vec<Region>> = HashMap::new();
 
         for (position, label) in plots.enumerate() {
@@ -52,7 +51,7 @@ impl Garden {
                 .push(Region(region));
         }
 
-        Self(plant_regions)
+        Garden(plant_regions)
     }
 
     /// Returns the total price of fencing the garden using the perimeter of each region.
@@ -74,18 +73,12 @@ impl Garden {
     }
 }
 
-impl FromStr for Garden {
-    type Err = anyhow::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self::from_plots(&Matrix::from_iter(
+impl From<&str> for Garden {
+    fn from(s: &str) -> Garden {
+        Garden::from_plots(&SquareMatrix::from_iter(
             s.lines().count(),
-            s.lines()
-                .next()
-                .ok_or_else(|| anyhow!("Expected at least one line in the input"))?
-                .len(),
             s.lines().flat_map(|line| line.bytes().map(PlantLabel)),
-        )))
+        ))
     }
 }
 
@@ -175,7 +168,7 @@ impl Region {
 }
 
 pub fn solve(input: &str) -> Result<()> {
-    let garden = Garden::from_str(input)?;
+    let garden = Garden::from(input);
 
     println!("Part 1: {}", garden.fencing_price_using_perimeter());
     println!("Part 2: {}", garden.fencing_price_using_sides());
@@ -238,7 +231,7 @@ AAAAAA
     #[test_case(SAMPLE_INPUT2, 772)]
     #[test_case(SAMPLE_INPUT3, 1930)]
     fn fencing_price_using_perimeter(input: &str, expected: usize) {
-        let garden = Garden::from_str(input).unwrap();
+        let garden = Garden::from(input);
         assert_eq!(garden.fencing_price_using_perimeter(), expected);
     }
 
@@ -247,7 +240,7 @@ AAAAAA
     #[test_case(SAMPLE_INPUT4, 236)]
     #[test_case(SAMPLE_INPUT5, 368)]
     fn fencing_price_using_sides(input: &str, expected: usize) {
-        let garden = Garden::from_str(input).unwrap();
+        let garden = Garden::from(input);
         assert_eq!(garden.fencing_price_using_sides(), expected);
     }
 }

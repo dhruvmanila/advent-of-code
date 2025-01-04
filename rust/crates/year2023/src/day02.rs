@@ -1,14 +1,6 @@
 use std::str::FromStr;
 
-use anyhow::{anyhow, bail, Context, Result};
-
-/// The maximum cube set i.e., the number of cubes of each color that is
-/// contained in the bag for the puzzle.
-const MAX_CUBE_SET: CubeSet = CubeSet {
-    red: 12,
-    green: 13,
-    blue: 14,
-};
+use anyhow::{anyhow, bail, Context, Error, Result};
 
 /// Represents a set of cubes of different colors.
 #[derive(Debug, Default)]
@@ -22,53 +14,67 @@ struct CubeSet {
 }
 
 impl CubeSet {
+    /// The maximum cube set i.e., the number of cubes of each color that is contained in the bag
+    /// for the puzzle.
+    const MAX: CubeSet = CubeSet {
+        red: 12,
+        green: 13,
+        blue: 14,
+    };
+
     /// Returns a new cube set with the given red count.
-    fn with_red(mut self, red: u32) -> Self {
+    #[must_use]
+    const fn with_red(mut self, red: u32) -> CubeSet {
         self.red = red;
         self
     }
 
     /// Returns a new cube set with the given green count.
-    fn with_green(mut self, green: u32) -> Self {
+    #[must_use]
+    const fn with_green(mut self, green: u32) -> CubeSet {
         self.green = green;
         self
     }
 
     /// Returns a new cube set with the given blue count.
-    fn with_blue(mut self, blue: u32) -> Self {
+    #[must_use]
+    const fn with_blue(mut self, blue: u32) -> CubeSet {
         self.blue = blue;
         self
     }
 
     /// Returns `true` if the cube set is possible. That is, if the cube set
     /// does not exceed the maximum cube set.
-    fn is_possible(&self) -> bool {
-        self.red <= MAX_CUBE_SET.red
-            && self.green <= MAX_CUBE_SET.green
-            && self.blue <= MAX_CUBE_SET.blue
+    const fn is_possible(&self) -> bool {
+        self.red <= CubeSet::MAX.red
+            && self.green <= CubeSet::MAX.green
+            && self.blue <= CubeSet::MAX.blue
     }
 
     /// Returns the power of the cube set.
-    fn power(&self) -> u32 {
+    const fn power(&self) -> u32 {
         self.red * self.green * self.blue
     }
 }
 
 impl FromStr for CubeSet {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut cube_set = Self::default();
+    fn from_str(s: &str) -> Result<CubeSet, Error> {
+        let mut cube_set = CubeSet::default();
         for cube_info in s.split(", ") {
-            let (count, color) = cube_info
-                .split_once(' ')
-                .ok_or_else(|| anyhow!("Invalid cube info: {:?}", cube_info))?;
+            let (count, color) = cube_info.split_once(' ').ok_or_else(|| {
+                anyhow!(
+                    "Invalid cube info: {:?} (expected '<count> <color>')",
+                    cube_info
+                )
+            })?;
             let count = count.parse::<u32>()?;
             cube_set = match color {
                 "red" => cube_set.with_red(count),
                 "green" => cube_set.with_green(count),
                 "blue" => cube_set.with_blue(count),
-                _ => bail!("Invalid color: {:?}", color),
+                _ => bail!("Invalid cube color: {:?}", color),
             };
         }
         Ok(cube_set)
@@ -103,27 +109,28 @@ impl Game {
 }
 
 impl FromStr for Game {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Game, Error> {
         let (game_section, cube_sets_section) = s
             .split_once(": ")
             .ok_or_else(|| anyhow!("Expected a colon in the line"))?;
 
-        let game_id = game_section
-            .split_whitespace()
-            .nth(1)
-            .and_then(|id| id.trim_end_matches(':').parse::<u32>().ok())
-            .ok_or_else(|| anyhow!("Invalid game section of the line: {:?}", game_section))?;
-
-        let cube_sets = cube_sets_section
-            .split("; ")
-            .map(CubeSet::from_str)
-            .collect::<Result<Vec<_>>>()?;
-
-        Ok(Self {
-            id: game_id,
-            sets: cube_sets,
+        Ok(Game {
+            id: game_section
+                .split_whitespace()
+                .nth(1)
+                .and_then(|id| id.parse::<u32>().ok())
+                .ok_or_else(|| {
+                    anyhow!(
+                        "Invalid game section of the line: {:?} (expected 'Game <id>')",
+                        game_section
+                    )
+                })?,
+            sets: cube_sets_section
+                .split("; ")
+                .map(CubeSet::from_str)
+                .collect::<Result<Vec<_>>>()?,
         })
     }
 }
@@ -133,31 +140,29 @@ impl FromStr for Game {
 struct Games(Vec<Game>);
 
 impl Games {
-    /// Returns an iterator over the IDs of the games that are possible.
-    fn possible_game_ids(&self) -> impl Iterator<Item = u32> + '_ {
+    /// Returns the sum of the IDs of the possible games.
+    fn sum_possible_game_ids(&self) -> u32 {
         self.0
             .iter()
             .filter(|game| game.is_possible())
             .map(|game| game.id)
+            .sum()
     }
 
-    /// Returns an iterator over the powers of the minimum cube set for each
-    /// game.
-    fn min_cube_set_powers(&self) -> impl Iterator<Item = u32> + '_ {
-        self.0.iter().map(|game| game.min_cube_set().power())
+    /// Returns the sum of the powers of the minimum cube set for each game.
+    fn sum_min_cube_set_powers(&self) -> u32 {
+        self.0.iter().map(|game| game.min_cube_set().power()).sum()
     }
 }
 
 impl FromStr for Games {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(
+    fn from_str(s: &str) -> Result<Games, Error> {
+        Ok(Games(
             s.lines()
-                .enumerate()
-                .map(|(index, line)| {
-                    Game::from_str(line)
-                        .with_context(|| format!("Failed to parse line {}: {:?}", index + 1, line))
+                .map(|line| {
+                    Game::from_str(line).with_context(|| format!("Failed to parse line: {line:?}"))
                 })
                 .collect::<Result<Vec<_>>>()?,
         ))
@@ -167,8 +172,8 @@ impl FromStr for Games {
 pub fn solve(input: &str) -> Result<()> {
     let games = Games::from_str(input)?;
 
-    println!("Part 1: {:?}", games.possible_game_ids().sum::<u32>());
-    println!("Part 2: {:?}", games.min_cube_set_powers().sum::<u32>());
+    println!("Part 1: {}", games.sum_possible_game_ids());
+    println!("Part 2: {}", games.sum_min_cube_set_powers());
 
     Ok(())
 }
@@ -186,17 +191,9 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
 ";
 
     #[test]
-    fn test_sample() -> Result<()> {
-        let games = Games::from_str(SAMPLE_INPUT)?;
-
-        let possible_game_ids = games.possible_game_ids().collect::<Vec<_>>();
-        assert_eq!(possible_game_ids, vec![1, 2, 5]);
-        assert_eq!(possible_game_ids.iter().sum::<u32>(), 8);
-
-        let min_cube_set_powers = games.min_cube_set_powers().collect::<Vec<_>>();
-        assert_eq!(min_cube_set_powers, vec![48, 12, 1560, 630, 36]);
-        assert_eq!(min_cube_set_powers.iter().sum::<u32>(), 2286);
-
-        Ok(())
+    fn sample() {
+        let games = Games::from_str(SAMPLE_INPUT).unwrap();
+        assert_eq!(games.sum_possible_game_ids(), 8);
+        assert_eq!(games.sum_min_cube_set_powers(), 2286);
     }
 }

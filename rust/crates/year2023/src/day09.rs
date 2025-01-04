@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Context, Error, Result};
 
 /// Represents a history of values.
 ///
@@ -14,9 +14,9 @@ impl History {
     /// # Panics
     ///
     /// If `values` is empty.
-    fn new(values: Vec<i32>) -> Self {
+    fn new(values: Vec<i32>) -> History {
         assert!(!values.is_empty());
-        Self(values)
+        History(values)
     }
 
     /// Returns `true` if all values in the history are zero.
@@ -59,8 +59,8 @@ impl History {
 
     /// Returns the previous value in the history.
     ///
-    /// This is calculated by reducing the history until it is all zeroes, then
-    /// extrapolating the previous value from the first value in each reduced history.
+    /// This is calculated by reducing the history until it is all zeroes, then extrapolating the
+    /// previous value from the first value in each reduced history.
     fn prev(&self) -> i32 {
         self.first()
             - self
@@ -71,8 +71,8 @@ impl History {
 
     /// Returns the next value in the history.
     ///
-    /// This is calculated by reducing the history until it is all zeroes, then
-    /// extrapolating the next value from the last value in each reduced history.
+    /// This is calculated by reducing the history until it is all zeroes, then extrapolating the
+    /// next value from the last value in each reduced history.
     fn next(&self) -> i32 {
         self.last()
             + self
@@ -83,10 +83,10 @@ impl History {
 }
 
 impl FromStr for History {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
-        Ok(Self::new(
+    fn from_str(s: &str) -> Result<History> {
+        Ok(History::new(
             s.split_ascii_whitespace()
                 .map(|s| {
                     s.parse::<i32>()
@@ -114,13 +114,13 @@ impl OasisReport {
 }
 
 impl FromStr for OasisReport {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
-        Ok(Self(
+    fn from_str(s: &str) -> Result<OasisReport> {
+        Ok(OasisReport(
             s.lines()
                 .map(|line| {
-                    line.parse::<History>()
+                    History::from_str(line)
                         .with_context(|| anyhow!("Invalid history line: {:?}", line))
                 })
                 .collect::<Result<Vec<_>, _>>()?,
@@ -129,7 +129,7 @@ impl FromStr for OasisReport {
 }
 
 pub fn solve(input: &str) -> Result<()> {
-    let report = input.parse::<OasisReport>()?;
+    let report = OasisReport::from_str(input)?;
 
     println!("Part 1: {}", report.sum_next());
     println!("Part 2: {}", report.sum_prev());
@@ -148,10 +148,9 @@ mod tests {
 ";
 
     #[test]
-    fn test_sample() -> Result<()> {
-        let report = SAMPLE_INPUT.parse::<OasisReport>()?;
+    fn test_sample() {
+        let report = OasisReport::from_str(SAMPLE_INPUT).unwrap();
         assert_eq!(report.sum_next(), 114);
         assert_eq!(report.sum_prev(), 2);
-        Ok(())
     }
 }

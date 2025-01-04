@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Error, Result};
 
 #[derive(Debug)]
 struct Race {
@@ -9,23 +9,15 @@ struct Race {
 }
 
 impl Race {
-    fn new(time: u64, distance: u64) -> Self {
-        Self { time, distance }
-    }
-
     /// Returns the distance traveled for the given hold time.
     fn distance_traveled(&self, hold_time: u64) -> u64 {
         (self.time - hold_time) * hold_time
     }
 
-    /// Returns an iterator over the distances traveled for each hold time.
-    fn distances(&self) -> impl Iterator<Item = u64> + '_ {
-        (0..self.time).map(|hold_time| self.distance_traveled(hold_time))
-    }
-
     /// Returns the number of races won from all possible hold times.
     fn win_count(&self) -> usize {
-        self.distances()
+        (0..self.time)
+            .map(|hold_time| self.distance_traveled(hold_time))
             .filter(|&distance| distance > self.distance)
             .count()
     }
@@ -40,8 +32,8 @@ impl Races {
         self.0.iter().map(Race::win_count).product::<usize>() as u64
     }
 
-    /// Returns a [`Race`] which is the combined version of all numbers put
-    /// together i.e., ignore any spaces between the numbers.
+    /// Returns a [`Race`] which is the combined version of all numbers put together i.e., ignore
+    /// any spaces between the numbers.
     fn combined(&self) -> Race {
         Race {
             time: self.0.iter().fold(0, |acc, race| {
@@ -54,21 +46,10 @@ impl Races {
     }
 }
 
-/// Returns the number of digits in the given number.
-fn number_of_digits(n: u64) -> u32 {
-    let mut n = n;
-    let mut count = 0;
-    while n > 0 {
-        n /= 10;
-        count += 1;
-    }
-    count
-}
-
 impl FromStr for Races {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Races> {
         let (time_line, distance_line) = s
             .split_once('\n')
             .ok_or_else(|| anyhow!("Invalid input: {:?}", s))?;
@@ -95,14 +76,25 @@ impl FromStr for Races {
             times
                 .iter()
                 .zip(distances)
-                .map(|(time, distance)| Race::new(*time, distance))
+                .map(|(&time, distance)| Race { time, distance })
                 .collect(),
         ))
     }
 }
 
+/// Returns the number of digits in the given number.
+const fn number_of_digits(n: u64) -> u32 {
+    let mut n = n;
+    let mut count = 0;
+    while n > 0 {
+        n /= 10;
+        count += 1;
+    }
+    count
+}
+
 pub fn solve(input: &str) -> Result<()> {
-    let races = input.parse::<Races>()?;
+    let races = Races::from_str(input)?;
     println!("Part 1: {}", races.margin_of_error());
 
     let combined = races.combined();
@@ -121,10 +113,9 @@ Distance:  9  40  200
 ";
 
     #[test]
-    fn test_sample() -> Result<()> {
-        let races = SAMPLE_INPUT.parse::<Races>()?;
+    fn test_sample() {
+        let races = Races::from_str(SAMPLE_INPUT).unwrap();
         assert_eq!(races.margin_of_error(), 288);
         assert_eq!(races.combined().win_count(), 71503);
-        Ok(())
     }
 }

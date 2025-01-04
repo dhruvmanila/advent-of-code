@@ -8,6 +8,10 @@ use chrono::{Datelike, FixedOffset, TimeZone, Utc};
 #[derive(Debug, clap::Parser)]
 #[command(name = "aoc")]
 pub struct Args {
+    /// Print the puzzle input
+    #[arg(long)]
+    pub show_input: bool,
+
     #[command(flatten)]
     pub date: Option<PuzzleDate>,
 }

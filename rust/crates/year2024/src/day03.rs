@@ -26,13 +26,13 @@ impl Instructions {
 }
 
 impl From<&str> for Instructions {
-    fn from(value: &str) -> Self {
+    fn from(value: &str) -> Instructions {
         let mut instructions = Vec::new();
         let mut parser = InstructionParser::new(value);
         while let Some(instruction) = parser.next() {
             instructions.push(instruction);
         }
-        Self(instructions)
+        Instructions(instructions)
     }
 }
 
@@ -42,8 +42,8 @@ struct EnabledMultiplications<'a> {
 }
 
 impl<'a> EnabledMultiplications<'a> {
-    fn new(instructions: Iter<'a, Instruction>) -> Self {
-        Self {
+    fn new(instructions: Iter<'a, Instruction>) -> EnabledMultiplications<'a> {
+        EnabledMultiplications {
             instructions,
             enabled: true,
         }
@@ -53,7 +53,7 @@ impl<'a> EnabledMultiplications<'a> {
 impl Iterator for EnabledMultiplications<'_> {
     type Item = (u64, u64);
 
-    fn next(&mut self) -> Option<Self::Item> {
+    fn next(&mut self) -> Option<(u64, u64)> {
         loop {
             match self.instructions.next()? {
                 Instruction::Do => self.enabled = true,
@@ -82,8 +82,8 @@ struct InstructionParser<'a> {
 }
 
 impl<'a> InstructionParser<'a> {
-    fn new(source: &'a str) -> Self {
-        Self {
+    fn new(source: &'a str) -> InstructionParser<'a> {
+        InstructionParser {
             bytes: source.as_bytes(),
             index: 0,
         }

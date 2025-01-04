@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::num::ParseIntError;
 use std::str::FromStr;
 
-use anyhow::Result;
+use anyhow::{Error, Result};
 use itertools::Either;
 
 /// A stone that has a number engraved on it.
@@ -29,8 +29,8 @@ impl Stone {
 impl FromStr for Stone {
     type Err = ParseIntError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(s.parse()?))
+    fn from_str(s: &str) -> Result<Stone, ParseIntError> {
+        Ok(Stone(s.parse()?))
     }
 }
 
@@ -86,15 +86,15 @@ impl Stones {
 }
 
 impl FromStr for Stones {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Stones> {
         let mut stones = HashMap::new();
         for stone in s.split_ascii_whitespace() {
             let stone = Stone::from_str(stone)?;
             *stones.entry(stone).or_insert(0) += 1;
         }
-        Ok(Self(stones))
+        Ok(Stones(stones))
     }
 }
 

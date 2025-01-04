@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Error, Result};
 
 /// Represents the two groups of location IDs.
 #[derive(Debug, Default)]
@@ -42,9 +42,9 @@ impl LocationList {
 }
 
 impl FromStr for LocationList {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<LocationList> {
         let mut list = LocationList::default();
         for (index, line) in s.lines().enumerate() {
             let mut numbers = line
@@ -85,7 +85,8 @@ mod tests {
 2   5
 1   3
 3   9
-3   3";
+3   3
+";
 
     #[test]
     fn sample() {

@@ -1,43 +1,25 @@
 use std::collections::HashSet;
 
 use anyhow::{anyhow, Result};
-use aoc_lib::matrix::Position;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-}
+use aoc_lib::matrix::{CardinalDirection, Position};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct Guard {
     /// The current position of the guard.
     position: Position,
     /// The direction the guard is facing currently.
-    direction: Direction,
+    direction: CardinalDirection,
 }
 
 impl Guard {
     /// Returns the next position of the guard based on its current direction.
     fn next_position(&self) -> Option<Position> {
-        match self.direction {
-            Direction::Up => self.position.up(),
-            Direction::Down => self.position.down(),
-            Direction::Left => self.position.left(),
-            Direction::Right => self.position.right(),
-        }
+        self.position.neighbor(self.direction.into())
     }
 
     /// Turns the guard to the right by 90 degrees.
     fn turn_right(&mut self) {
-        self.direction = match self.direction {
-            Direction::Up => Direction::Right,
-            Direction::Right => Direction::Down,
-            Direction::Down => Direction::Left,
-            Direction::Left => Direction::Up,
-        };
+        self.direction = self.direction.turn_right();
     }
 }
 
@@ -50,10 +32,8 @@ impl Guard {
 struct ManufacturingLab {
     /// A set of positions where the obstructions are.
     obstructions: HashSet<Position>,
-    /// The maximum number of rows in the lab.
-    nrows: usize,
-    /// The maximum number of columns in the lab.
-    ncols: usize,
+    /// The maximum number of rows and columns in the lab.
+    size: usize,
 }
 
 impl ManufacturingLab {
@@ -62,7 +42,7 @@ impl ManufacturingLab {
     fn distinct_positions(&self, mut guard: Guard) -> HashSet<Position> {
         let mut positions = HashSet::new();
 
-        while guard.position.row() < self.nrows && guard.position.col() < self.ncols {
+        while guard.position.row() < self.size && guard.position.col() < self.size {
             // Inserting the current position here means that it is within the lab boundary and
             // we need not worry about it being an obstruction.
             positions.insert(guard.position);
@@ -88,10 +68,10 @@ impl ManufacturingLab {
 
         // A set of guard position and direction pairs. The direction is required to determine
         // whether the guard is stuck in a loop.
-        let mut visited: HashSet<(Position, Direction)> = HashSet::new();
+        let mut visited: HashSet<(Position, CardinalDirection)> = HashSet::new();
 
         let stuck = loop {
-            if guard.position.row() >= self.nrows || guard.position.col() >= self.ncols {
+            if guard.position.row() >= self.size || guard.position.col() >= self.size {
                 break false;
             }
             if !visited.insert((guard.position, guard.direction)) {
@@ -135,11 +115,11 @@ impl ManufacturingLab {
 
 fn parse_input(input: &str) -> Result<(ManufacturingLab, Guard)> {
     let mut guard = None;
-    let mut nrows = 0;
+    let mut size = 0;
     let mut obstructions = HashSet::new();
 
     for (row, line) in input.lines().enumerate() {
-        nrows += 1;
+        size += 1;
         for (col, byte) in line.bytes().enumerate() {
             match byte {
                 b'#' => {
@@ -148,7 +128,7 @@ fn parse_input(input: &str) -> Result<(ManufacturingLab, Guard)> {
                 b'^' => {
                     guard = Some(Guard {
                         position: Position::new(row, col),
-                        direction: Direction::Up,
+                        direction: CardinalDirection::Up,
                     });
                 }
                 _ => {}
@@ -157,15 +137,7 @@ fn parse_input(input: &str) -> Result<(ManufacturingLab, Guard)> {
     }
 
     Ok((
-        ManufacturingLab {
-            obstructions,
-            nrows,
-            ncols: input
-                .lines()
-                .next()
-                .ok_or_else(|| anyhow!("Expected at least one line in the input"))?
-                .len(),
-        },
+        ManufacturingLab { obstructions, size },
         guard.ok_or_else(|| anyhow!("No guard found in the input"))?,
     ))
 }
@@ -197,7 +169,8 @@ mod tests {
 .#..^.....
 ........#.
 #.........
-......#...";
+......#...
+";
 
     #[test]
     fn sample() {

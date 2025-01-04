@@ -2,14 +2,17 @@ mod direction;
 mod index;
 mod iter;
 mod position;
+mod square;
 mod vector;
 
 use std::fmt;
 use std::ops::{Index, IndexMut};
+use std::str::FromStr;
 
 pub use direction::{CardinalDirection, Direction};
 pub use iter::{ColumnIter, MatrixEnumerate, PositionsInDirectionIter, RowIter};
 pub use position::Position;
+pub use square::SquareMatrix;
 pub use vector::{Vector, VectorMut};
 
 /// A generic implementation of a dynamically sized matrix.
@@ -112,6 +115,16 @@ impl<T> Matrix<T> {
                 data
             },
         })
+    }
+}
+
+pub enum MatrixError {}
+
+impl<T> FromStr for Matrix<T> {
+    type Err = MatrixError;
+
+    fn from_str(_s: &str) -> Result<Matrix<T>, MatrixError> {
+        todo!()
     }
 }
 

@@ -3,8 +3,8 @@ use std::collections::{BinaryHeap, HashMap, HashSet};
 use std::fmt::{self, Write};
 use std::str::FromStr;
 
-use anyhow::{anyhow, bail, Result};
-use aoc_lib::matrix::{CardinalDirection, Matrix, Position};
+use anyhow::{bail, Error, Result};
+use aoc_lib::matrix::{CardinalDirection, Matrix, Position, SquareMatrix};
 
 /// A tile in the maze.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -62,7 +62,7 @@ impl Ord for MazeNodeWithCost {
 #[derive(Debug)]
 struct ReindeerMaze {
     /// The maze represented as a matrix of tiles.
-    map: Matrix<Tile>,
+    map: SquareMatrix<Tile>,
     /// The source position.
     source: Position,
     /// The target position.
@@ -203,8 +203,8 @@ struct Successors<'a> {
 }
 
 impl<'a> Successors<'a> {
-    fn new(maze: &'a Matrix<Tile>, node: &'a MazeNode) -> Self {
-        Self {
+    fn new(maze: &'a Matrix<Tile>, node: &'a MazeNode) -> Successors<'a> {
+        Successors {
             maze,
             node,
             state: SuccessorState::iter(),
@@ -215,7 +215,7 @@ impl<'a> Successors<'a> {
 impl Iterator for Successors<'_> {
     type Item = (MazeNode, u32);
 
-    fn next(&mut self) -> Option<Self::Item> {
+    fn next(&mut self) -> Option<(MazeNode, u32)> {
         loop {
             let next_state = self.state.next()?;
 
@@ -254,21 +254,16 @@ impl Iterator for Successors<'_> {
 }
 
 impl FromStr for ReindeerMaze {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let nrows = s.lines().count();
-        let ncols = s
-            .lines()
-            .next()
-            .ok_or_else(|| anyhow!("Empty input"))?
-            .len();
-
-        let mut tiles = Vec::with_capacity(nrows * ncols);
+    fn from_str(s: &str) -> Result<ReindeerMaze> {
+        let mut tiles = Vec::new();
+        let mut size = 0;
         let mut start = None;
         let mut end = None;
 
         for (row, line) in s.lines().enumerate() {
+            size += 1;
             for (col, byte) in line.bytes().enumerate() {
                 tiles.push(match byte {
                     b'#' => Tile::Wall,
@@ -293,8 +288,8 @@ impl FromStr for ReindeerMaze {
             bail!("Expected the maze to contain start and end position marked by 'S' and 'E'");
         };
 
-        Ok(Self {
-            map: Matrix::from_vec(nrows, ncols, tiles),
+        Ok(ReindeerMaze {
+            map: SquareMatrix::from_vec(size, tiles),
             source: start,
             target: end,
         })
@@ -303,7 +298,7 @@ impl FromStr for ReindeerMaze {
 
 impl fmt::Display for ReindeerMaze {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Display::fmt(&self.map, f)
+        fmt::Display::fmt(&*self.map, f)
     }
 }
 

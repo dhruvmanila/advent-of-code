@@ -13,6 +13,11 @@ fn main() -> Result<()> {
     let day = day.unwrap_or_default();
     let input = get_puzzle_input(year, day)?;
 
+    if args.show_input {
+        println!("{input}");
+        return Ok(());
+    }
+
     let now = Instant::now();
     match year.as_inner() {
         2023 => match day.as_inner() {

@@ -4,7 +4,7 @@ use std::fmt;
 use std::num::{NonZeroU8, ParseIntError};
 use std::str::FromStr;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Error, Result};
 
 /// A page number in the safety manual that can range from 1 to 127.
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
@@ -41,7 +41,7 @@ impl fmt::Debug for PageNumber {
 impl FromStr for PageNumber {
     type Err = ParseIntError;
 
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<PageNumber, ParseIntError> {
         Ok(PageNumber(NonZeroU8::from_str(s)?))
     }
 }
@@ -91,12 +91,12 @@ impl Update {
 impl FromStr for Update {
     type Err = ParseIntError;
 
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        let update = s
-            .split(',')
-            .map(PageNumber::from_str)
-            .collect::<Result<Vec<_>, _>>()?;
-        Ok(Self(update))
+    fn from_str(s: &str) -> Result<Update, ParseIntError> {
+        Ok(Update(
+            s.split(',')
+                .map(PageNumber::from_str)
+                .collect::<Result<Vec<_>, _>>()?,
+        ))
     }
 }
 
@@ -111,9 +111,9 @@ impl OrderingRules {
 }
 
 impl FromStr for OrderingRules {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<OrderingRules> {
         let mut rules = HashSet::new();
         for line in s.lines() {
             let (left, right) = line
@@ -121,7 +121,7 @@ impl FromStr for OrderingRules {
                 .ok_or_else(|| anyhow!("Expected a pipe character"))?;
             rules.insert((PageNumber::from_str(left)?, PageNumber::from_str(right)?));
         }
-        Ok(Self(rules))
+        Ok(OrderingRules(rules))
     }
 }
 
@@ -150,14 +150,14 @@ impl PrintingInstruction {
 }
 
 impl FromStr for PrintingInstruction {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> anyhow::Result<Self> {
+    fn from_str(s: &str) -> Result<PrintingInstruction> {
         let (rules_section, updates_section) = s
             .split_once("\n\n")
             .ok_or_else(|| anyhow!("Expected the two sections to be separated by two newlines"))?;
 
-        Ok(Self {
+        Ok(PrintingInstruction {
             rules: OrderingRules::from_str(rules_section)?,
             updates: updates_section
                 .lines()
@@ -228,7 +228,7 @@ mod over_engineered {
     use std::iter::FusedIterator;
     use std::str::FromStr;
 
-    use anyhow::{anyhow, Result};
+    use anyhow::{anyhow, Error, Result};
 
     use super::{PageNumber, Update};
 
@@ -291,7 +291,7 @@ mod over_engineered {
 
     impl Default for PageNumberSet {
         fn default() -> Self {
-            Self::empty()
+            PageNumberSet::empty()
         }
     }
 
@@ -302,7 +302,7 @@ mod over_engineered {
     impl Iterator for PageNumberSetIterator {
         type Item = PageNumber;
 
-        fn next(&mut self) -> Option<Self::Item> {
+        fn next(&mut self) -> Option<PageNumber> {
             if self.set.is_empty() {
                 return None;
             }
@@ -422,9 +422,9 @@ mod over_engineered {
     }
 
     impl FromStr for OrderingRules {
-        type Err = anyhow::Error;
+        type Err = Error;
 
-        fn from_str(s: &str) -> Result<Self> {
+        fn from_str(s: &str) -> Result<OrderingRules> {
             let mut rules = HashMap::new();
             for line in s.lines() {
                 let (left, right) = line
@@ -445,7 +445,7 @@ mod over_engineered {
                     .before
                     .add(before);
             }
-            Ok(Self(rules))
+            Ok(OrderingRules(rules))
         }
     }
 }

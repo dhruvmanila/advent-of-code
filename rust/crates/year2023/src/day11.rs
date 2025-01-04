@@ -1,9 +1,9 @@
-use std::fmt;
+use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 use std::str::FromStr;
 
-use anyhow::{anyhow, bail, Result};
-use aoc_lib::matrix::{Matrix, Position};
+use anyhow::{bail, Error, Result};
+use aoc_lib::matrix::{Position, SquareMatrix};
 use itertools::Itertools;
 
 /// Cell types for each position in the universe matrix.
@@ -16,31 +16,31 @@ enum CellType {
 impl CellType {
     /// Returns `true` if the cell type is empty space.
     const fn is_empty_space(self) -> bool {
-        matches!(self, Self::EmptySpace)
+        matches!(self, CellType::EmptySpace)
     }
 
     /// Returns `true` if the cell type is a galaxy.
     const fn is_galaxy(self) -> bool {
-        matches!(self, Self::Galaxy)
+        matches!(self, CellType::Galaxy)
     }
 }
 
 impl fmt::Display for CellType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::EmptySpace => f.write_str("."),
-            Self::Galaxy => f.write_str("#"),
+            CellType::EmptySpace => f.write_char('.'),
+            CellType::Galaxy => f.write_char('#'),
         }
     }
 }
 
 impl TryFrom<u8> for CellType {
-    type Error = anyhow::Error;
+    type Error = Error;
 
-    fn try_from(value: u8) -> Result<Self, Self::Error> {
+    fn try_from(value: u8) -> Result<CellType> {
         match value {
-            b'.' => Ok(Self::EmptySpace),
-            b'#' => Ok(Self::Galaxy),
+            b'.' => Ok(CellType::EmptySpace),
+            b'#' => Ok(CellType::Galaxy),
             _ => bail!("Invalid cell type: {}", value as char),
         }
     }
@@ -48,7 +48,7 @@ impl TryFrom<u8> for CellType {
 
 /// The universe.
 #[derive(Debug)]
-struct Universe(Matrix<CellType>);
+struct Universe(SquareMatrix<CellType>);
 
 impl Universe {
     /// Expands the universe by the given size.
@@ -59,8 +59,9 @@ impl Universe {
             .filter_map(|(pos, cell)| cell.is_galaxy().then_some(pos))
             .collect::<Vec<_>>();
 
-        let size = size.get();
-        if size == 1 {
+        // Subtract 1 from the size to avoid counting the empty row / column itself.
+        let size = size.get() - 1;
+        if size == 0 {
             return ExpandedUniverse {
                 rows: self.0.nrows(),
                 cols: self.0.ncols(),
@@ -101,15 +102,11 @@ impl Universe {
 }
 
 impl FromStr for Universe {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(Matrix::try_from_iter(
+    fn from_str(s: &str) -> Result<Universe> {
+        Ok(Universe(SquareMatrix::try_from_iter(
             s.lines().count(),
-            s.lines()
-                .next()
-                .ok_or_else(|| anyhow!("Expected at least one line in the input"))?
-                .len(),
             s.lines()
                 .flat_map(|line| line.bytes().map(CellType::try_from)),
         )?))
@@ -118,13 +115,7 @@ impl FromStr for Universe {
 
 impl fmt::Display for Universe {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for row in self.0.rows() {
-            for cell in row.iter() {
-                write!(f, "{cell}")?;
-            }
-            writeln!(f)?;
-        }
-        Ok(())
+        fmt::Display::fmt(&*self.0, f)
     }
 }
 
@@ -170,17 +161,17 @@ impl fmt::Display for ExpandedUniverse {
 }
 
 pub fn solve(input: &str) -> Result<()> {
-    let universe = input.parse::<Universe>()?;
+    let universe = Universe::from_str(input)?;
 
     println!(
-        "Part 1: {:?}",
+        "Part 1: {}",
         universe
             .expand_by(NonZeroUsize::try_from(2)?)
             .shortest_paths()
             .sum::<usize>()
     );
     println!(
-        "Part 2: {:?}",
+        "Part 2: {}",
         universe
             .expand_by(NonZeroUsize::try_from(1_000_000)?)
             .shortest_paths()
@@ -212,17 +203,15 @@ mod tests {
     #[test_case(2, 374)]
     #[test_case(10, 1030)]
     #[test_case(100, 8410)]
-    fn test_sample(expand_size: usize, expected: usize) -> Result<()> {
-        let universe = SAMPLE_INPUT.parse::<Universe>()?;
+    fn sample(expand_size: usize, expected: usize) {
+        let universe = Universe::from_str(SAMPLE_INPUT).unwrap();
 
         assert_eq!(
             universe
-                .expand_by(NonZeroUsize::try_from(expand_size)?)
+                .expand_by(NonZeroUsize::try_from(expand_size).unwrap())
                 .shortest_paths()
                 .sum::<usize>(),
             expected
         );
-
-        Ok(())
     }
 }

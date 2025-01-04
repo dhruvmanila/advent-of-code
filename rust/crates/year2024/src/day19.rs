@@ -35,8 +35,8 @@ struct Trie {
 }
 
 impl Default for Trie {
-    fn default() -> Self {
-        Self {
+    fn default() -> Trie {
+        Trie {
             nodes: vec![TrieNode::default()],
         }
     }
@@ -44,11 +44,11 @@ impl Default for Trie {
 
 impl Trie {
     /// Create a new trie from a list of `patterns`.
-    fn from_patterns<'a, I>(patterns: I) -> Self
+    fn from_patterns<'a, I>(patterns: I) -> Trie
     where
         I: IntoIterator<Item = &'a str>,
     {
-        let mut trie = Self::default();
+        let mut trie = Trie::default();
         for pattern in patterns {
             trie.insert(pattern);
         }
@@ -100,7 +100,7 @@ struct PrefixLengthIter<'c, 't> {
 impl Iterator for PrefixLengthIter<'_, '_> {
     type Item = usize;
 
-    fn next(&mut self) -> Option<Self::Item> {
+    fn next(&mut self) -> Option<usize> {
         loop {
             let (length, color) = self.bytes.next()?;
             let index = color_index(color);
@@ -143,7 +143,7 @@ impl TowelDesign<'_> {
 impl Deref for TowelDesign<'_> {
     type Target = str;
 
-    fn deref(&self) -> &Self::Target {
+    fn deref(&self) -> &str {
         self.0
     }
 }
@@ -163,15 +163,15 @@ impl Onsen<'_> {
             .iter()
             .fold((0, 0), |(possible, total), design| {
                 let count = design.arrangement_count(&self.patterns);
-                (possible + usize::from(possible > 0), total + count)
+                (possible + usize::from(count > 0), total + count)
             })
     }
 }
 
 impl<'a> From<&'a str> for Onsen<'a> {
-    fn from(value: &'a str) -> Self {
+    fn from(value: &'a str) -> Onsen<'a> {
         let (first, second) = value.split_once("\n\n").unwrap();
-        Self {
+        Onsen {
             patterns: Trie::from_patterns(first.split(", ")),
             designs: second.lines().map(TowelDesign).collect(),
         }

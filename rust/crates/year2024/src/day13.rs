@@ -1,7 +1,7 @@
 use std::fmt;
 use std::str::FromStr;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Error, Result};
 
 /// Returns the quotient and remainder of the division of `a` by `b`.
 fn divmod(a: i64, b: i64) -> (i64, i64) {
@@ -60,9 +60,9 @@ impl ClawMachine {
 }
 
 impl FromStr for ClawMachine {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<ClawMachine> {
         let mut numbers = s
             .split(|ch: char| !ch.is_ascii_digit())
             .filter(|word| !word.is_empty())
@@ -98,7 +98,7 @@ impl FromStr for ClawMachine {
             rhs: py,
         };
 
-        Ok(Self(LinearEquationSystem([x, y])))
+        Ok(ClawMachine(LinearEquationSystem([x, y])))
     }
 }
 
@@ -118,10 +118,10 @@ impl Arcade {
 }
 
 impl FromStr for Arcade {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(
+    fn from_str(s: &str) -> Result<Arcade> {
+        Ok(Arcade(
             s.split("\n\n")
                 .map(str::parse)
                 .collect::<Result<Vec<_>, _>>()?,

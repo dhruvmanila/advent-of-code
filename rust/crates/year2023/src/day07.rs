@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::hash::Hash;
 use std::str::FromStr;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, bail, Error, Result};
 
 /// Abstraction for a camel hand.
 trait CamelHand: FromStr {
@@ -31,14 +31,14 @@ impl NormalHandCard {
     /// Construct a normal hand card from the given byte (`u8`).
     ///
     /// Returns `None` if the given byte does not represent a valid card.
-    fn from_byte(byte: u8) -> Option<Self> {
+    fn from_byte(byte: u8) -> Option<NormalHandCard> {
         match byte {
-            b'A' => Some(Self::Ace),
-            b'K' => Some(Self::King),
-            b'Q' => Some(Self::Queen),
-            b'J' => Some(Self::Jack),
-            b'T' => Some(Self::Number(10)),
-            digit @ b'0'..=b'9' => Some(Self::Number(digit - b'0')),
+            b'A' => Some(NormalHandCard::Ace),
+            b'K' => Some(NormalHandCard::King),
+            b'Q' => Some(NormalHandCard::Queen),
+            b'J' => Some(NormalHandCard::Jack),
+            b'T' => Some(NormalHandCard::Number(10)),
+            digit @ b'0'..=b'9' => Some(NormalHandCard::Number(digit - b'0')),
             _ => None,
         }
     }
@@ -61,14 +61,14 @@ impl JokerHandCard {
     /// Construct a joker hand card from the given byte (`u8`).
     ///
     /// Returns `None` if the given byte does not represent a valid card.
-    fn from_byte(byte: u8) -> Option<Self> {
+    fn from_byte(byte: u8) -> Option<JokerHandCard> {
         match byte {
-            b'A' => Some(Self::Ace),
-            b'K' => Some(Self::King),
-            b'Q' => Some(Self::Queen),
-            b'J' => Some(Self::Jack),
-            b'T' => Some(Self::Number(10)),
-            digit @ b'0'..=b'9' => Some(Self::Number(digit - b'0')),
+            b'A' => Some(JokerHandCard::Ace),
+            b'K' => Some(JokerHandCard::King),
+            b'Q' => Some(JokerHandCard::Queen),
+            b'J' => Some(JokerHandCard::Jack),
+            b'T' => Some(JokerHandCard::Number(10)),
+            digit @ b'0'..=b'9' => Some(JokerHandCard::Number(digit - b'0')),
             _ => None,
         }
     }
@@ -97,7 +97,7 @@ impl CamelHand for NormalHand {
     type Card = NormalHandCard;
 
     /// Returns the cards in this hand.
-    fn cards(&self) -> &[Self::Card; 5] {
+    fn cards(&self) -> &[NormalHandCard; 5] {
         &self.0
     }
 
@@ -131,14 +131,14 @@ impl CamelHand for NormalHand {
 }
 
 impl FromStr for NormalHand {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<NormalHand> {
         let [first, second, third, fourth, fifth] = s.as_bytes() else {
             bail!("Invalid hand: {:?} (expected 5 cards)", s);
         };
 
-        Ok(Self([
+        Ok(NormalHand([
             NormalHandCard::from_byte(*first)
                 .ok_or_else(|| anyhow!("Invalid card at 0: {:?}", first))?,
             NormalHandCard::from_byte(*second)
@@ -161,7 +161,7 @@ impl CamelHand for JokerHand {
     type Card = JokerHandCard;
 
     /// Returns the cards in this hand.
-    fn cards(&self) -> &[Self::Card; 5] {
+    fn cards(&self) -> &[JokerHandCard; 5] {
         &self.0
     }
 
@@ -175,14 +175,14 @@ impl CamelHand for JokerHand {
             1 => HandType::FiveOfAKind,
             2 => {
                 if card_count.values().any(|&count| count == 4) {
-                    if card_count.contains_key(&Self::Card::Jack) {
+                    if card_count.contains_key(&JokerHandCard::Jack) {
                         // Four of a kind upgraded to five of a kind because
                         // of the joker.
                         HandType::FiveOfAKind
                     } else {
                         HandType::FourOfAKind
                     }
-                } else if card_count.contains_key(&Self::Card::Jack) {
+                } else if card_count.contains_key(&JokerHandCard::Jack) {
                     // Full house upgraded to five of a kind because of the
                     // joker.
                     HandType::FiveOfAKind
@@ -192,7 +192,7 @@ impl CamelHand for JokerHand {
             }
             3 => {
                 if card_count.values().any(|&count| count == 3) {
-                    if card_count.contains_key(&Self::Card::Jack) {
+                    if card_count.contains_key(&JokerHandCard::Jack) {
                         // Three of a kind upgraded to four of a kind because
                         // of the joker.
                         HandType::FourOfAKind
@@ -201,7 +201,7 @@ impl CamelHand for JokerHand {
                     }
                 } else {
                     card_count
-                        .get(&Self::Card::Jack)
+                        .get(&JokerHandCard::Jack)
                         .map_or(HandType::TwoPair, |&count| {
                             if count == 2 {
                                 // Two pair upgraded to four of a kind because
@@ -216,7 +216,7 @@ impl CamelHand for JokerHand {
                 }
             }
             4 => {
-                if card_count.contains_key(&Self::Card::Jack) {
+                if card_count.contains_key(&JokerHandCard::Jack) {
                     // One pair upgraded to three of a kind because of the
                     // joker.
                     HandType::ThreeOfAKind
@@ -225,7 +225,7 @@ impl CamelHand for JokerHand {
                 }
             }
             5 => {
-                if card_count.contains_key(&Self::Card::Jack) {
+                if card_count.contains_key(&JokerHandCard::Jack) {
                     // High card upgraded to one pair because of the joker.
                     HandType::OnePair
                 } else {
@@ -238,14 +238,14 @@ impl CamelHand for JokerHand {
 }
 
 impl FromStr for JokerHand {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<JokerHand> {
         let [first, second, third, fourth, fifth] = s.as_bytes() else {
             bail!("Invalid hand: {:?} (expected 5 cards)", s);
         };
 
-        Ok(Self([
+        Ok(JokerHand([
             JokerHandCard::from_byte(*first)
                 .ok_or_else(|| anyhow!("Invalid card at 0: {:?}", first))?,
             JokerHandCard::from_byte(*second)
@@ -269,7 +269,7 @@ struct WeightedHand<H: CamelHand> {
 
 impl<H: CamelHand> PartialEq for WeightedHand<H> {
     /// Two weighted hands are equal if the type of their hands are equal.
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, other: &WeightedHand<H>) -> bool {
         self.hand.kind() == other.hand.kind()
     }
 }
@@ -279,7 +279,7 @@ impl<H: CamelHand> Eq for WeightedHand<H> {}
 impl<H: CamelHand> PartialOrd for WeightedHand<H> {
     /// Returns the ordering of two weighted hands. This is based on the
     /// ordering of their underlying hands.
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &WeightedHand<H>) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
@@ -290,7 +290,7 @@ impl<H: CamelHand> Ord for WeightedHand<H> {
     /// This is based on the ordering of their underlying hands. If the hands
     /// are of the same type, then a secondary ordering rule takes effect. This
     /// is done by comparing the cards in order.
-    fn cmp(&self, other: &Self) -> Ordering {
+    fn cmp(&self, other: &WeightedHand<H>) -> Ordering {
         match self.hand.kind().cmp(&other.hand.kind()) {
             Ordering::Equal => self.hand.cards().cmp(other.hand.cards()),
             ordering => ordering,
@@ -299,14 +299,14 @@ impl<H: CamelHand> Ord for WeightedHand<H> {
 }
 
 impl<H: CamelHand> FromStr for WeightedHand<H> {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<WeightedHand<H>> {
         let (hand, bid) = s
             .split_once(' ')
             .ok_or_else(|| anyhow!("Invalid input: {:?}", s))?;
 
-        Ok(Self {
+        Ok(WeightedHand {
             hand: H::from_str(hand).map_err(|_| anyhow!("Invalid hand {:?}", hand))?,
             bid: bid
                 .parse::<u32>()
@@ -320,8 +320,8 @@ impl<H: CamelHand> FromStr for WeightedHand<H> {
 struct Hands<H: CamelHand>(Vec<WeightedHand<H>>);
 
 impl<H: CamelHand> Hands<H> {
-    /// Consumes this collection of hands and returns a new collection with the
-    /// hands sorted by their [`HandType`].
+    /// Consumes this collection of hands and returns a new collection with the hands sorted by
+    /// their [`HandType`].
     fn into_sorted(self) -> Self {
         let mut hands = self;
         hands.0.sort_unstable();
@@ -330,12 +330,10 @@ impl<H: CamelHand> Hands<H> {
 
     /// Returns the total winnings of this collection of hands.
     ///
-    /// This is the sum of the bid values of each hand multiplied by the rank
-    /// of the hand.
+    /// This is the sum of the bid values of each hand multiplied by the rank of the hand.
     ///
-    /// This function assumes that the hands are sorted by their [`HandType`].
-    /// If not, the result will be incorrect. Use [`Hands::into_sorted`] to
-    /// sort the hands.
+    /// This function assumes that the hands are sorted by their [`HandType`]. If not, the result
+    /// will be incorrect. Use [`Hands::into_sorted`] to sort the hands.
     fn total_winnings(&self) -> u32 {
         (1..)
             .zip(self.0.iter())
@@ -345,18 +343,20 @@ impl<H: CamelHand> Hands<H> {
 }
 
 impl<H: CamelHand> FromStr for Hands<H> {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(s.lines().map(str::parse).collect::<Result<Vec<_>>>()?))
+    fn from_str(s: &str) -> Result<Hands<H>> {
+        Ok(Hands(
+            s.lines().map(str::parse).collect::<Result<Vec<_>>>()?,
+        ))
     }
 }
 
 pub fn solve(input: &str) -> Result<()> {
-    let normal_hands = input.parse::<Hands<NormalHand>>()?.into_sorted();
+    let normal_hands = Hands::<NormalHand>::from_str(input)?.into_sorted();
     println!("Part 1: {}", normal_hands.total_winnings());
 
-    let joker_hands = input.parse::<Hands<JokerHand>>()?.into_sorted();
+    let joker_hands = Hands::<JokerHand>::from_str(input)?.into_sorted();
     println!("Part 2: {}", joker_hands.total_winnings());
 
     Ok(())
@@ -387,22 +387,14 @@ QQQJA 483
     #[test_case(NormalHandCard::Jack, NormalHandCard::Queen, Ordering::Less)]
     #[test_case(NormalHandCard::Queen, NormalHandCard::King, Ordering::Less)]
     #[test_case(NormalHandCard::King, NormalHandCard::Ace, Ordering::Less)]
-    fn test_normal_hand_card_ordering(
-        card1: NormalHandCard,
-        card2: NormalHandCard,
-        expected: Ordering,
-    ) {
+    fn normal_hand_card_ordering(card1: NormalHandCard, card2: NormalHandCard, expected: Ordering) {
         assert_eq!(card1.cmp(&card2), expected);
     }
 
     #[test_case(JokerHandCard::Jack, JokerHandCard::Number(2), Ordering::Less)]
     #[test_case(JokerHandCard::Jack, JokerHandCard::Jack, Ordering::Equal)]
     #[test_case(JokerHandCard::Jack, JokerHandCard::Queen, Ordering::Less)]
-    fn test_joker_hand_card_ordering(
-        card1: JokerHandCard,
-        card2: JokerHandCard,
-        expected: Ordering,
-    ) {
+    fn joker_hand_card_ordering(card1: JokerHandCard, card2: JokerHandCard, expected: Ordering) {
         assert_eq!(card1.cmp(&card2), expected);
     }
 
@@ -413,7 +405,7 @@ QQQJA 483
     #[test_case("2K2K3", HandType::TwoPair)]
     #[test_case("8KQJ8", HandType::OnePair)]
     #[test_case("AKQJ8", HandType::HighCard)]
-    fn test_normal_hand_kind(cards: &str, expected: HandType) -> Result<()> {
+    fn normal_hand_kind(cards: &str, expected: HandType) -> Result<()> {
         assert_eq!(cards.parse::<NormalHand>()?.kind(), expected);
         Ok(())
     }
@@ -436,13 +428,13 @@ QQQJA 483
     #[test_case("8KQ68", HandType::OnePair)]
     #[test_case("AKQJ8", HandType::OnePair)]
     #[test_case("AKQ48", HandType::HighCard)]
-    fn test_joker_hand_kind(cards: &str, expected: HandType) -> Result<()> {
+    fn joker_hand_kind(cards: &str, expected: HandType) -> Result<()> {
         assert_eq!(cards.parse::<JokerHand>()?.kind(), expected);
         Ok(())
     }
 
     #[test]
-    fn test_sample() -> Result<()> {
+    fn sample() -> Result<()> {
         let normal_hands = SAMPLE_INPUT.parse::<Hands<NormalHand>>()?.into_sorted();
         assert_eq!(normal_hands.total_winnings(), 6440);
 
