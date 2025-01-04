@@ -165,7 +165,9 @@ impl Position {
         Position::new(self.row, self.col.saturating_sub(amount))
     }
 
-    /// Returns the manhattan distance between self and the other position.
+    /// Returns the [manhattan distance] between self and the other position.
+    ///
+    /// [manhattan distance]: https://simple.wikipedia.org/wiki/Manhattan_distance
     #[inline]
     pub const fn manhattan_distance(&self, other: &Position) -> usize {
         self.row.abs_diff(other.row) + self.col.abs_diff(other.col)

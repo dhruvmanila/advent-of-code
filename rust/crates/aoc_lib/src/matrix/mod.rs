@@ -14,9 +14,9 @@ pub use vector::{Vector, VectorMut};
 
 /// A generic implementation of a dynamically sized matrix.
 ///
-/// The matrix is stored in row-major order, meaning that the first row is
-/// stored first, then the second row, etc. The data is backed by a [`Vec`].
-#[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd)]
+/// The matrix is stored in row-major order, meaning that the first row is stored first, then the
+/// second row, etc. The data is backed by a [`Vec`].
+#[derive(Debug, PartialEq, Eq)]
 pub struct Matrix<T> {
     /// Number of rows in the matrix
     nrows: usize,
@@ -28,17 +28,6 @@ pub struct Matrix<T> {
 
 /// Constructors
 impl<T> Matrix<T> {
-    /// Constructs a new, empty matrix.
-    ///
-    /// Use [`Matrix::from_iter`] if you want to set the matrix from an iterator.
-    #[inline]
-    pub fn new() -> Matrix<T>
-    where
-        T: Default,
-    {
-        Matrix::default()
-    }
-
     /// Constructs a new matrix of given size (`rows * cols`) filled with the given `value`.
     #[inline]
     pub fn new_with(rows: usize, cols: usize, value: T) -> Matrix<T>
@@ -68,16 +57,16 @@ impl<T> Matrix<T> {
         }
     }
 
-    /// Constructs a new, non-empty matrix of given size filled with the values
-    /// returned by the given iterator.
+    /// Constructs a new, non-empty matrix of given size filled with the values returned by the
+    /// given iterator.
     ///
-    /// The matrix cells are set in a row-major order. The iterator can be infinite
-    /// as this method only consumes `rows * cols` values from the iterator.
+    /// The matrix cells are set in a row-major order. The iterator can be infinite as this method
+    /// only consumes `rows * cols` values from the iterator.
     ///
     /// # Panics
     ///
-    /// Panics if either `rows` or `cols` are equal to `0` or if the iterator
-    /// does not have `rows * cols` values.
+    /// Panics if either `rows` or `cols` are equal to `0` or if the iterator does not have `rows *
+    /// cols` values.
     #[inline]
     pub fn from_iter(rows: usize, cols: usize, data: impl IntoIterator<Item = T>) -> Matrix<T> {
         assert!(rows > 0 && cols > 0);
@@ -87,21 +76,20 @@ impl<T> Matrix<T> {
             ncols: cols,
             data: {
                 let data: Vec<_> = data.into_iter().take(rows * cols).collect();
-                // This is required to ensure that the iterator had enough values
-                // to fill the matrix as `take` will stop as soon as it reaches
-                // the end of the iterator.
+                // This is required to ensure that the iterator had enough values to fill the
+                // matrix as `take` will stop as soon as it reaches the end of the iterator.
                 assert_eq!(data.len(), rows * cols);
                 data
             },
         }
     }
 
-    /// Constructs a matrix in a similar way to [`Matrix::from_iter`] but expects
-    /// the iterator to return [`Result`]s instead of values.
+    /// Constructs a matrix in a similar way to [`Matrix::from_iter`] but expects the iterator to
+    /// return [`Result`]s instead of values.
     ///
-    /// If the iterator returns an [`Err`] value, the matrix construction will
-    /// stop and the error will be returned, otherwise the matrix will be created
-    /// using all the [`Ok`] values returned by the iterator.
+    /// If the iterator returns an [`Err`] value, the matrix construction will stop and the error
+    /// will be returned, otherwise the matrix will be created using all the [`Ok`] values returned
+    /// by the iterator.
     #[inline]
     pub fn try_from_iter<E>(
         rows: usize,
@@ -118,9 +106,8 @@ impl<T> Matrix<T> {
                     .into_iter()
                     .take(rows * cols)
                     .collect::<Result<_, _>>()?;
-                // This is required to ensure that the iterator had enough values
-                // to fill the matrix as `take` will stop as soon as it reaches
-                // the end of the iterator.
+                // This is required to ensure that the iterator had enough values to fill the
+                // matrix as `take` will stop as soon as it reaches the end of the iterator.
                 assert_eq!(data.len(), rows * cols);
                 data
             },
@@ -227,7 +214,7 @@ impl<T> Matrix<T> {
         T: PartialEq,
     {
         let index = self.data.iter().position(|item| item == expected)?;
-        Some(Position::new(index / self.ncols, index % self.nrows))
+        Some(Position::new(index / self.ncols, index % self.ncols))
     }
 
     /// Returns a slice containing all the elements in the matrix in row-major order.
@@ -237,8 +224,8 @@ impl<T> Matrix<T> {
 
     /// Returns an iterator over the [`Position`]s in the given [`Direction`].
     ///
-    /// The iterator starts from the next position after the given `start` position along the
-    /// given `direction` and continues until the end of the matrix.
+    /// The iterator starts from the next position after the given `start` position along the given
+    /// `direction` and continues until the end of the matrix.
     pub fn positions_in_direction(
         &self,
         start: Position,
