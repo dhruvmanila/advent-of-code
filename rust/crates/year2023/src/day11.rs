@@ -70,7 +70,7 @@ impl Universe {
         }
 
         let mut empty_rows = 0;
-        for (idx, row) in self.0.rows().enumerate() {
+        for (idx, row) in self.0.row_iter().enumerate() {
             if !row.iter().all(|cell| cell.is_empty_space()) {
                 continue;
             }
@@ -82,7 +82,7 @@ impl Universe {
         }
 
         let mut empty_columns = 0;
-        for (idx, column) in self.0.columns().enumerate() {
+        for (idx, column) in self.0.column_iter().enumerate() {
             if !column.iter().all(|cell| cell.is_empty_space()) {
                 continue;
             }

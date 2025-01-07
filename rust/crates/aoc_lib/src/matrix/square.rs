@@ -5,7 +5,7 @@ use super::Matrix;
 /// A square matrix, a special case of [`Matrix`] where the number of rows and columns are equal.
 ///
 /// This type de-references to [`Matrix`].
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SquareMatrix<T> {
     inner: Matrix<T>,
 }
@@ -62,5 +62,24 @@ impl<T> SquareMatrix<T> {
         Ok(SquareMatrix {
             inner: Matrix::try_from_iter(size, size, data)?,
         })
+    }
+}
+
+impl<T> SquareMatrix<T> {
+    /// Transposes the matrix in-place.
+    pub fn transpose_mut(&mut self) {
+        for i in 1..self.inner.nrows {
+            for j in 0..i {
+                self.inner.swap((i, j), (j, i));
+            }
+        }
+    }
+
+    /// Rotates the matrix 90 degrees clockwise in-place.
+    pub fn rotate_mut(&mut self) {
+        self.transpose_mut();
+        for mut row in self.inner.row_iter_mut() {
+            row.reverse();
+        }
     }
 }

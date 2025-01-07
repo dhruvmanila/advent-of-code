@@ -7,19 +7,28 @@ mod vector;
 
 use std::fmt;
 use std::ops::{Index, IndexMut};
-use std::str::FromStr;
 
 pub use direction::{CardinalDirection, Direction};
-pub use iter::{ColumnIter, MatrixEnumerate, PositionsInDirectionIter, RowIter};
+pub use iter::{
+    ColumnIter, ColumnIterMut, MatrixEnumerate, PositionsInDirectionIter, RowIter, RowIterMut,
+};
 pub use position::Position;
 pub use square::SquareMatrix;
-pub use vector::{Vector, VectorMut};
+pub use vector::{ColumnVector, ColumnVectorMut, RowVector, RowVectorMut, Vector, VectorMut};
+
+/// A type-level marker for the row dimension.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub struct RowDim;
+
+/// A type-level marker for the column dimension.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub struct ColumnDim;
 
 /// A generic implementation of a dynamically sized matrix.
 ///
 /// The matrix is stored in row-major order, meaning that the first row is stored first, then the
 /// second row, etc. The data is backed by a [`Vec`].
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Matrix<T> {
     /// Number of rows in the matrix
     nrows: usize,
@@ -118,16 +127,6 @@ impl<T> Matrix<T> {
     }
 }
 
-pub enum MatrixError {}
-
-impl<T> FromStr for Matrix<T> {
-    type Err = MatrixError;
-
-    fn from_str(_s: &str) -> Result<Matrix<T>, MatrixError> {
-        todo!()
-    }
-}
-
 /// Methods
 impl<T> Matrix<T> {
     /// Returns the number of rows in the matrix.
@@ -148,80 +147,94 @@ impl<T> Matrix<T> {
         (self.nrows, self.ncols)
     }
 
-    /// Returns a view into a `row` of the matrix, [`None`] if out of bounds.
-    pub fn row(&self, row: usize) -> Option<Vector<T>> {
-        if row < self.nrows {
-            Some(Vector {
-                len: self.ncols,
-                inc: 1,
-                data: &self.data[row * self.ncols..(row + 1) * self.ncols],
-            })
-        } else {
-            None
-        }
-    }
-
-    /// Returns a mutable view into a `row` of the matrix, [`None`] if out of bounds.
-    pub fn row_mut(&mut self, row: usize) -> Option<VectorMut<T>> {
-        if row < self.nrows {
-            Some(VectorMut {
-                len: self.ncols,
-                inc: 1,
-                data: &mut self.data[row * self.ncols..(row + 1) * self.ncols],
-            })
-        } else {
-            None
-        }
-    }
-
-    /// Returns a view into a `column` of the matrix, [`None`] if out of bounds.
-    pub fn column(&self, column: usize) -> Option<Vector<T>> {
-        if column < self.ncols {
-            Some(Vector {
-                len: self.nrows,
-                inc: self.ncols,
-                data: &self.data[column..=(column + (self.nrows - 1) * self.ncols)],
-            })
-        } else {
-            None
-        }
-    }
-
-    /// Returns a mutable view into a `column` of the matrix, [`None`] if out of bounds.
-    pub fn column_mut(&mut self, column: usize) -> Option<VectorMut<T>> {
-        if column < self.ncols {
-            Some(VectorMut {
-                len: self.nrows,
-                inc: self.ncols,
-                data: &mut self.data[column..=(column + (self.nrows - 1) * self.ncols)],
-            })
-        } else {
-            None
-        }
-    }
-
-    /// Returns an iterator over the rows of the matrix.
+    /// Returns a view into the i-th row of the matrix.
     ///
-    /// Each row is represented as a [`Vector`].
-    pub fn rows(&self) -> RowIter<'_, T> {
+    /// # Panics
+    ///
+    /// Panics if the row index is out of bounds.
+    #[inline]
+    pub fn row(&self, i: usize) -> RowVector<'_, T> {
+        self.index((i, ..))
+    }
+
+    /// Returns a mutable view into the i-th row of the matrix.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the row index is out of bounds.
+    #[inline]
+    pub fn row_mut(&mut self, i: usize) -> RowVectorMut<'_, T> {
+        self.index_mut((i, ..))
+    }
+
+    /// Returns a view into the i-th column of the matrix.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the column index is out of bounds.
+    #[inline]
+    pub fn column(&self, i: usize) -> ColumnVector<'_, T> {
+        self.index((.., i))
+    }
+
+    /// Returns a mutable view into the i-th column of the matrix.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the column index is out of bounds.
+    #[inline]
+    pub fn column_mut(&mut self, i: usize) -> ColumnVectorMut<'_, T> {
+        self.index_mut((.., i))
+    }
+
+    /// Returns an iterator over all the rows of the matrix.
+    #[inline]
+    pub fn row_iter(&self) -> RowIter<'_, T> {
         RowIter::new(self)
     }
 
-    /// Returns an iterator over the columns of the matrix.
-    ///
-    /// Each column is represented as a [`Vector`].
-    pub fn columns(&self) -> ColumnIter<'_, T> {
+    /// Returns an iterator over all the rows of the matrix, allowing mutable access to each row.
+    #[inline]
+    pub fn row_iter_mut(&mut self) -> RowIterMut<'_, T> {
+        RowIterMut::new(self)
+    }
+
+    /// Returns an iterator over all the columns of the matrix.
+    #[inline]
+    pub fn column_iter(&self) -> ColumnIter<'_, T> {
         ColumnIter::new(self)
+    }
+
+    /// Returns an iterator over all the columns of the matrix, allowing mutable access to each
+    /// column.
+    #[inline]
+    pub fn column_iter_mut(&mut self) -> ColumnIterMut<'_, T> {
+        ColumnIterMut::new(self)
     }
 
     /// Returns an iterator over the [`Position`] and value of each cell in the matrix in row-major
     /// order.
+    #[inline]
     pub fn enumerate(&self) -> MatrixEnumerate<'_, T> {
         MatrixEnumerate::new(self)
     }
 
+    /// Returns an iterator over the [`Position`]s in the given [`Direction`].
+    ///
+    /// The iterator starts from the next position after the given `start` position along the given
+    /// `direction` and continues until the end of the matrix.
+    #[inline]
+    pub fn positions_in_direction(
+        &self,
+        start: Position,
+        direction: Direction,
+    ) -> PositionsInDirectionIter {
+        PositionsInDirectionIter::new(self.shape(), start, direction)
+    }
+
     /// Finds the [`Position`] of the first occurrence of the given `expected` value in the matrix,
     /// [`None`] if not found.
+    #[inline]
     pub fn find_position(&self, expected: &T) -> Option<Position>
     where
         T: PartialEq,
@@ -231,32 +244,34 @@ impl<T> Matrix<T> {
     }
 
     /// Returns a slice containing all the elements in the matrix in row-major order.
+    #[inline]
     pub fn as_slice(&self) -> &[T] {
         &self.data
     }
 
-    /// Returns an iterator over the [`Position`]s in the given [`Direction`].
+    /// Swaps two elements in the matrix.
     ///
-    /// The iterator starts from the next position after the given `start` position along the given
-    /// `direction` and continues until the end of the matrix.
-    pub fn positions_in_direction(
-        &self,
-        start: Position,
-        direction: Direction,
-    ) -> PositionsInDirectionIter {
-        PositionsInDirectionIter::new(self.shape(), start, direction)
+    /// # Panics
+    ///
+    /// Panics if either `pos1` or `pos2` are out of bounds.
+    #[inline]
+    pub fn swap(&mut self, pos1: (usize, usize), pos2: (usize, usize)) {
+        self.data
+            .swap(pos1.0 * self.ncols + pos1.1, pos2.0 * self.ncols + pos2.1);
     }
 }
 
 impl<T> Index<(usize, usize)> for Matrix<T> {
     type Output = T;
 
+    #[inline]
     fn index(&self, (row, col): (usize, usize)) -> &T {
         self.get((row, col)).expect("row or column out of bounds")
     }
 }
 
 impl<T> IndexMut<(usize, usize)> for Matrix<T> {
+    #[inline]
     fn index_mut(&mut self, (row, col): (usize, usize)) -> &mut T {
         self.get_mut((row, col))
             .expect("row or column out of bounds")
@@ -266,12 +281,14 @@ impl<T> IndexMut<(usize, usize)> for Matrix<T> {
 impl<T> Index<Position> for Matrix<T> {
     type Output = T;
 
+    #[inline]
     fn index(&self, pos: Position) -> &T {
         &self[pos.as_tuple()]
     }
 }
 
 impl<T> IndexMut<Position> for Matrix<T> {
+    #[inline]
     fn index_mut(&mut self, pos: Position) -> &mut T {
         &mut self[pos.as_tuple()]
     }
@@ -280,12 +297,14 @@ impl<T> IndexMut<Position> for Matrix<T> {
 impl<T> Index<&Position> for Matrix<T> {
     type Output = T;
 
+    #[inline]
     fn index(&self, index: &Position) -> &T {
         &self[index.as_tuple()]
     }
 }
 
 impl<T> IndexMut<&Position> for Matrix<T> {
+    #[inline]
     fn index_mut(&mut self, index: &Position) -> &mut T {
         &mut self[index.as_tuple()]
     }
@@ -296,8 +315,8 @@ where
     T: fmt::Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for row in self.rows() {
-            for cell in row.iter() {
+        for row in self.row_iter() {
+            for cell in &row {
                 write!(f, "{cell}")?;
             }
             writeln!(f)?;

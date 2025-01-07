@@ -97,7 +97,7 @@ impl fmt::Display for DisplayCoordinateSpace<'_> {
         for robot in &self.space.robots {
             grid[(robot.position.y as usize, robot.position.x as usize)] = '#';
         }
-        for row in grid.rows() {
+        for row in grid.row_iter() {
             writeln!(f, "{}", row.iter().collect::<String>())?;
         }
         Ok(())

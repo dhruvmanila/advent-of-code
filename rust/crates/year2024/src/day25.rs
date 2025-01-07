@@ -60,10 +60,10 @@ impl FromStr for Schematics {
             );
 
             // SAFETY: The layout is guaranteed to be 7x5
-            let is_lock = layout.row(0).unwrap().iter().all(|&c| c == '#');
+            let is_lock = layout.row(0).iter().all(|&c| c == '#');
 
             let mut heights = Vec::new();
-            for column in layout.columns() {
+            for column in layout.column_iter() {
                 let height = if is_lock {
                     column.iter().skip(1).filter(|&&c| c == '#').count()
                 } else {

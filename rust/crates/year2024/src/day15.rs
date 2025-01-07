@@ -210,6 +210,7 @@ impl WideWarehouse {
             } else {
                 self.apply_vertical_move(direction);
             }
+            self.robot = self.robot.neighbor(direction.into()).unwrap();
         }
     }
 
@@ -238,8 +239,6 @@ impl WideWarehouse {
             self.map[neighbor] = self.map[box_pos];
             self.map[box_pos] = ScaledTile::Open;
         }
-
-        self.robot = self.robot.neighbor(direction.into()).unwrap();
     }
 
     /// Apply a vertical move to the robot which may move the boxes.
@@ -281,8 +280,6 @@ impl WideWarehouse {
             self.map[neighbor] = self.map[box_pos];
             self.map[box_pos] = ScaledTile::Open;
         }
-
-        self.robot = self.robot.neighbor(direction.into()).unwrap();
     }
 
     /// Returns the sum of the GPS coordinates of the boxes in the warehouse.

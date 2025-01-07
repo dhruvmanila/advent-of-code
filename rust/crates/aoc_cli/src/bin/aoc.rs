@@ -32,6 +32,8 @@ fn main() -> Result<()> {
             9 => year2023::day09::solve(&input),
             10 => year2023::day10::solve(&input),
             11 => year2023::day11::solve(&input),
+            13 => year2023::day13::solve(&input),
+            14 => year2023::day14::solve(&input),
             _ => Err(anyhow!("No solution available")),
         },
         2024 => match day.as_inner() {
