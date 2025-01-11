@@ -112,9 +112,8 @@ where
     }
 
     unsafe fn get_unchecked(self, matrix: &'a Matrix<T>) -> &'a T {
-        let (row, col) = self;
-        let (_, ncols) = matrix.shape();
-        &matrix.data[col + row * ncols]
+        let index = matrix.linear_index(self);
+        &matrix.data[index]
     }
 }
 
@@ -125,9 +124,8 @@ where
     type OutputMut = &'a mut T;
 
     unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T>) -> Self::OutputMut {
-        let (row, col) = self;
-        let (_, ncols) = matrix.shape();
-        &mut matrix.data[col + row * ncols]
+        let index = matrix.linear_index(self);
+        &mut matrix.data[index]
     }
 }
 

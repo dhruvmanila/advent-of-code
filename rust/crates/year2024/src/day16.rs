@@ -1,10 +1,11 @@
 use std::array::IntoIter;
-use std::collections::{BinaryHeap, HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 use std::fmt::{self, Write};
 use std::str::FromStr;
 
 use anyhow::{bail, Error, Result};
 use aoc_lib::matrix::{CardinalDirection, Matrix, Position, SquareMatrix};
+use aoc_lib::MinHeap;
 
 /// A tile in the maze.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -27,36 +28,6 @@ impl fmt::Display for Tile {
 struct MazeNode {
     position: Position,
     direction: CardinalDirection,
-}
-
-/// A [`MazeNode`] with a cost associated with it.
-///
-/// The [`Ord`] implementation is reversed so that the priority queue pops the node
-/// with the lowest cost first.
-#[derive(Debug)]
-struct MazeNodeWithCost {
-    node: MazeNode,
-    cost: u32,
-}
-
-impl PartialEq for MazeNodeWithCost {
-    fn eq(&self, other: &Self) -> bool {
-        self.cost == other.cost
-    }
-}
-
-impl Eq for MazeNodeWithCost {}
-
-impl PartialOrd for MazeNodeWithCost {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for MazeNodeWithCost {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        other.cost.cmp(&self.cost)
-    }
 }
 
 #[derive(Debug)]
@@ -97,17 +68,14 @@ impl ReindeerMaze {
 
         // Priority queue to keep track of the nodes to visit. The ordering for the custom struct
         // is reversed so that the node with the lowest cost is popped first (i.e. a min-heap).
-        let mut queue = BinaryHeap::new();
-        queue.push(MazeNodeWithCost {
-            node: start,
-            cost: 0,
-        });
+        let mut queue = MinHeap::new();
+        queue.push(0, start);
 
         // The end node. This is required to reconstruct the path and we can't use `self.end`
         // as we need the direction of the end node as well.
         let mut target_node = None;
 
-        while let Some(MazeNodeWithCost { node, cost }) = queue.pop() {
+        while let Some((cost, node)) = queue.pop() {
             if node.position == self.target {
                 target_node = Some(node);
                 break;
@@ -120,10 +88,7 @@ impl ReindeerMaze {
                     // of reaching the node is lower than the existing cost.
                     total_cost.insert(successor.clone(), new_cost);
                     previous.insert(successor.clone(), vec![node.clone()]);
-                    queue.push(MazeNodeWithCost {
-                        node: successor,
-                        cost: new_cost,
-                    });
+                    queue.push(new_cost, successor);
                 } else if existing_cost == Some(&new_cost) {
                     // This branch is taken when there's an alternative path to the node with the
                     // same cost.
@@ -221,7 +186,10 @@ impl Iterator for Successors<'_> {
 
             match next_state {
                 SuccessorState::MoveForward => {
-                    let next_position = self.node.position.neighbor(self.node.direction.into())?;
+                    let next_position = self
+                        .node
+                        .position
+                        .checked_neighbor(self.node.direction.into())?;
                     if self.maze[next_position] == Tile::Empty {
                         return Some((
                             MazeNode {
@@ -237,7 +205,8 @@ impl Iterator for Successors<'_> {
                         TurnDirection::Left => self.node.direction.turn_left(),
                         TurnDirection::Right => self.node.direction.turn_right(),
                     };
-                    let next_position = self.node.position.neighbor(next_direction.into())?;
+                    let next_position =
+                        self.node.position.checked_neighbor(next_direction.into())?;
                     if self.maze[next_position] == Tile::Empty {
                         return Some((
                             MazeNode {

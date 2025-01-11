@@ -105,7 +105,10 @@ impl Region {
         let mut sides = 0;
         for point in &self.0 {
             for (direction1, direction2, diagonal) in CORNERS {
-                match (point.neighbor(direction1), point.neighbor(direction2)) {
+                match (
+                    point.checked_neighbor(direction1),
+                    point.checked_neighbor(direction2),
+                ) {
                     (Some(neighbor1), Some(neighbor2)) => {
                         match (self.contains(&neighbor1), self.contains(&neighbor2)) {
                             (true, true) => {
@@ -115,7 +118,7 @@ impl Region {
                                 //
                                 // SAFETY: The diagonal neighbor is always within the bounds of a
                                 // square matrix (which it is) for a convex corner.
-                                if !self.contains(&point.neighbor(diagonal).unwrap()) {
+                                if !self.contains(&(*point + diagonal)) {
                                     sides += 1;
                                 }
                             }
@@ -149,7 +152,7 @@ impl Region {
         let mut perimeter = 0;
         for point in &self.0 {
             for direction in Direction::CARDINAL {
-                if let Some(neighbor) = point.neighbor(direction) {
+                if let Some(neighbor) = point.checked_neighbor(direction) {
                     if !self.contains(&neighbor) {
                         perimeter += 1;
                     }

@@ -97,12 +97,11 @@ impl Warehouse {
             }
 
             while let Some(box_pos) = boxes_to_move.pop() {
-                let neighbor = box_pos.neighbor(direction.into()).unwrap();
-                self.map[neighbor] = Tile::Box;
+                self.map[box_pos + direction] = Tile::Box;
                 self.map[box_pos] = Tile::Open;
             }
 
-            self.robot = self.robot.neighbor(direction.into()).unwrap();
+            self.robot += direction;
         }
     }
 
@@ -210,7 +209,7 @@ impl WideWarehouse {
             } else {
                 self.apply_vertical_move(direction);
             }
-            self.robot = self.robot.neighbor(direction.into()).unwrap();
+            self.robot += direction;
         }
     }
 
@@ -235,8 +234,7 @@ impl WideWarehouse {
         }
 
         while let Some(box_pos) = boxes_to_move.pop() {
-            let neighbor = box_pos.neighbor(direction.into()).unwrap();
-            self.map[neighbor] = self.map[box_pos];
+            self.map[box_pos + direction] = self.map[box_pos];
             self.map[box_pos] = ScaledTile::Open;
         }
     }
@@ -255,7 +253,7 @@ impl WideWarehouse {
 
         // Use BFS (Breadth-First Search) to find all the boxes that needs to be moved.
         while let Some(position) = queue.pop_front() {
-            let next_position = position.neighbor(direction.into()).expect("out of bounds");
+            let next_position = position + direction;
             match self.map[next_position] {
                 ScaledTile::Wall => return,
                 ScaledTile::Open => continue,
@@ -276,8 +274,7 @@ impl WideWarehouse {
         }
 
         while let Some(box_pos) = boxes_to_move.pop() {
-            let neighbor = box_pos.neighbor(direction.into()).unwrap();
-            self.map[neighbor] = self.map[box_pos];
+            self.map[box_pos + direction] = self.map[box_pos];
             self.map[box_pos] = ScaledTile::Open;
         }
     }

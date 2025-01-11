@@ -1,7 +1,8 @@
 use std::fmt;
+use std::ops::{Mul, Sub};
 
 /// A 2-dimensional point with coordinates of type `T`.
-#[derive(Clone, Default, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub struct Point2D<T> {
     /// The x-coordinate of the point.
     pub x: T,
@@ -12,8 +13,17 @@ pub struct Point2D<T> {
 impl<T> Point2D<T> {
     /// Create a new 2-dimensional point with the given `x` and `y` coordinates.
     #[inline]
-    pub const fn new(x: T, y: T) -> Self {
+    pub const fn new(x: T, y: T) -> Point2D<T> {
         Self { x, y }
+    }
+
+    /// Returns the determinant of the two points.
+    #[inline]
+    pub fn determinant(&self, other: &Point2D<T>) -> T
+    where
+        T: Sub<Output = T> + Mul<Output = T> + Copy,
+    {
+        self.x * other.y - self.y * other.x
     }
 }
 

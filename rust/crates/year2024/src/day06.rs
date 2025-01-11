@@ -14,7 +14,7 @@ struct Guard {
 impl Guard {
     /// Returns the next position of the guard based on its current direction.
     fn next_position(&self) -> Option<Position> {
-        self.position.neighbor(self.direction.into())
+        self.position.checked_neighbor(self.direction.into())
     }
 
     /// Turns the guard to the right by 90 degrees.

@@ -259,6 +259,11 @@ impl<T> Matrix<T> {
         self.data
             .swap(pos1.0 * self.ncols + pos1.1, pos2.0 * self.ncols + pos2.1);
     }
+
+    /// Compute the index corresponding to the given `(row, col)` pair of this matrix.
+    fn linear_index(&self, (row, col): (usize, usize)) -> usize {
+        row * self.ncols + col
+    }
 }
 
 impl<T> Index<(usize, usize)> for Matrix<T> {

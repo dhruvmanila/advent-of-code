@@ -303,7 +303,7 @@ impl<'a, T> MatrixEnumerate<'a, T> {
     pub(super) fn new(matrix: &'a Matrix<T>) -> MatrixEnumerate<'a, T> {
         MatrixEnumerate {
             matrix,
-            current: Position::new(0, 0),
+            current: Position::zero(),
         }
     }
 }
@@ -376,7 +376,7 @@ impl Iterator for PositionsInDirectionIter {
         if self.is_out_of_bounds() {
             return None;
         }
-        self.current = self.current.neighbor(self.direction)?;
+        self.current = self.current.checked_neighbor(self.direction)?;
         Some(self.current)
     }
 }

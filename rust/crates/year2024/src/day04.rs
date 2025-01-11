@@ -96,7 +96,7 @@ impl Board {
         // Return the letter of the given position's neighbor in the given direction.
         let neighbor_letter = |position: Position, direction: Direction| {
             position
-                .neighbor(direction)
+                .checked_neighbor(direction)
                 .and_then(|position| self.0.get(position))
         };
 

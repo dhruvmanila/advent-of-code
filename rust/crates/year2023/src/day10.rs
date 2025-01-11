@@ -132,7 +132,7 @@ impl Grid {
         let (mut position, mut direction) = CardinalDirection::ALL
             .into_iter()
             .find_map(|direction| {
-                let neighbor = animal_position.neighbor(direction.into())?;
+                let neighbor = animal_position.checked_neighbor(direction.into())?;
                 Tile::is_animal_connected_to(*self.0.get(neighbor)?, direction)
                     .then_some((neighbor, direction))
             })

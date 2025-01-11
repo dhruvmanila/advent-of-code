@@ -183,7 +183,7 @@ impl Position {
     pub fn neighbors(&self) -> impl Iterator<Item = Position> + '_ {
         Direction::ALL
             .iter()
-            .filter_map(|direction| self.neighbor(*direction))
+            .filter_map(|direction| self.checked_neighbor(*direction))
     }
 
     /// Returns an iterator over the cardinal neighboring positions of [`Self`] filtering
@@ -196,13 +196,13 @@ impl Position {
     pub fn cardinal_neighbors(&self) -> impl Iterator<Item = Position> + '_ {
         Direction::CARDINAL
             .iter()
-            .filter_map(|direction| self.neighbor(*direction))
+            .filter_map(|direction| self.checked_neighbor(*direction))
     }
 
     /// Returns the neighboring position in the given direction, [`None`] if the position is out of
     /// bounds.
     #[inline]
-    pub const fn neighbor(&self, direction: Direction) -> Option<Position> {
+    pub const fn checked_neighbor(&self, direction: Direction) -> Option<Position> {
         match direction {
             Direction::Up => self.up(),
             Direction::Down => self.down(),
@@ -283,12 +283,14 @@ impl Position {
     }
 }
 
+// Move position in a direction
+
 impl Add<Direction> for Position {
     type Output = Position;
 
     #[inline]
     fn add(self, rhs: Direction) -> Position {
-        self.neighbor(rhs)
+        self.checked_neighbor(rhs)
             .expect("adding direction to position should not overflow")
     }
 }
@@ -312,6 +314,8 @@ impl AddAssign<CardinalDirection> for Position {
         *self = *self + rhs;
     }
 }
+
+// Arithmetic operations
 
 impl Add for Position {
     type Output = Position;
