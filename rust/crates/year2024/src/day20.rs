@@ -2,8 +2,8 @@ use std::fmt::{self, Write};
 use std::ops::Deref;
 use std::str::FromStr;
 
-use anyhow::{anyhow, bail, Error, Result};
-use aoc_lib::matrix::{CardinalDirection, Position, SquareMatrix};
+use anyhow::{anyhow, Error, Result};
+use aoc_lib::matrix::{CardinalDirection, MatrixError, Position, SquareMatrix};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Tile {
@@ -20,16 +20,16 @@ impl Tile {
 }
 
 impl TryFrom<u8> for Tile {
-    type Error = Error;
+    type Error = MatrixError;
 
-    fn try_from(value: u8) -> Result<Tile> {
-        Ok(match value {
-            b'.' => Tile::Track,
-            b'#' => Tile::Wall,
-            b'S' => Tile::Start,
-            b'E' => Tile::End,
-            _ => bail!("Invalid tile character: {}", value as char),
-        })
+    fn try_from(value: u8) -> Result<Tile, MatrixError> {
+        match value {
+            b'.' => Ok(Tile::Track),
+            b'#' => Ok(Tile::Wall),
+            b'S' => Ok(Tile::Start),
+            b'E' => Ok(Tile::End),
+            _ => Err(MatrixError::InvalidCharacter(value as char)),
+        }
     }
 }
 
@@ -93,10 +93,8 @@ impl FromStr for Racetrack {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Racetrack> {
-        let map = SquareMatrix::try_from_iter(
-            s.lines().count(),
-            s.lines().flat_map(|line| line.bytes().map(Tile::try_from)),
-        )?;
+        let map =
+            SquareMatrix::try_from_rows(s.lines().map(|line| line.bytes().map(Tile::try_from)))?;
         let start = map
             .find_position(&Tile::Start)
             .ok_or_else(|| anyhow!("Start position ({}) not found in the input", Tile::Start))?;

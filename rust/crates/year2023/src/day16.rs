@@ -2,8 +2,8 @@ use std::collections::HashSet;
 use std::fmt::{self, Write};
 use std::str::FromStr;
 
-use anyhow::{anyhow, Error, Result};
-use aoc_lib::matrix::{CardinalDirection, Position, SquareMatrix};
+use anyhow::Result;
+use aoc_lib::matrix::{CardinalDirection, MatrixError, Position, SquareMatrix};
 
 /// The kind of splitter tile.
 #[derive(Debug, Copy, Clone)]
@@ -53,16 +53,16 @@ enum Tile {
 }
 
 impl TryFrom<u8> for Tile {
-    type Error = Error;
+    type Error = MatrixError;
 
-    fn try_from(value: u8) -> Result<Tile> {
+    fn try_from(value: u8) -> Result<Tile, MatrixError> {
         match value {
             b'.' => Ok(Tile::Empty),
             b'/' => Ok(Tile::Mirror(MirrorTile::Forward)),
             b'\\' => Ok(Tile::Mirror(MirrorTile::Backward)),
             b'-' => Ok(Tile::Splitter(SplitterTile::Horizontal)),
             b'|' => Ok(Tile::Splitter(SplitterTile::Vertical)),
-            _ => Err(anyhow!("Invalid tile character: {}", value as char)),
+            _ => Err(MatrixError::InvalidCharacter(value as char)),
         }
     }
 }
@@ -235,13 +235,11 @@ impl Contraption {
 }
 
 impl FromStr for Contraption {
-    type Err = Error;
+    type Err = MatrixError;
 
-    fn from_str(s: &str) -> Result<Contraption> {
-        Ok(Contraption(SquareMatrix::try_from_iter(
-            s.lines().count(),
-            s.lines().flat_map(|line| line.bytes().map(Tile::try_from)),
-        )?))
+    fn from_str(s: &str) -> Result<Contraption, MatrixError> {
+        SquareMatrix::try_from_rows(s.lines().map(|line| line.bytes().map(Tile::try_from)))
+            .map(Contraption)
     }
 }
 

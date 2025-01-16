@@ -2,8 +2,8 @@ use std::collections::VecDeque;
 use std::fmt::{self, Write};
 use std::str::FromStr;
 
-use anyhow::{anyhow, bail, Error, Result};
-use aoc_lib::matrix::{CardinalDirection, Matrix, Position, SquareMatrix};
+use anyhow::{anyhow, Error, Result};
+use aoc_lib::matrix::{CardinalDirection, Matrix, MatrixError, Position, SquareMatrix};
 
 #[derive(Debug)]
 struct Moves(Vec<CardinalDirection>);
@@ -37,15 +37,15 @@ enum Tile {
 }
 
 impl TryFrom<u8> for Tile {
-    type Error = Error;
+    type Error = MatrixError;
 
-    fn try_from(byte: u8) -> Result<Tile> {
+    fn try_from(byte: u8) -> Result<Tile, MatrixError> {
         match byte {
             b'#' => Ok(Tile::Wall),
             // Mark the robot position as an open tile, we store the position separately.
             b'.' | b'@' => Ok(Tile::Open),
             b'O' => Ok(Tile::Box),
-            _ => bail!("Invalid tile: {}", byte as char),
+            _ => Err(MatrixError::InvalidCharacter(byte as char)),
         }
     }
 }
@@ -106,22 +106,20 @@ impl Warehouse {
     }
 
     /// Converts the warehouse to the wide version where each tile is twice as wide.
-    fn to_wide(&self) -> WideWarehouse {
-        WideWarehouse {
-            map: Matrix::from_iter(
-                self.map.nrows(),
-                self.map.ncols() * 2,
-                self.map.as_slice().iter().flat_map(|tile| match tile {
+    fn to_wide(&self) -> Result<WideWarehouse, MatrixError> {
+        Ok(WideWarehouse {
+            map: Matrix::from_rows(self.map.row_iter().map(|row| {
+                row.iter().flat_map(|tile| match tile {
                     Tile::Wall => [ScaledTile::Wall, ScaledTile::Wall],
                     Tile::Open => [ScaledTile::Open, ScaledTile::Open],
                     Tile::Box => [
                         ScaledTile::Box(BoxEdge::Open),
                         ScaledTile::Box(BoxEdge::Close),
                     ],
-                }),
-            ),
+                })
+            }))?,
             robot: self.robot.add_col(self.robot.col()),
-        }
+        })
     }
 
     /// Returns the sum of the GPS coordinates of the boxes in the warehouse.
@@ -151,9 +149,8 @@ impl FromStr for Warehouse {
             for (col, byte) in line.bytes().enumerate() {
                 if byte == b'@' {
                     return Ok(Warehouse {
-                        map: SquareMatrix::try_from_iter(
-                            s.lines().count(),
-                            s.lines().flat_map(|line| line.bytes().map(Tile::try_from)),
+                        map: SquareMatrix::try_from_rows(
+                            s.lines().map(|line| line.bytes().map(Tile::try_from)),
                         )?,
                         robot: Position::new(row, col),
                     });
@@ -209,7 +206,6 @@ impl WideWarehouse {
             } else {
                 self.apply_vertical_move(direction);
             }
-            self.robot += direction;
         }
     }
 
@@ -237,6 +233,8 @@ impl WideWarehouse {
             self.map[box_pos + direction] = self.map[box_pos];
             self.map[box_pos] = ScaledTile::Open;
         }
+
+        self.robot += direction;
     }
 
     /// Apply a vertical move to the robot which may move the boxes.
@@ -277,6 +275,8 @@ impl WideWarehouse {
             self.map[box_pos + direction] = self.map[box_pos];
             self.map[box_pos] = ScaledTile::Open;
         }
+
+        self.robot += direction;
     }
 
     /// Returns the sum of the GPS coordinates of the boxes in the warehouse.
@@ -312,7 +312,7 @@ fn parse_input(input: &str) -> Result<(Warehouse, Moves)> {
 
 pub fn solve(input: &str) -> Result<()> {
     let (mut warehouse, moves) = parse_input(input)?;
-    let mut wide_warehouse = warehouse.to_wide();
+    let mut wide_warehouse = warehouse.to_wide()?;
 
     warehouse.apply_moves(&moves);
     println!("Part 1: {:?}", warehouse.sum_gps_coordinates());
@@ -390,7 +390,7 @@ v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^
     #[test_case(SAMPLE_INPUT3, 618)]
     fn scaled(input: &str, expected: usize) {
         let (warehouse, moves) = parse_input(input).unwrap();
-        let mut scaled_warehouse = warehouse.to_wide();
+        let mut scaled_warehouse = warehouse.to_wide().unwrap();
         scaled_warehouse.apply_moves(&moves);
         assert_eq!(scaled_warehouse.sum_gps_coordinates(), expected);
     }

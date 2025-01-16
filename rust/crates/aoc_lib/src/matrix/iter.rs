@@ -1,7 +1,6 @@
 use std::iter::FusedIterator;
 use std::marker::PhantomData;
 
-use super::direction::Direction;
 use super::position::Position;
 use super::vector::{ColumnVector, ColumnVectorMut, RowVector, RowVectorMut};
 use super::Matrix;
@@ -336,49 +335,3 @@ impl<'a, T> Iterator for MatrixEnumerate<'a, T> {
 
 impl<T> ExactSizeIterator for MatrixEnumerate<'_, T> {}
 impl<T> FusedIterator for MatrixEnumerate<'_, T> {}
-
-/// An iterator that yields the position of each cell in the [`Matrix`] along a specific direction
-/// excluding the starting position.
-///
-/// This struct is created by the [`positions_in_direction`] method on [`Matrix`]. See its
-/// documentation for more.
-///
-/// [`positions_in_direction`]: Matrix::positions_in_direction
-pub struct PositionsInDirectionIter {
-    dimension: (usize, usize),
-    current: Position,
-    direction: Direction,
-}
-
-impl PositionsInDirectionIter {
-    pub(super) fn new(
-        dimension: (usize, usize),
-        start: Position,
-        direction: Direction,
-    ) -> PositionsInDirectionIter {
-        PositionsInDirectionIter {
-            dimension,
-            current: start,
-            direction,
-        }
-    }
-
-    /// Returns `true` if the current position is out of bounds of the matrix.
-    fn is_out_of_bounds(&self) -> bool {
-        self.current.row >= self.dimension.0 || self.current.col >= self.dimension.1
-    }
-}
-
-impl Iterator for PositionsInDirectionIter {
-    type Item = Position;
-
-    fn next(&mut self) -> Option<Position> {
-        if self.is_out_of_bounds() {
-            return None;
-        }
-        self.current = self.current.checked_neighbor(self.direction)?;
-        Some(self.current)
-    }
-}
-
-impl FusedIterator for PositionsInDirectionIter {}

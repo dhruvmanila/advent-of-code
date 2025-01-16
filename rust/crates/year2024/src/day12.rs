@@ -1,8 +1,9 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt;
+use std::str::FromStr;
 
 use anyhow::Result;
-use aoc_lib::matrix::{Direction, Position, SquareMatrix};
+use aoc_lib::matrix::{Direction, MatrixError, Position, SquareMatrix};
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 struct PlantLabel(u8);
@@ -73,12 +74,12 @@ impl Garden {
     }
 }
 
-impl From<&str> for Garden {
-    fn from(s: &str) -> Garden {
-        Garden::from_plots(&SquareMatrix::from_iter(
-            s.lines().count(),
-            s.lines().flat_map(|line| line.bytes().map(PlantLabel)),
-        ))
+impl FromStr for Garden {
+    type Err = MatrixError;
+
+    fn from_str(s: &str) -> Result<Garden, MatrixError> {
+        SquareMatrix::from_rows(s.lines().map(|line| line.bytes().map(PlantLabel)))
+            .map(|matrix| Garden::from_plots(&matrix))
     }
 }
 
@@ -171,7 +172,7 @@ impl Region {
 }
 
 pub fn solve(input: &str) -> Result<()> {
-    let garden = Garden::from(input);
+    let garden = Garden::from_str(input)?;
 
     println!("Part 1: {}", garden.fencing_price_using_perimeter());
     println!("Part 2: {}", garden.fencing_price_using_sides());
@@ -234,7 +235,7 @@ AAAAAA
     #[test_case(SAMPLE_INPUT2, 772)]
     #[test_case(SAMPLE_INPUT3, 1930)]
     fn fencing_price_using_perimeter(input: &str, expected: usize) {
-        let garden = Garden::from(input);
+        let garden = Garden::from_str(input).unwrap();
         assert_eq!(garden.fencing_price_using_perimeter(), expected);
     }
 
@@ -243,7 +244,7 @@ AAAAAA
     #[test_case(SAMPLE_INPUT4, 236)]
     #[test_case(SAMPLE_INPUT5, 368)]
     fn fencing_price_using_sides(input: &str, expected: usize) {
-        let garden = Garden::from(input);
+        let garden = Garden::from_str(input).unwrap();
         assert_eq!(garden.fencing_price_using_sides(), expected);
     }
 }

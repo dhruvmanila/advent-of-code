@@ -258,7 +258,7 @@ impl FromStr for ReindeerMaze {
         };
 
         Ok(ReindeerMaze {
-            map: SquareMatrix::from_vec(size, tiles),
+            map: SquareMatrix::from_vec(size, tiles)?,
             source: start,
             target: end,
         })

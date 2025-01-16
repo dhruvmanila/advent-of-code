@@ -263,7 +263,7 @@ impl FromStr for RuleCondition {
                     byte as char
                 );
             }
-            value = value * 10 + (byte - b'0') as u32;
+            value = value * 10 + u32::from(byte - b'0');
         }
 
         Ok(RuleCondition {
@@ -296,10 +296,7 @@ impl Rule {
 
     /// Process the given `part` range with this rule. Returns a tuple of the destination to send
     /// the part to and the evaluated range.
-    fn process_range<'a>(
-        &'a self,
-        part: RatingRange,
-    ) -> (&'a Destination, (RatingRange, RatingRange)) {
+    fn process_range(&self, part: RatingRange) -> (&Destination, (RatingRange, RatingRange)) {
         (&self.destination, self.condition.evaluate_range(part))
     }
 }
@@ -335,12 +332,12 @@ impl Workflow {
                 return destination;
             }
         }
-        return &self.fallback;
+        &self.fallback
     }
 
     /// Process the given `part` range with this workflow. Returns an iterator of the destination
     /// to send the part to and the evaluated range.
-    fn process_range<'a>(&'a self, part: RatingRange) -> WorkflowRangeProcessor<'a> {
+    fn process_range(&self, part: RatingRange) -> WorkflowRangeProcessor<'_> {
         WorkflowRangeProcessor {
             rules: self.rules.iter(),
             fallback: Some(&self.fallback),
@@ -469,7 +466,8 @@ impl System {
     fn sum_accepted_parts_rating(&self) -> u32 {
         self.parts
             .iter()
-            .filter_map(|part| self.workflows.is_accepted(part).then(|| part.sum()))
+            .filter(|&part| self.workflows.is_accepted(part))
+            .map(Rating::sum)
             .sum()
     }
 

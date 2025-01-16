@@ -1,8 +1,8 @@
 use std::fmt::{self, Write};
 use std::str::FromStr;
 
-use anyhow::{anyhow, Error, Result};
-use aoc_lib::matrix::Matrix;
+use anyhow::{Error, Result};
+use aoc_lib::matrix::{Matrix, MatrixError};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Tile {
@@ -11,13 +11,13 @@ enum Tile {
 }
 
 impl TryFrom<u8> for Tile {
-    type Error = Error;
+    type Error = MatrixError;
 
-    fn try_from(value: u8) -> Result<Tile> {
+    fn try_from(value: u8) -> Result<Tile, MatrixError> {
         match value {
             b'.' => Ok(Tile::Ash),
             b'#' => Ok(Tile::Rock),
-            _ => Err(anyhow!("Invalid tile: {}", value as char)),
+            _ => Err(MatrixError::InvalidCharacter(value as char)),
         }
     }
 }
@@ -83,17 +83,10 @@ impl Pattern {
 }
 
 impl FromStr for Pattern {
-    type Err = Error;
+    type Err = MatrixError;
 
-    fn from_str(s: &str) -> Result<Pattern, Error> {
-        Ok(Pattern(Matrix::try_from_iter(
-            s.lines().count(),
-            s.lines()
-                .next()
-                .ok_or_else(|| anyhow!("Empty input"))?
-                .len(),
-            s.lines().flat_map(|line| line.bytes().map(Tile::try_from)),
-        )?))
+    fn from_str(s: &str) -> Result<Pattern, MatrixError> {
+        Matrix::try_from_rows(s.lines().map(|line| line.bytes().map(Tile::try_from))).map(Pattern)
     }
 }
 

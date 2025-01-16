@@ -123,7 +123,7 @@ where
 {
     type OutputMut = &'a mut T;
 
-    unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T>) -> Self::OutputMut {
+    unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T>) -> &'a mut T {
         let index = matrix.linear_index(self);
         &mut matrix.data[index]
     }
@@ -152,7 +152,7 @@ where
 {
     type OutputMut = &'a mut T;
 
-    unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T>) -> Self::OutputMut {
+    unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T>) -> &'a mut T {
         self.as_tuple().get_unchecked_mut(matrix)
     }
 }

@@ -1,8 +1,8 @@
 use std::fmt::{self, Write};
 use std::str::FromStr;
 
-use anyhow::{anyhow, bail, Error, Result};
-use aoc_lib::matrix::{CardinalDirection, Matrix, Position};
+use anyhow::{anyhow, bail, Result};
+use aoc_lib::matrix::{CardinalDirection, Matrix, MatrixError, Position};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Connection {
@@ -81,9 +81,9 @@ impl Tile {
 }
 
 impl TryFrom<u8> for Tile {
-    type Error = Error;
+    type Error = MatrixError;
 
-    fn try_from(value: u8) -> Result<Tile> {
+    fn try_from(value: u8) -> Result<Tile, MatrixError> {
         match value {
             b'|' => Ok(Tile::Pipe(Connection::Vertical)),
             b'-' => Ok(Tile::Pipe(Connection::Horizontal)),
@@ -93,7 +93,7 @@ impl TryFrom<u8> for Tile {
             b'F' => Ok(Tile::Pipe(Connection::SouthAndEast)),
             b'.' => Ok(Tile::Ground),
             b'S' => Ok(Tile::Animal),
-            _ => bail!("Unexpected tile: {}", value as char),
+            _ => Err(MatrixError::InvalidCharacter(value as char)),
         }
     }
 }
@@ -215,17 +215,10 @@ impl Grid {
 }
 
 impl FromStr for Grid {
-    type Err = Error;
+    type Err = MatrixError;
 
-    fn from_str(s: &str) -> Result<Grid> {
-        Ok(Grid(Matrix::try_from_iter(
-            s.lines().count(),
-            s.lines()
-                .next()
-                .ok_or_else(|| anyhow!("Empty input"))?
-                .len(),
-            s.lines().flat_map(|line| line.bytes().map(Tile::try_from)),
-        )?))
+    fn from_str(s: &str) -> Result<Grid, MatrixError> {
+        Matrix::try_from_rows(s.lines().map(|line| line.bytes().map(Tile::try_from))).map(Grid)
     }
 }
 

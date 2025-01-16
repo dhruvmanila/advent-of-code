@@ -37,7 +37,7 @@ struct CityMap {
 
 impl CityMap {
     /// Returns `true` if the given point is out of bounds for this city map.
-    fn is_out_of_bounds(&self, p: &Point2D<i32>) -> bool {
+    fn is_out_of_bounds(&self, p: Point2D<i32>) -> bool {
         p.x < 0 || p.y < 0 || p.x >= self.size || p.y >= self.size
     }
 
@@ -49,7 +49,7 @@ impl CityMap {
             .flat_map(|(p1, p2)| [(p1, p2), (p2, p1)])
             .filter_map(|(a, b)| {
                 let antinode = Vector2D::between_points(a, b).transform_point(b);
-                if self.is_out_of_bounds(&antinode) {
+                if self.is_out_of_bounds(antinode) {
                     None
                 } else {
                     Some(antinode)
@@ -69,8 +69,8 @@ impl CityMap {
             .flat_map(|points| points.iter().tuple_combinations())
         {
             // The antennas themselves are also antinodes.
-            antinodes.insert(p1.clone());
-            antinodes.insert(p2.clone());
+            antinodes.insert(*p1);
+            antinodes.insert(*p2);
 
             for (a, b) in [(p1, p2), (p2, p1)] {
                 let vector = Vector2D::between_points(a, b);
@@ -80,10 +80,10 @@ impl CityMap {
                 // the city map.
                 loop {
                     let antinode = vector.transform_point(&end);
-                    if self.is_out_of_bounds(&antinode) {
+                    if self.is_out_of_bounds(antinode) {
                         break;
                     }
-                    antinodes.insert(antinode.clone());
+                    antinodes.insert(antinode);
                     end = Cow::Owned(antinode);
                 }
             }

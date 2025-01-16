@@ -102,7 +102,7 @@ macro_rules! gcd_impl {
         $(
             impl Gcd for $t {
                 #[inline]
-                fn gcd(self, other: Self) -> Self {
+                fn gcd(self, other: $t) -> $t {
                     let (mut a, mut b) = (self, other);
                     while b != 0 {
                         let t = b;

@@ -9,9 +9,7 @@ use std::fmt;
 use std::ops::{Index, IndexMut};
 
 pub use direction::{CardinalDirection, Direction};
-pub use iter::{
-    ColumnIter, ColumnIterMut, MatrixEnumerate, PositionsInDirectionIter, RowIter, RowIterMut,
-};
+pub use iter::{ColumnIter, ColumnIterMut, MatrixEnumerate, RowIter, RowIterMut};
 pub use position::Position;
 pub use square::SquareMatrix;
 pub use vector::{ColumnVector, ColumnVectorMut, RowVector, RowVectorMut, Vector, VectorMut};
@@ -23,6 +21,25 @@ pub struct RowDim;
 /// A type-level marker for the column dimension.
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct ColumnDim;
+
+#[derive(Debug, thiserror::Error)]
+pub enum MatrixError {
+    #[error("Empty matrix cannot be created")]
+    Empty,
+
+    #[error("Expected {} elements for a {nrows} x {nrows} matrix, got {received}", nrows * ncols)]
+    LengthMismatch {
+        nrows: usize,
+        ncols: usize,
+        received: usize,
+    },
+
+    #[error("{nrows} x {ncols} is not a square matrix")]
+    NotSquare { nrows: usize, ncols: usize },
+
+    #[error("Invalid character {0:?} in the matrix input")]
+    InvalidCharacter(char),
+}
 
 /// A generic implementation of a dynamically sized matrix.
 ///
@@ -40,90 +57,86 @@ pub struct Matrix<T> {
 
 /// Constructors
 impl<T> Matrix<T> {
-    /// Constructs a new matrix of given size (`rows * cols`) filled with the given `value`.
+    /// Constructs a new matrix of given size (`nrows * ncols`) filled with the given `value`.
     #[inline]
-    pub fn new_with(rows: usize, cols: usize, value: T) -> Matrix<T>
+    pub fn new_with(nrows: usize, ncols: usize, value: T) -> Matrix<T>
     where
         T: Clone,
     {
         Matrix {
-            nrows: rows,
-            ncols: cols,
-            data: vec![value; rows * cols],
+            nrows,
+            ncols,
+            data: vec![value; nrows * ncols],
         }
     }
 
-    /// Constructs a new matrix of given size (`rows * cols`) filled with the `data`.
+    /// Constructs a new matrix of given size (`nrows * ncols`) filled with the `data`.
     ///
-    /// # Panics
-    ///
-    /// Panics if the number of elements in `data` is not equal to `rows * cols`.
+    /// Returns [`MatrixError::LengthMismatch`] if the length of `data` is not equal to `nrows *
+    /// ncols`.
     #[inline]
-    pub fn from_vec(rows: usize, cols: usize, data: Vec<T>) -> Matrix<T> {
-        assert_eq!(rows * cols, data.len());
-
-        Matrix {
-            nrows: rows,
-            ncols: cols,
-            data,
+    pub fn from_vec(nrows: usize, ncols: usize, data: Vec<T>) -> Result<Matrix<T>, MatrixError> {
+        if nrows * ncols == data.len() {
+            Ok(Matrix { nrows, ncols, data })
+        } else {
+            Err(MatrixError::LengthMismatch {
+                nrows,
+                ncols,
+                received: data.len(),
+            })
         }
     }
 
-    /// Constructs a new, non-empty matrix of given size filled with the values returned by the
-    /// given iterator.
+    /// Constructs a new, non-empty matrix from the given `rows`.
     ///
-    /// The matrix cells are set in a row-major order. The iterator can be infinite as this method
-    /// only consumes `rows * cols` values from the iterator.
-    ///
-    /// # Panics
-    ///
-    /// Panics if either `rows` or `cols` are equal to `0` or if the iterator does not have `rows *
-    /// cols` values.
-    #[inline]
-    pub fn from_iter(rows: usize, cols: usize, data: impl IntoIterator<Item = T>) -> Matrix<T> {
-        assert!(rows > 0 && cols > 0);
-
-        Matrix {
-            nrows: rows,
-            ncols: cols,
-            data: {
-                let data: Vec<_> = data.into_iter().take(rows * cols).collect();
-                // This is required to ensure that the iterator had enough values to fill the
-                // matrix as `take` will stop as soon as it reaches the end of the iterator.
-                assert_eq!(data.len(), rows * cols);
-                data
-            },
-        }
+    /// The `rows` should be a type that can be converted into an iterator on each row which itself
+    /// should be a type that can be converted into an iterator on each column of that row.
+    pub fn from_rows<R, C>(rows: R) -> Result<Matrix<T>, MatrixError>
+    where
+        R: IntoIterator<Item = C>,
+        C: IntoIterator<Item = T>,
+    {
+        // Delegate the construction by converting each item into an `Ok` value.
+        Matrix::try_from_rows(
+            rows.into_iter()
+                .map(|row| row.into_iter().map(Ok::<_, MatrixError>)),
+        )
     }
 
-    /// Constructs a matrix in a similar way to [`Matrix::from_iter`] but expects the iterator to
-    /// return [`Result`]s instead of values.
+    /// Constructs a new, non-empty matrix from the given `rows`.
     ///
-    /// If the iterator returns an [`Err`] value, the matrix construction will stop and the error
-    /// will be returned, otherwise the matrix will be created using all the [`Ok`] values returned
-    /// by the iterator.
+    /// The `rows` should be a type that can be converted into an iterator on each row which itself
+    /// should be a type that can be converted into an iterator on each column of that row.
+    ///
+    /// The difference between this method and [`Matrix::from_rows`] is that this method expects
+    /// the inner iterators to return [`Result`]s instead of values. The error type of the inner
+    /// iterator should be convertible into a [`MatrixError`].
     #[inline]
-    pub fn try_from_iter<E>(
-        rows: usize,
-        cols: usize,
-        data: impl IntoIterator<Item = Result<T, E>>,
-    ) -> Result<Matrix<T>, E> {
-        assert!(rows > 0 && cols > 0);
-
-        Ok(Matrix {
-            nrows: rows,
-            ncols: cols,
-            data: {
-                let data: Vec<_> = data
-                    .into_iter()
-                    .take(rows * cols)
-                    .collect::<Result<_, _>>()?;
-                // This is required to ensure that the iterator had enough values to fill the
-                // matrix as `take` will stop as soon as it reaches the end of the iterator.
-                assert_eq!(data.len(), rows * cols);
-                data
-            },
-        })
+    pub fn try_from_rows<R, C, E>(rows: R) -> Result<Matrix<T>, MatrixError>
+    where
+        R: IntoIterator<Item = C>,
+        C: IntoIterator<Item = Result<T, E>>,
+        E: Into<MatrixError>,
+    {
+        let mut row_iter = rows.into_iter();
+        let Some(first_row) = row_iter.next() else {
+            return Err(MatrixError::Empty);
+        };
+        let mut data = first_row
+            .into_iter()
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(Into::into)?;
+        let ncols = data.len();
+        let mut nrows = 1;
+        for row in row_iter {
+            nrows += 1;
+            for item in row {
+                data.push(item.map_err(Into::into)?);
+            }
+        }
+        // Delegate length checking to `from_vec` to avoid code duplication. This avoids checking
+        // the length of each row individually and ensures that all rows have the same length.
+        Matrix::from_vec(nrows, ncols, data)
     }
 }
 
@@ -139,6 +152,24 @@ impl<T> Matrix<T> {
     #[inline]
     pub const fn ncols(&self) -> usize {
         self.ncols
+    }
+
+    /// Returns the number of elements in the matrix.
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
+
+    /// Returns `true` if the matrix contains no elements.
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
+    }
+
+    /// Returns `true` if this is a square matrix.
+    #[inline]
+    pub const fn is_square(&self) -> bool {
+        self.nrows == self.ncols
     }
 
     /// Returns the shape of the matrix as a tuple of `(rows, cols)`.
@@ -228,8 +259,14 @@ impl<T> Matrix<T> {
         &self,
         start: Position,
         direction: Direction,
-    ) -> PositionsInDirectionIter {
-        PositionsInDirectionIter::new(self.shape(), start, direction)
+    ) -> impl Iterator<Item = Position> + '_ {
+        std::iter::successors(start.checked_neighbor(direction), move |current| {
+            if current.row < self.nrows && current.col < self.ncols {
+                current.checked_neighbor(direction)
+            } else {
+                None
+            }
+        })
     }
 
     /// Finds the [`Position`] of the first occurrence of the given `expected` value in the matrix,
@@ -256,12 +293,13 @@ impl<T> Matrix<T> {
     /// Panics if either `pos1` or `pos2` are out of bounds.
     #[inline]
     pub fn swap(&mut self, pos1: (usize, usize), pos2: (usize, usize)) {
-        self.data
-            .swap(pos1.0 * self.ncols + pos1.1, pos2.0 * self.ncols + pos2.1);
+        let a = self.linear_index(pos1);
+        let b = self.linear_index(pos2);
+        self.data.swap(a, b);
     }
 
     /// Compute the index corresponding to the given `(row, col)` pair of this matrix.
-    fn linear_index(&self, (row, col): (usize, usize)) -> usize {
+    const fn linear_index(&self, (row, col): (usize, usize)) -> usize {
         row * self.ncols + col
     }
 }

@@ -3,8 +3,8 @@ use std::fmt;
 use std::fmt::Write;
 use std::str::FromStr;
 
-use anyhow::{Error, Result};
-use aoc_lib::matrix::{Direction, Matrix, Position};
+use anyhow::Result;
+use aoc_lib::matrix::{Direction, Matrix, MatrixError, Position};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum CellType {
@@ -143,17 +143,11 @@ impl EngineSchematic {
 }
 
 impl FromStr for EngineSchematic {
-    type Err = Error;
+    type Err = MatrixError;
 
-    fn from_str(s: &str) -> Result<EngineSchematic, Error> {
-        Ok(EngineSchematic(Matrix::from_iter(
-            s.lines().count(),
-            s.lines()
-                .next()
-                .ok_or_else(|| anyhow::anyhow!("Expected at least one line in input"))?
-                .len(),
-            s.lines().flat_map(|line| line.bytes().map(CellType::from)),
-        )))
+    fn from_str(s: &str) -> Result<EngineSchematic, MatrixError> {
+        Matrix::from_rows(s.lines().map(|line| line.bytes().map(CellType::from)))
+            .map(EngineSchematic)
     }
 }
 

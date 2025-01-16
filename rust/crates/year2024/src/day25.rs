@@ -1,11 +1,10 @@
 use std::fmt;
 use std::str::FromStr;
 
-use anyhow::{Error, Result};
-use aoc_lib::matrix::Matrix;
+use anyhow::Result;
+use aoc_lib::matrix::{Matrix, MatrixError};
 
-const LAYOUT_ROWS: usize = 7;
-const LAYOUT_COLS: usize = 5;
+const MAX_PIN_HEIGHT: usize = 7;
 
 struct PinHeights(Vec<usize>);
 
@@ -15,7 +14,7 @@ impl PinHeights {
         self.0
             .iter()
             .zip(other.0.iter())
-            .all(|(&a, &b)| a + b + 2 <= LAYOUT_ROWS)
+            .all(|(&a, &b)| a + b + 2 <= MAX_PIN_HEIGHT)
     }
 }
 
@@ -46,18 +45,14 @@ impl Schematics {
 }
 
 impl FromStr for Schematics {
-    type Err = Error;
+    type Err = MatrixError;
 
-    fn from_str(s: &str) -> Result<Schematics, Error> {
+    fn from_str(s: &str) -> Result<Schematics, MatrixError> {
         let mut keys = Vec::new();
         let mut locks = Vec::new();
 
         for section in s.split("\n\n") {
-            let layout = Matrix::from_iter(
-                LAYOUT_ROWS,
-                LAYOUT_COLS,
-                section.lines().flat_map(|line| line.chars()),
-            );
+            let layout = Matrix::from_rows(section.lines().map(str::chars))?;
 
             // SAFETY: The layout is guaranteed to be 7x5
             let is_lock = layout.row(0).iter().all(|&c| c == '#');
@@ -68,7 +63,7 @@ impl FromStr for Schematics {
                     column.iter().skip(1).filter(|&&c| c == '#').count()
                 } else {
                     let dots = column.iter().filter(|&&c| c == '.').count();
-                    LAYOUT_ROWS - dots - 1
+                    layout.nrows() - dots - 1
                 };
                 heights.push(height);
             }

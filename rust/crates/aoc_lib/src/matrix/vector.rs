@@ -32,7 +32,7 @@ pub struct Vector<'a, T, D> {
     dim: PhantomData<D>,
 }
 
-impl<T, D> Vector<'_, T, D> {
+impl<'a, T, D> Vector<'a, T, D> {
     /// Returns the number of elements in the vector.
     #[inline]
     pub const fn len(&self) -> usize {
@@ -60,7 +60,7 @@ impl<T, D> Vector<'_, T, D> {
 
     /// Returns an iterator over the elements of the vector.
     #[inline]
-    pub fn iter(&self) -> VectorIter<'_, T, D> {
+    pub fn iter(&self) -> VectorIter<'a, T, D> {
         VectorIter {
             iter: self.data.iter().step_by(self.inc),
             dim: self.dim,

@@ -1,8 +1,8 @@
 use std::fmt;
 use std::str::FromStr;
 
-use anyhow::{anyhow, Error, Result};
-use aoc_lib::matrix::{Direction, Position, SquareMatrix};
+use anyhow::Result;
+use aoc_lib::matrix::{Direction, MatrixError, Position, SquareMatrix};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum Letter {
@@ -13,15 +13,15 @@ enum Letter {
 }
 
 impl TryFrom<u8> for Letter {
-    type Error = Error;
+    type Error = MatrixError;
 
-    fn try_from(byte: u8) -> Result<Letter> {
+    fn try_from(byte: u8) -> Result<Letter, MatrixError> {
         match byte {
             b'X' => Ok(Letter::X),
             b'M' => Ok(Letter::M),
             b'A' => Ok(Letter::A),
             b'S' => Ok(Letter::S),
-            _ => Err(anyhow!("Unexpected character: {}", byte as char)),
+            _ => Err(MatrixError::InvalidCharacter(byte as char)),
         }
     }
 }
@@ -127,14 +127,11 @@ impl Board {
 }
 
 impl FromStr for Board {
-    type Err = Error;
+    type Err = MatrixError;
 
-    fn from_str(s: &str) -> Result<Board> {
-        Ok(Board(SquareMatrix::try_from_iter(
-            s.lines().count(),
-            s.lines()
-                .flat_map(|line| line.bytes().map(Letter::try_from)),
-        )?))
+    fn from_str(s: &str) -> Result<Board, MatrixError> {
+        SquareMatrix::try_from_rows(s.lines().map(|line| line.bytes().map(Letter::try_from)))
+            .map(Board)
     }
 }
 

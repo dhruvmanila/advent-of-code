@@ -2,8 +2,8 @@ use std::fmt::{self, Write};
 use std::num::NonZeroUsize;
 use std::str::FromStr;
 
-use anyhow::{bail, Error, Result};
-use aoc_lib::matrix::{Position, SquareMatrix};
+use anyhow::Result;
+use aoc_lib::matrix::{MatrixError, Position, SquareMatrix};
 use itertools::Itertools;
 
 /// Cell types for each position in the universe matrix.
@@ -35,13 +35,13 @@ impl fmt::Display for CellType {
 }
 
 impl TryFrom<u8> for CellType {
-    type Error = Error;
+    type Error = MatrixError;
 
-    fn try_from(value: u8) -> Result<CellType> {
+    fn try_from(value: u8) -> Result<CellType, MatrixError> {
         match value {
             b'.' => Ok(CellType::EmptySpace),
             b'#' => Ok(CellType::Galaxy),
-            _ => bail!("Invalid cell type: {}", value as char),
+            _ => Err(MatrixError::InvalidCharacter(value as char)),
         }
     }
 }
@@ -102,14 +102,11 @@ impl Universe {
 }
 
 impl FromStr for Universe {
-    type Err = Error;
+    type Err = MatrixError;
 
-    fn from_str(s: &str) -> Result<Universe> {
-        Ok(Universe(SquareMatrix::try_from_iter(
-            s.lines().count(),
-            s.lines()
-                .flat_map(|line| line.bytes().map(CellType::try_from)),
-        )?))
+    fn from_str(s: &str) -> Result<Universe, MatrixError> {
+        SquareMatrix::try_from_rows(s.lines().map(|line| line.bytes().map(CellType::try_from)))
+            .map(Universe)
     }
 }
 

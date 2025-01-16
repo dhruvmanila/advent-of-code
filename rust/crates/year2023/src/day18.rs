@@ -57,7 +57,7 @@ impl<'a> DigPlan<'a> {
                 .next()
                 .ok_or_else(|| anyhow!("Invalid instruction: {s} (missing color)"))?
                 .trim_start_matches("(#")
-                .trim_end_matches(")");
+                .trim_end_matches(')');
 
             instructions.push(Instruction {
                 direction,
@@ -107,12 +107,12 @@ impl<'a> DigPlan<'a> {
         let mut previous_corner = current_position;
 
         for instruction in &self.instructions {
-            perimeter += instruction.distance as i64;
+            perimeter += i64::from(instruction.distance);
             match instruction.direction {
-                CardinalDirection::Up => current_position.y += instruction.distance as i64,
-                CardinalDirection::Right => current_position.x += instruction.distance as i64,
-                CardinalDirection::Down => current_position.y -= instruction.distance as i64,
-                CardinalDirection::Left => current_position.x -= instruction.distance as i64,
+                CardinalDirection::Up => current_position.y += i64::from(instruction.distance),
+                CardinalDirection::Right => current_position.x += i64::from(instruction.distance),
+                CardinalDirection::Down => current_position.y -= i64::from(instruction.distance),
+                CardinalDirection::Left => current_position.x -= i64::from(instruction.distance),
             }
             determinant_sum += previous_corner.determinant(&current_position);
             previous_corner = current_position;

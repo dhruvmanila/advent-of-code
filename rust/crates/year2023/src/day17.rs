@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use std::fmt;
 use std::str::FromStr;
 
-use anyhow::{anyhow, Error, Result};
-use aoc_lib::matrix::{CardinalDirection, Matrix, Position};
+use anyhow::Result;
+use aoc_lib::matrix::{CardinalDirection, Matrix, MatrixError, Position};
 use aoc_lib::MinHeap;
 
 /// Heat loss for each city block.
@@ -131,18 +131,10 @@ impl CityMap {
 }
 
 impl FromStr for CityMap {
-    type Err = Error;
+    type Err = MatrixError;
 
-    fn from_str(s: &str) -> Result<CityMap> {
-        Ok(CityMap(Matrix::from_iter(
-            s.lines().count(),
-            s.lines()
-                .next()
-                .ok_or_else(|| anyhow!("Empty input"))?
-                .len(),
-            s.lines()
-                .flat_map(|line| line.bytes().map(|byte| byte - b'0')),
-        )))
+    fn from_str(s: &str) -> Result<CityMap, MatrixError> {
+        Matrix::from_rows(s.lines().map(|line| line.bytes().map(|byte| byte - b'0'))).map(CityMap)
     }
 }
 

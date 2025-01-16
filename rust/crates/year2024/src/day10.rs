@@ -1,7 +1,8 @@
 use std::collections::HashSet;
+use std::str::FromStr;
 
 use anyhow::Result;
-use aoc_lib::matrix::{Position, SquareMatrix};
+use aoc_lib::matrix::{MatrixError, Position, SquareMatrix};
 
 /// A topographic map of the surrounding area.
 #[derive(Debug)]
@@ -32,21 +33,21 @@ impl TopographicMap {
     }
 }
 
-impl From<&str> for TopographicMap {
-    fn from(s: &str) -> TopographicMap {
-        TopographicMap(SquareMatrix::from_iter(
-            s.lines().count(),
-            s.lines().flat_map(|line| {
-                line.bytes().map(|byte| {
-                    if byte.is_ascii_digit() {
-                        byte - b'0'
-                    } else {
-                        // Keep the impassable tiles as is
-                        byte
-                    }
-                })
-            }),
-        ))
+impl FromStr for TopographicMap {
+    type Err = MatrixError;
+
+    fn from_str(s: &str) -> Result<TopographicMap, MatrixError> {
+        SquareMatrix::from_rows(s.lines().map(|line| {
+            line.bytes().map(|byte| {
+                if byte.is_ascii_digit() {
+                    byte - b'0'
+                } else {
+                    // Keep the impassable tiles as is
+                    byte
+                }
+            })
+        }))
+        .map(TopographicMap)
     }
 }
 
@@ -83,7 +84,7 @@ impl Trailhead<'_> {
 }
 
 pub fn solve(input: &str) -> Result<()> {
-    let map = TopographicMap::from(input);
+    let map = TopographicMap::from_str(input)?;
     let (score, rating) = map.sum_trailhead_scores_and_ratings();
 
     println!("Part 1: {score}");
@@ -173,7 +174,7 @@ mod tests {
     #[test_case(SAMPLE_INPUT2, 4)]
     #[test_case(SAMPLE_INPUT3, 3)]
     fn scores(input: &str, expected: usize) {
-        let map = TopographicMap::from(input);
+        let map = TopographicMap::from_str(input).unwrap();
         assert_eq!(map.sum_trailhead_scores_and_ratings().0, expected);
     }
 
@@ -182,7 +183,7 @@ mod tests {
     #[test_case(SAMPLE_INPUT5, 13)]
     #[test_case(SAMPLE_INPUT6, 227)]
     fn ratings(input: &str, expected: usize) {
-        let map = TopographicMap::from(input);
+        let map = TopographicMap::from_str(input).unwrap();
         assert_eq!(map.sum_trailhead_scores_and_ratings().1, expected);
     }
 }

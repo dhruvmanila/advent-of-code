@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use std::fmt::{self, Write};
 use std::str::FromStr;
 
-use anyhow::{anyhow, Error, Result};
-use aoc_lib::matrix::SquareMatrix;
+use anyhow::Result;
+use aoc_lib::matrix::{MatrixError, SquareMatrix};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 enum RockShape {
@@ -27,14 +27,14 @@ enum Tile {
 }
 
 impl TryFrom<u8> for Tile {
-    type Error = Error;
+    type Error = MatrixError;
 
-    fn try_from(value: u8) -> Result<Tile> {
+    fn try_from(value: u8) -> Result<Tile, MatrixError> {
         match value {
             b'O' => Ok(Tile::Rock(RockShape::Round)),
             b'#' => Ok(Tile::Rock(RockShape::Cube)),
             b'.' => Ok(Tile::Empty),
-            _ => Err(anyhow!("Invalid tile: {}", value as char)),
+            _ => Err(MatrixError::InvalidCharacter(value as char)),
         }
     }
 }
@@ -147,13 +147,11 @@ impl Platform {
 }
 
 impl FromStr for Platform {
-    type Err = Error;
+    type Err = MatrixError;
 
-    fn from_str(s: &str) -> Result<Platform, Error> {
-        Ok(Platform(SquareMatrix::try_from_iter(
-            s.lines().count(),
-            s.lines().flat_map(|line| line.bytes().map(Tile::try_from)),
-        )?))
+    fn from_str(s: &str) -> Result<Platform, MatrixError> {
+        SquareMatrix::try_from_rows(s.lines().map(|line| line.bytes().map(Tile::try_from)))
+            .map(Platform)
     }
 }
 
