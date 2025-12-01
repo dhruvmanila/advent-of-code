@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 use std::fmt::{self, Write};
 use std::str::FromStr;
 
-use anyhow::{anyhow, Error, Result};
+use anyhow::{Error, Result, anyhow};
 use aoc_lib::matrix::{CardinalDirection, Matrix, MatrixError, Position, SquareMatrix};
 
 #[derive(Debug)]
@@ -254,8 +254,8 @@ impl WideWarehouse {
             let next_position = position + direction;
             match self.map[next_position] {
                 ScaledTile::Wall => return,
-                ScaledTile::Open => continue,
-                ScaledTile::Box(_) if boxes_to_move.contains(&next_position) => continue,
+                ScaledTile::Open => {}
+                ScaledTile::Box(_) if boxes_to_move.contains(&next_position) => {}
                 ScaledTile::Box(box_edge) => {
                     boxes_to_move.push(next_position);
                     queue.push_back(next_position);

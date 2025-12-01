@@ -157,34 +157,28 @@ impl Contraption {
                     };
                     light_beam = light_beam.with_direction(new_direction);
                 }
-                Tile::Splitter(splitter_tile) => {
-                    match splitter_tile {
-                        SplitterTile::Horizontal => {
-                            if light_beam.direction.is_vertical() {
-                                if !splitted.insert(light_beam.position) {
-                                    continue;
-                                }
-                                second_light_beam = Some(LightBeam::new(
-                                    light_beam.position,
-                                    CardinalDirection::Left,
-                                ));
-                                light_beam = light_beam.with_direction(CardinalDirection::Right);
+                Tile::Splitter(splitter_tile) => match splitter_tile {
+                    SplitterTile::Horizontal => {
+                        if light_beam.direction.is_vertical() {
+                            if !splitted.insert(light_beam.position) {
+                                continue;
                             }
+                            second_light_beam =
+                                Some(LightBeam::new(light_beam.position, CardinalDirection::Left));
+                            light_beam = light_beam.with_direction(CardinalDirection::Right);
                         }
-                        SplitterTile::Vertical => {
-                            if light_beam.direction.is_horizontal() {
-                                if !splitted.insert(light_beam.position) {
-                                    continue;
-                                }
-                                second_light_beam = Some(LightBeam::new(
-                                    light_beam.position,
-                                    CardinalDirection::Up,
-                                ));
-                                light_beam = light_beam.with_direction(CardinalDirection::Down);
+                    }
+                    SplitterTile::Vertical => {
+                        if light_beam.direction.is_horizontal() {
+                            if !splitted.insert(light_beam.position) {
+                                continue;
                             }
+                            second_light_beam =
+                                Some(LightBeam::new(light_beam.position, CardinalDirection::Up));
+                            light_beam = light_beam.with_direction(CardinalDirection::Down);
                         }
-                    };
-                }
+                    }
+                },
                 Tile::Empty => {}
             }
 

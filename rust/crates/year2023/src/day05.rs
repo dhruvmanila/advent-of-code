@@ -4,7 +4,7 @@ use std::iter::FusedIterator;
 use std::ops::Range;
 use std::str::FromStr;
 
-use anyhow::{anyhow, Error, Result};
+use anyhow::{Error, Result, anyhow};
 use itertools::Itertools;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -202,7 +202,7 @@ impl Almanac {
     ///
     /// Panics if the number of seeds is not even.
     fn into_ranged_almanac(self) -> RangedAlamanac {
-        assert!(self.seeds.len() % 2 == 0);
+        assert!(self.seeds.len().is_multiple_of(2));
 
         RangedAlamanac {
             seed_ranges: self

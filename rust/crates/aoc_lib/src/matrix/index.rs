@@ -1,8 +1,8 @@
 use std::ops::RangeFull;
 
+use super::Matrix;
 use super::position::Position;
 use super::vector::{ColumnVector, ColumnVectorMut, RowVector, RowVectorMut, Vector, VectorMut};
-use super::Matrix;
 
 /// A helper trait for indexing into a [`Matrix`].
 pub trait MatrixIndex<'a, T>: Sized {
@@ -142,7 +142,7 @@ where
     }
 
     unsafe fn get_unchecked(self, matrix: &'a Matrix<T>) -> &'a T {
-        self.as_tuple().get_unchecked(matrix)
+        unsafe { self.as_tuple().get_unchecked(matrix) }
     }
 }
 
@@ -153,7 +153,7 @@ where
     type OutputMut = &'a mut T;
 
     unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T>) -> &'a mut T {
-        self.as_tuple().get_unchecked_mut(matrix)
+        unsafe { self.as_tuple().get_unchecked_mut(matrix) }
     }
 }
 
@@ -170,7 +170,7 @@ where
     }
 
     unsafe fn get_unchecked(self, matrix: &'a Matrix<T>) -> RowVector<'a, T> {
-        Vector::new_unchecked_row(matrix, self.0)
+        unsafe { Vector::new_unchecked_row(matrix, self.0) }
     }
 }
 
@@ -181,7 +181,7 @@ where
     type OutputMut = RowVectorMut<'a, T>;
 
     unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T>) -> RowVectorMut<'a, T> {
-        VectorMut::new_unchecked_row(matrix, self.0)
+        unsafe { VectorMut::new_unchecked_row(matrix, self.0) }
     }
 }
 
@@ -198,7 +198,7 @@ where
     }
 
     unsafe fn get_unchecked(self, matrix: &'a Matrix<T>) -> ColumnVector<'a, T> {
-        Vector::new_unchecked_column(matrix, self.1)
+        unsafe { Vector::new_unchecked_column(matrix, self.1) }
     }
 }
 
@@ -209,6 +209,6 @@ where
     type OutputMut = ColumnVectorMut<'a, T>;
 
     unsafe fn get_unchecked_mut(self, matrix: &'a mut Matrix<T>) -> ColumnVectorMut<'a, T> {
-        VectorMut::new_unchecked_column(matrix, self.1)
+        unsafe { VectorMut::new_unchecked_column(matrix, self.1) }
     }
 }

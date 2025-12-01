@@ -27,10 +27,10 @@ impl Garden {
             //
             // This is the reason to use a HashMap instead of just a vector of regions. We will
             // only check the regions of the current plant label instead of all the regions.
-            if let Some(regions) = plant_regions.get(label) {
-                if regions.iter().any(|region| region.contains(&position)) {
-                    continue;
-                }
+            if let Some(regions) = plant_regions.get(label)
+                && regions.iter().any(|region| region.contains(&position))
+            {
+                continue;
             }
 
             // Otherwise, find all the positions in this region using a flood fill.

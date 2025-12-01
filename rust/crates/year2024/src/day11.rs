@@ -16,7 +16,7 @@ impl Stone {
             BlinkOutcome::Single(Stone(1))
         } else {
             let ndigits = self.0.ilog10() + 1;
-            if ndigits % 2 == 0 {
+            if ndigits.is_multiple_of(2) {
                 let divisor = 10u64.pow(ndigits / 2);
                 BlinkOutcome::Split(Stone(self.0 / divisor), Stone(self.0 % divisor))
             } else {

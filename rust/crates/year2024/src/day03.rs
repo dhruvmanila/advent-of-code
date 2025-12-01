@@ -59,7 +59,7 @@ impl Iterator for EnabledMultiplications<'_> {
                 Instruction::Do => self.enabled = true,
                 Instruction::Dont => self.enabled = false,
                 Instruction::Multiplication(a, b) if self.enabled => return Some((*a, *b)),
-                Instruction::Multiplication(..) => continue,
+                Instruction::Multiplication(..) => {}
             }
         }
     }
