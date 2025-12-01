@@ -10,7 +10,7 @@ struct TopographicMap(SquareMatrix<u8>);
 
 impl TopographicMap {
     /// Returns an iterator over all the trailheads in the map.
-    fn trailheads(&self) -> impl Iterator<Item = Trailhead> + '_ {
+    fn trailheads(&self) -> impl Iterator<Item = Trailhead<'_>> + '_ {
         self.0.enumerate().filter_map(move |(position, elevation)| {
             if *elevation == 0 {
                 Some(Trailhead {

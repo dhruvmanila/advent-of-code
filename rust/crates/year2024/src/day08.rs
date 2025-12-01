@@ -94,7 +94,7 @@ impl CityMap {
 
     /// Returns a displayable version of this city map.
     #[allow(dead_code)]
-    fn display(&self) -> DisplayCityMap {
+    fn display(&self) -> DisplayCityMap<'_> {
         DisplayCityMap::new(self)
     }
 }

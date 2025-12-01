@@ -84,7 +84,7 @@ impl CalibrationEquation {
     /// Returns [`Some`] with the solved equation if it's solvable, otherwise [`None`].
     ///
     /// The return type implements [`fmt::Display`] to print the equation with the solution.
-    fn to_solved_equation(&self, operators: &[Operator]) -> Option<SolvedEquation> {
+    fn to_solved_equation(&self, operators: &[Operator]) -> Option<SolvedEquation<'_>> {
         Some(SolvedEquation {
             equation: self,
             solution: self.solve(operators)?,

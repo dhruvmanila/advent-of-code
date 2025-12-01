@@ -73,7 +73,7 @@ impl CoordinateSpace {
     }
 
     #[allow(dead_code)]
-    fn display(&self) -> DisplayCoordinateSpace {
+    fn display(&self) -> DisplayCoordinateSpace<'_> {
         DisplayCoordinateSpace { space: self }
     }
 

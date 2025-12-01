@@ -92,7 +92,7 @@ impl Program {
     }
 
     /// Returns an iterator over the values of the instructions in the program.
-    fn iter_values(&self) -> ProgramValuesIter {
+    fn iter_values(&self) -> ProgramValuesIter<'_> {
         ProgramValuesIter {
             iter: self.0.iter(),
         }
