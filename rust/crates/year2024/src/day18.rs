@@ -83,7 +83,7 @@ impl MemorySpace {
                 if self
                     .0
                     .get(neighbor)
-                    .map_or(true, |byte| *byte == Byte::Corrupted)
+                    .is_none_or(|byte| *byte == Byte::Corrupted)
                 {
                     continue;
                 }

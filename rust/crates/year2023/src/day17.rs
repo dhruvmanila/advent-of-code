@@ -106,7 +106,7 @@ impl CityMap {
                 let new_cost = cost + u32::from(heat_loss);
                 if total_cost
                     .get(&next_node)
-                    .map_or(true, |&existing_cost| new_cost < existing_cost)
+                    .is_none_or(|&existing_cost| new_cost < existing_cost)
                 {
                     total_cost.insert(next_node.clone(), new_cost);
                     queue.push(new_cost, next_node);

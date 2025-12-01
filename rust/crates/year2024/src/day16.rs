@@ -83,7 +83,7 @@ impl ReindeerMaze {
             for (successor, move_cost) in self.successors(&node) {
                 let new_cost = cost + move_cost;
                 let existing_cost = total_cost.get(&successor);
-                if existing_cost.map_or(true, |&existing_cost| new_cost < existing_cost) {
+                if existing_cost.is_none_or(|&existing_cost| new_cost < existing_cost) {
                     // This branch is taken if the node has not been visited yet or if the new cost
                     // of reaching the node is lower than the existing cost.
                     total_cost.insert(successor.clone(), new_cost);

@@ -347,7 +347,7 @@ mod over_engineered {
                 .copied()
                 .enumerate()
                 .all(|(index, page_number)| {
-                    rules.get(page_number).map_or(true, |existing_rule| {
+                    rules.get(page_number).is_none_or(|existing_rule| {
                         PageNumberSet::from_page_numbers(&self.0[..index])
                             .intersection(&existing_rule.after)
                             .is_empty()
@@ -374,9 +374,9 @@ mod over_engineered {
                 .0
                 .iter()
                 .filter(|page_number| {
-                    rules.get(**page_number).map_or(true, |rule| {
-                        rule.before.intersection(&update_set).is_empty()
-                    })
+                    rules
+                        .get(**page_number)
+                        .is_none_or(|rule| rule.before.intersection(&update_set).is_empty())
                 })
                 .copied()
                 .collect::<Vec<_>>();
@@ -391,9 +391,10 @@ mod over_engineered {
                     for next in rule.after.intersection(&update_set).iter() {
                         // Add the ones to the queue which doesn't have any page number from the update
                         // set coming before it i.e., no incoming edges.
-                        if rules.get(next).map_or(true, |rule| {
-                            rule.before.intersection(&update_set).is_empty()
-                        }) {
+                        if rules
+                            .get(next)
+                            .is_none_or(|rule| rule.before.intersection(&update_set).is_empty())
+                        {
                             queue.push(next);
                         }
                     }
