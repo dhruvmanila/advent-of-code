@@ -10,7 +10,7 @@ the language directory.
 - [C](./c) - [2015](./c/year2015)
 - [Go](./go) - [2016](./go/year2016) | [2020](./go/year2020) | [2021](./go/year2021) | [2022](./go/year2022)
 - [Python](./python) - [2016](./python/src/aoc/year2016) | [2018](./python/src/aoc/year2018) | [2019](./python/src/aoc/year2019) | [2022](./python/src/aoc/year2022)
-- [Rust](./rust) - [2023](./rust/crates/year2023/src) | [2024](./rust/crates/year2024/src)
+- [Rust](./rust) - [2023](./rust/crates/year2023/src) | [2024](./rust/crates/year2024/src) | [2025](./rust/crates/year2025/src)
 
 ## License
 

@@ -15,6 +15,7 @@ ureq = { workspace = true }
 
 year2023 = { path = "../year2023" }
 year2024 = { path = "../year2024" }
+year2025 = { path = "../year2025" }
 
 [lints]
 workspace = true

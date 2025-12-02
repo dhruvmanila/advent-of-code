@@ -94,6 +94,7 @@ dependencies = [
  "ureq",
  "year2023",
  "year2024",
+ "year2025",
 ]
 
 [[package]]
@@ -1760,6 +1761,15 @@ dependencies = [
  "aoc_lib",
  "image",
  "itertools",
+ "test-case",
+]
+
+[[package]]
+name = "year2025"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "aoc_lib",
  "test-case",
 ]
 
