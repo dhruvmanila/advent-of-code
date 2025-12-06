@@ -1,0 +1,4 @@
+root = true
+
+[crates/year2025/src/day06.rs]
+trim_trailing_whitespace = false
