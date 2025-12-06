@@ -280,6 +280,23 @@ impl<T> Matrix<T> {
         Some(Position::new(index / self.ncols, index % self.ncols))
     }
 
+    /// Maps each element of the matrix to a new value using the given function `f`, which is
+    /// provided both the [`Position`] and a reference to the element.
+    #[inline]
+    pub fn map_with_position<U, F>(&self, mut f: F) -> Matrix<U>
+    where
+        F: FnMut(Position, &T) -> U,
+    {
+        Matrix {
+            nrows: self.nrows,
+            ncols: self.ncols,
+            data: self
+                .enumerate()
+                .map(|(pos, value)| f(pos, value))
+                .collect::<Vec<_>>(),
+        }
+    }
+
     /// Returns a slice containing all the elements in the matrix in row-major order.
     #[inline]
     pub fn as_slice(&self) -> &[T] {
