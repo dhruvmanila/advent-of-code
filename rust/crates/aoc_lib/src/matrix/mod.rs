@@ -261,8 +261,9 @@ impl<T> Matrix<T> {
         direction: Direction,
     ) -> impl Iterator<Item = Position> + '_ {
         std::iter::successors(start.checked_neighbor(direction), move |current| {
-            if current.row < self.nrows && current.col < self.ncols {
-                current.checked_neighbor(direction)
+            let neighbor = current.checked_neighbor(direction)?;
+            if neighbor.row < self.nrows && neighbor.col < self.ncols {
+                Some(neighbor)
             } else {
                 None
             }
