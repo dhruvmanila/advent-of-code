@@ -5,7 +5,7 @@
 ```rs
 use std::str::FromStr;
 
-use anyhow::{anyhow, Error, Result};
+use anyhow::{Error, Result, anyhow, bail};
 
 struct ParsedInput;
 

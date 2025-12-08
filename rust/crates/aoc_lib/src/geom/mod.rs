@@ -3,5 +3,5 @@
 mod point;
 mod vector;
 
-pub use point::{point2, Point2D};
-pub use vector::{vec2, Vector2D};
+pub use point::{Point2D, Point3D, point2, point3};
+pub use vector::{Vector2D, vec2};
