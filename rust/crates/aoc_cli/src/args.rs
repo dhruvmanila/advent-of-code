@@ -108,8 +108,9 @@ impl Default for PuzzleDay {
             .unwrap()
             .from_utc_datetime(&Utc::now().naive_utc());
         let day = now.day();
-        if now.month() < DECEMBER || day > 25 {
-            Self(25)
+        let max_day: u8 = if now.year() < 2025 { 25 } else { 12 };
+        if now.month() < DECEMBER || day > u32::from(max_day) {
+            Self(max_day)
         } else {
             // SAFETY: The library specifies that `day` is always in the range 1..=31.
             Self(u8::try_from(day).unwrap())

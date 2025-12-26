@@ -11,6 +11,12 @@ fn main() -> Result<()> {
     let PuzzleDate { year, day } = args.date.unwrap_or_default();
     let year = year.unwrap_or_default();
     let day = day.unwrap_or_default();
+    if year.as_inner() > 2024 && day.as_inner() > 12 {
+        return Err(anyhow!(
+            "the number of days from 2025 onwards is 12: \
+                https://adventofcode.com/2025/about#faq_num_days"
+        ));
+    }
     let input = get_puzzle_input(year, day)?;
 
     if args.show_input {
