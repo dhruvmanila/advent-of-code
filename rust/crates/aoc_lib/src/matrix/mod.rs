@@ -1,14 +1,15 @@
 mod direction;
+mod display;
 mod index;
 mod iter;
 mod position;
 mod square;
 mod vector;
 
-use std::fmt;
 use std::ops::{Index, IndexMut};
 
 pub use direction::{CardinalDirection, Direction};
+pub use display::DisplaySettings;
 pub use iter::{ColumnIter, ColumnIterMut, MatrixEnumerate, RowIter, RowIterMut};
 pub use position::Position;
 pub use square::SquareMatrix;
@@ -368,20 +369,5 @@ impl<T> IndexMut<&Position> for Matrix<T> {
     #[inline]
     fn index_mut(&mut self, index: &Position) -> &mut T {
         &mut self[index.as_tuple()]
-    }
-}
-
-impl<T> fmt::Display for Matrix<T>
-where
-    T: fmt::Display,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for row in self.row_iter() {
-            for cell in &row {
-                write!(f, "{cell}")?;
-            }
-            writeln!(f)?;
-        }
-        Ok(())
     }
 }
