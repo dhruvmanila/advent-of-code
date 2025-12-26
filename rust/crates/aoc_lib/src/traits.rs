@@ -117,3 +117,24 @@ macro_rules! gcd_impl {
 }
 
 gcd_impl!(u8, u16, u32, u64, u128, usize);
+
+macro_rules! gcd_signed_impl {
+    ($($t:ty),*) => {
+        $(
+            impl Gcd for $t {
+                #[inline]
+                fn gcd(self, other: $t) -> $t {
+                    let (mut a, mut b) = (self.abs(), other.abs());
+                    while b != 0 {
+                        let t = b;
+                        b = a % b;
+                        a = t;
+                    }
+                    a
+                }
+            }
+        )*
+    };
+}
+
+gcd_signed_impl!(i8, i16, i32, i64, i128, isize);
