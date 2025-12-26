@@ -1,5 +1,6 @@
 mod direction;
 mod display;
+mod gauss;
 mod index;
 mod iter;
 mod position;
@@ -10,10 +11,13 @@ use std::ops::{Index, IndexMut};
 
 pub use direction::{CardinalDirection, Direction};
 pub use display::DisplaySettings;
+pub use gauss::GaussianEliminationResult;
 pub use iter::{ColumnIter, ColumnIterMut, MatrixEnumerate, RowIter, RowIterMut};
 pub use position::Position;
 pub use square::SquareMatrix;
 pub use vector::{ColumnVector, ColumnVectorMut, RowVector, RowVectorMut, Vector, VectorMut};
+
+use crate::matrix::index::MatrixIndex;
 
 /// A type-level marker for the row dimension.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -307,17 +311,68 @@ impl<T> Matrix<T> {
 
     /// Swaps two elements in the matrix.
     ///
+    /// Each position is given as a `(row, col)` tuple.
+    ///
     /// # Panics
     ///
     /// Panics if either `pos1` or `pos2` are out of bounds.
     #[inline]
     pub fn swap(&mut self, pos1: (usize, usize), pos2: (usize, usize)) {
+        assert!(
+            pos1.contained_by(self),
+            "position {pos1:?} is out of bounds for matrix of shape {:?}",
+            self.shape()
+        );
+        assert!(
+            pos2.contained_by(self),
+            "position {pos2:?} is out of bounds for matrix of shape {:?}",
+            self.shape()
+        );
+        // SAFETY: Bounds checks performed above
+        unsafe { self.swap_unchecked(pos1, pos2) };
+    }
+
+    /// Swaps two rows in the matrix.
+    ///
+    /// # Panics
+    ///
+    /// Panics if either row index is out of bounds.
+    #[inline]
+    pub fn swap_rows(&mut self, row1: usize, row2: usize) {
+        assert!(
+            row1 < self.nrows,
+            "row {row1} is out of bounds for matrix with {} rows",
+            self.nrows
+        );
+        assert!(
+            row2 < self.nrows,
+            "row {row2} is out of bounds for matrix with {} rows",
+            self.nrows
+        );
+        if row1 != row2 {
+            for col in 0..self.ncols {
+                // SAFETY: Bounds checks performed above, and col is within bounds as we iterate
+                // from 0 to `ncols`
+                unsafe { self.swap_unchecked((row1, col), (row2, col)) };
+            }
+        }
+    }
+
+    /// Swaps two elements in the matrix without bounds checking.
+    ///
+    /// # Safety
+    ///
+    /// Caller must ensure both positions are within bounds otherwise undefined behavior may occur.
+    #[inline]
+    const unsafe fn swap_unchecked(&mut self, pos1: (usize, usize), pos2: (usize, usize)) {
         let a = self.linear_index(pos1);
         let b = self.linear_index(pos2);
-        self.data.swap(a, b);
+        let ptr = self.data.as_mut_ptr();
+        unsafe { std::ptr::swap(ptr.add(a), ptr.add(b)) };
     }
 
     /// Compute the index corresponding to the given `(row, col)` pair of this matrix.
+    #[inline]
     const fn linear_index(&self, (row, col): (usize, usize)) -> usize {
         row * self.ncols + col
     }
