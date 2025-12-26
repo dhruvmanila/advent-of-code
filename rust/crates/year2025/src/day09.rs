@@ -101,12 +101,12 @@ impl OrthogonalPolygon {
     }
 
     /// Generates an SVG representation of the polygon, fitting it within the given viewport size.
-    #[allow(dead_code)]
+    #[allow(dead_code, clippy::cast_precision_loss)]
     fn to_svg(&self, viewport_size: usize) -> String {
-        let min_row = self.vertices.iter().map(|v| v.row()).min().unwrap_or(0);
-        let max_row = self.vertices.iter().map(|v| v.row()).max().unwrap_or(0);
-        let min_col = self.vertices.iter().map(|v| v.col()).min().unwrap_or(0);
-        let max_col = self.vertices.iter().map(|v| v.col()).max().unwrap_or(0);
+        let min_row = self.vertices.iter().map(Position::row).min().unwrap_or(0);
+        let max_row = self.vertices.iter().map(Position::row).max().unwrap_or(0);
+        let min_col = self.vertices.iter().map(Position::col).min().unwrap_or(0);
+        let max_col = self.vertices.iter().map(Position::col).max().unwrap_or(0);
 
         let data_width = (max_col - min_col).max(1) as f64;
         let data_height = (max_row - min_row).max(1) as f64;

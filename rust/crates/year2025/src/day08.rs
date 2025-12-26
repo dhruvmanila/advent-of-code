@@ -5,7 +5,7 @@ use aoc_lib::geom::Point3D;
 
 /// A union-find (disjoint set) data structure.
 ///
-/// Reference: https://en.wikipedia.org/wiki/Disjoint-set_data_structure
+/// Reference: <https://en.wikipedia.org/wiki/Disjoint-set_data_structure>
 #[derive(Debug)]
 struct UnionFind<T> {
     payloads: HashMap<T, usize>,
