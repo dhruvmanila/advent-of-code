@@ -309,6 +309,35 @@ impl<T> Matrix<T> {
         &self.data
     }
 
+    // /// Consumes the matrix and returns an [augmented matrix] by appending the given column vector
+    // /// `b` to the right side of the matrix.
+    // ///
+    // /// [augmented matrix]: https://en.wikipedia.org/wiki/Augmented_matrix
+    // pub fn into_augmented(self, b: Vec<T>) -> Result<AugmentedMatrix<T>, MatrixError> {
+    //     if b.len() != self.nrows {
+    //         return Err(MatrixError::LengthMismatch {
+    //             nrows: self.nrows,
+    //             ncols: 1,
+    //             received: b.len(),
+    //         });
+    //     }
+    //
+    //     let mut augmented_data = Vec::with_capacity(self.len() + self.nrows);
+    //     let mut matrix_data = self.data.into_iter();
+    //     let mut column_data = b.into_iter();
+    //
+    //     for _ in 0..self.nrows {
+    //         augmented_data.extend(matrix_data.by_ref().take(self.ncols));
+    //         augmented_data.push(column_data.next().unwrap());
+    //     }
+    //
+    //     Ok(AugmentedMatrix(Matrix {
+    //         nrows: self.nrows,
+    //         ncols: self.ncols + 1,
+    //         data: augmented_data,
+    //     }))
+    // }
+
     /// Swaps two elements in the matrix.
     ///
     /// Each position is given as a `(row, col)` tuple.
