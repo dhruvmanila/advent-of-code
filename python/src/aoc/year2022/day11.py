@@ -33,7 +33,7 @@ class Monkey:
     inspected: int = field(init=False, default=0)
 
     @classmethod
-    def from_note(cls, notes: str) -> "Monkey":
+    def from_note(cls, notes: str) -> Monkey:
         m = NOTES_RE.match(notes)
         if m is None:
             raise ValueError(f"failed to match: {notes!r}")
@@ -71,10 +71,10 @@ class Simulator:
     monkeys: Sequence[Monkey]
 
     def __post_init__(self):
-        self.mod = math.prod((m.mod for m in self.monkeys))
+        self.mod = math.prod(m.mod for m in self.monkeys)
 
     @classmethod
-    def from_notes(cls, notes: Iterable[str]) -> "Simulator":
+    def from_notes(cls, notes: Iterable[str]) -> Simulator:
         return cls([Monkey.from_note(note) for note in notes])
 
     def _do_round(self, *, reduce_worry: bool) -> None:
@@ -96,7 +96,7 @@ class Simulator:
 
     @property
     def monkey_business(self) -> int:
-        return math.prod((m.inspected for m in sorted(self.monkeys, reverse=True)[:2]))
+        return math.prod(m.inspected for m in sorted(self.monkeys, reverse=True)[:2])
 
 
 def solve(input: str) -> None:

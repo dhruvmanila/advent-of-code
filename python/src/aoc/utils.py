@@ -3,12 +3,12 @@ import os
 import sys
 import time
 import urllib.request
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 
 @contextlib.contextmanager
-def timing(name: str = "") -> Generator[None, None, None]:
+def timing(name: str = "") -> Generator[None]:
     before = time.time()
     try:
         yield
@@ -40,7 +40,7 @@ def get_puzzle_input(*, year: int, day: int, sample: bool = False) -> str:
 
     cache_path = _get_cache_path(year, day)
     if os.path.exists(cache_path):
-        with open(cache_path, "r") as f:
+        with open(cache_path) as f:
             return f.read()
 
     token = _read_session_token()
@@ -78,7 +78,7 @@ def _get_cache_path(year: int, day: int) -> str:
 def _read_session_token() -> str:
     """Read the Advent of Code session token from the default location."""
     token_path = os.path.expanduser("~/.config/aoc/token")
-    with open(token_path, "r") as f:
+    with open(token_path) as f:
         return f.read().strip()
 
 

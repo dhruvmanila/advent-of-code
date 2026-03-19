@@ -173,7 +173,7 @@ class Reservoir:
         self._first_y = next(y for y, row in enumerate(grid) if "#" in row)
 
     @classmethod
-    def from_lines(cls, lines: Iterable[str]) -> "Reservoir":
+    def from_lines(cls, lines: Iterable[str]) -> Reservoir:
         max_y = 0
         min_x, max_x = sys.maxsize, 0
 

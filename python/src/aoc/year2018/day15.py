@@ -1,20 +1,19 @@
 import argparse
 import curses
 import time
-from collections.abc import Generator, MutableSequence
+from collections.abc import Generator, Iterable, MutableSequence, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from operator import attrgetter
-from typing import Iterable, Sequence, TypeAlias
 
-Position: TypeAlias = tuple[int, int]
+type Position = tuple[int, int]
 
 
 class ElfDied(Exception):
     """Exception raised when an elf dies."""
 
 
-def _adjacent(y: int, x: int) -> Generator[Position, None, None]:
+def _adjacent(y: int, x: int) -> Generator[Position]:
     """Generate positions adjacent to the current position in reading order."""
     yield y - 1, x
     yield y, x - 1
@@ -35,7 +34,7 @@ class Unit:
     attackpower: int = field(default=3, compare=False)
     hitpoints: int = field(default=200, compare=False, init=False)
 
-    def adjacent(self) -> Generator[Position, None, None]:
+    def adjacent(self) -> Generator[Position]:
         """Generate positions adjacent to the current position in reading order."""
         return _adjacent(self.y, self.x)
 
@@ -59,7 +58,7 @@ class CaveCombat:
     @classmethod
     def from_lines(
         cls, lines: Iterable[str], elf_attack_power: int = 3
-    ) -> "CaveCombat":
+    ) -> CaveCombat:
         map: list[list[str]] = []
         units: list[Unit] = []
         for y, line in enumerate(lines):

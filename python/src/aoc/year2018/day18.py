@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import itertools
 from collections import Counter
+from collections.abc import Mapping, Sequence
 from enum import Enum
-from typing import Mapping, Sequence
 
 
 class Acre(str, Enum):

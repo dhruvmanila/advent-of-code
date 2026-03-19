@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, TypeAlias
 
-Symbol: TypeAlias = str
+type Symbol = str
 
 
 @dataclass

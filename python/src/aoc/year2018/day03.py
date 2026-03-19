@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Iterable
 
 CLAIM_RE = re.compile(r"^#(\d+)\s*@\s*(\d+),(\d+):\s*(\d+)x(\d+)$")
 

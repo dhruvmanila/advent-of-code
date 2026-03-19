@@ -6,9 +6,9 @@ build-backend = "hatchling.build"
 name = "aoc"
 version = "0.0.1"
 description = "Solutions to the Advent of Code puzzles in Python"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
-  "Pillow==9.2.0",
+  # "Pillow==9.2.0",
   "graphviz==0.20.1",
   "z3-solver==4.11.2.0",
 ]
@@ -24,8 +24,7 @@ dev = [
 aoc = "aoc.cli:cli"
 
 [tool.ruff.lint]
-extend-select = ["I"]
-unfixable = ["F401"]
+extend-select = ["I", "UP"]
 
 [tool.ruff.format]
 preview = true

@@ -1,5 +1,5 @@
+from collections.abc import Iterable
 from enum import Enum
-from typing import Iterable
 
 
 class Direction(int, Enum):

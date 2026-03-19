@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from itertools import product
-from typing import Iterable
 
 
 @dataclass(frozen=True)

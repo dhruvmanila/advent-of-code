@@ -11,7 +11,7 @@ class Point:
     z: int
     t: int
 
-    def is_near(self, other: "Point") -> bool:
+    def is_near(self, other: Point) -> bool:
         return (
             abs(self.x - other.x)
             + abs(self.y - other.y)
@@ -20,7 +20,7 @@ class Point:
         ) <= 3
 
     @classmethod
-    def from_line(cls, line: str) -> "Point":
+    def from_line(cls, line: str) -> Point:
         return cls(*[int(n) for n in line.split(",")])
 
 

@@ -1,5 +1,6 @@
 from collections import Counter
-from typing import Final, Iterable, Sequence
+from collections.abc import Iterable, Sequence
+from typing import Final
 
 WIDE: Final[int] = 25
 TALL: Final[int] = 6

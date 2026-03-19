@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 CART_RE = re.compile(r"[><^v]")
 
@@ -15,7 +16,7 @@ class Direction(str, Enum):
     RIGHT = ">", 0, 1, "UP", "DOWN"
 
     if TYPE_CHECKING:
-        from typing import Mapping
+        from collections.abc import Mapping
 
         dy: int
         dx: int
@@ -30,7 +31,7 @@ class Direction(str, Enum):
         obj.turns = {"LEFT": left, "RIGHT": right}
         return obj
 
-    def make_turn(self, move: "Move") -> Direction:
+    def make_turn(self, move: Move) -> Direction:
         turn = self.turns.get(move.name, self.name)
         return type(self)[turn]
 

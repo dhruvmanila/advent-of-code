@@ -1,9 +1,8 @@
 from collections.abc import Callable, Mapping
-from typing import TypeAlias
 
 __all__ = ("BaseCPU", "OpcodeFunc")
 
-OpcodeFunc: TypeAlias = Callable[[int, int, int], None]
+type OpcodeFunc = Callable[[int, int, int], None]
 
 
 class BaseCPU:

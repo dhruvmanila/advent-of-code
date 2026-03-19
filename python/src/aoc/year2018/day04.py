@@ -3,7 +3,7 @@ from __future__ import annotations
 import enum
 import re
 from collections import Counter
-from typing import Iterable, Mapping
+from collections.abc import Iterable, Mapping
 
 GuardID = int
 

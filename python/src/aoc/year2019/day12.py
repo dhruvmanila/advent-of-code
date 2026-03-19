@@ -26,7 +26,7 @@ class Moon:
         self._y = self.y
         self._z = self.z
 
-    def apply_gravity(self, o: "Moon") -> None:
+    def apply_gravity(self, o: Moon) -> None:
         x, y, z = self.x, self.y, self.z
         ox, oy, oz = o.x, o.y, o.z
         self.vx = self.vx + 1 if x < ox else self.vx - 1 if x > ox else self.vx

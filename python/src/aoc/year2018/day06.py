@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from collections import Counter
-from typing import Iterable
+from collections.abc import Iterable
 
 Point = tuple[int, int]
 

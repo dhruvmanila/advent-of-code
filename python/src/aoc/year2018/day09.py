@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import re
 from collections import deque
-from typing import Generic, TypeVar
+from typing import TypeVar
 
 LINE_RE = re.compile(r"^(\d+) players; last marble is worth (\d+) points$")
 
 T = TypeVar("T")
 
 
-class Node(Generic[T]):
+class Node[T]:
     def __init__(
         self, value: T, prev: Node | None = None, next: Node | None = None
     ) -> None:
@@ -18,7 +18,7 @@ class Node(Generic[T]):
         self.next = next
 
 
-class CircularDoublyLinkedList(Generic[T]):
+class CircularDoublyLinkedList[T]:
     def __init__(self) -> None:
         self.head: Node | None = None
         self.length: int = 0

@@ -1,8 +1,8 @@
 import heapq
 import itertools
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass
-from typing import Iterator, NamedTuple
+from typing import NamedTuple
 
 Position = tuple[int, int]
 
@@ -21,7 +21,7 @@ class Node:
     def pos(self) -> Position:
         return self.x, self.y
 
-    def cost(self, target: "Node") -> int:
+    def cost(self, target: Node) -> int:
         return self.dist + abs(self.x - target.x) + abs(self.y - target.y)
 
 

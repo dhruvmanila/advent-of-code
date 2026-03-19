@@ -1,12 +1,13 @@
 import heapq
 import itertools
 import re
+from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import cache, cached_property
-from typing import Iterator, NamedTuple, TypeAlias
+from typing import NamedTuple
 
-Position: TypeAlias = tuple[int, int]
+type Position = tuple[int, int]
 
 _parse_input = re.compile(
     r"^depth: (?P<depth>\d+)\ntarget: (?P<x>\d+),(?P<y>\d+)$"

@@ -1,6 +1,6 @@
 from collections import Counter
+from collections.abc import Callable, Iterable
 from itertools import combinations_with_replacement
-from typing import Callable, Iterable
 
 Checker = Callable[[int], bool]
 CountValidator = Callable[[int], bool]

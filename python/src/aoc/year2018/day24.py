@@ -5,7 +5,6 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field, replace
 from enum import Enum
 from operator import attrgetter
-from typing import Optional
 
 _parse_group = re.compile(
     r"^(?P<units>\d+) units each with "
@@ -40,7 +39,7 @@ class Group:
     immunities: frozenset[str]
 
     @classmethod
-    def from_line(cls, line: str) -> "Group":
+    def from_line(cls, line: str) -> Group:
         """Parse the given line and return a new Group.
 
         Raises:
@@ -75,7 +74,7 @@ class Group:
         """Return the effective power of this group."""
         return self.units * self.attackdamage
 
-    def damage_to(self, defender: "Group") -> int:
+    def damage_to(self, defender: Group) -> int:
         """Return the damage this group would deal to the given defender."""
         if self.attacktype in defender.immunities:
             return 0
@@ -84,12 +83,12 @@ class Group:
         else:
             return self.effective_power
 
-    def attack(self, defender: "Group") -> None:
+    def attack(self, defender: Group) -> None:
         """Attack the given defender."""
         damage = self.damage_to(defender)
         defender.units = max(defender.units - damage // defender.hitpoints, 0)
 
-    def select_target(self, targets: Iterable["Group"]) -> Optional["Group"]:
+    def select_target(self, targets: Iterable[Group]) -> Group | None:
         """Select a target from the given targets.
 
         Returns:
@@ -116,7 +115,7 @@ class Army:
     groups: set[Group] = field(hash=False)
 
     @classmethod
-    def from_lines(cls, lines: Iterable[str]) -> "Army":
+    def from_lines(cls, lines: Iterable[str]) -> Army:
         """Parse the given lines and return a new Army."""
         it = iter(lines)
         armytype = ArmyType(next(it).rstrip(":"))
@@ -125,7 +124,7 @@ class Army:
             groups.add(Group.from_line(line))
         return cls(armytype, groups)
 
-    def boost(self, amount: int) -> "Army":
+    def boost(self, amount: int) -> Army:
         """Return a new army with the given boost applied to all groups."""
         return type(self)(
             type=self.type,
@@ -135,9 +134,9 @@ class Army:
             },
         )
 
-    def select_targets(self, enemy: "Army") -> Sequence[tuple[Group, Group, "Army"]]:
+    def select_targets(self, enemy: Army) -> Sequence[tuple[Group, Group, Army]]:
         # attacker, defender, enemy army
-        selected: list[tuple[Group, Group, "Army"]] = []
+        selected: list[tuple[Group, Group, Army]] = []
         available = set(enemy.groups)
         for group in sorted(
             self.groups, key=attrgetter("effective_power", "initiative"), reverse=True
@@ -149,7 +148,7 @@ class Army:
             selected.append((group, target, enemy))
         return selected
 
-    def copy(self) -> "Army":
+    def copy(self) -> Army:
         """Return a copy of this army."""
         return type(self)(type=self.type, groups=copy.deepcopy(self.groups))
 

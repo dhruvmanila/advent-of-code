@@ -1,4 +1,3 @@
-from typing import Optional
 
 
 class IntcodeComputer:
@@ -22,8 +21,8 @@ class IntcodeComputer:
     def __init__(
         self,
         program: list[int],
-        inputs: Optional[list[int]] = None,
-        amp_phase: Optional[int] = None,
+        inputs: list[int] | None = None,
+        amp_phase: int | None = None,
         ask_for_input: bool = False,
         return_before_input: bool = False,
         sentinel_return: object = object(),

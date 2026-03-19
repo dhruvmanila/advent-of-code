@@ -1,8 +1,8 @@
 import argparse
 import re
+from collections.abc import Mapping
 from heapq import heapify, heappop, heappush
 from string import ascii_uppercase
-from typing import Mapping
 
 Graph = Mapping[str, set[str]]
 """

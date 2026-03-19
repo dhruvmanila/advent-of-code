@@ -17,7 +17,7 @@ class ProjectMap:
         self.graph = graph
 
     @classmethod
-    def from_regex(cls, regex: str) -> "ProjectMap":
+    def from_regex(cls, regex: str) -> ProjectMap:
         if regex[0] != "^":
             raise ValueError(f"Invalid start token: {regex[0]!r} (expected '^')")
         elif regex[-1] != "$":
